@@ -21,10 +21,7 @@ jobs:
       - name: Publish .NET Core Project
         run: dotnet publish VeterinariaGenesis.Client/VeterinariaGenesis.Client.csproj -c Release -o release --nologo
 
-      - name: copy index.html to 404.html
-        run: cp release/wwwroot/index.html release/wwwroot/404.html
-
-      - name: Add .nojekyll file
+      - name: Add .nojekyll to prevent GitHub from ignoring _framework folder
         run: touch release/wwwroot/.nojekyll
 
       - name: Commit wwwroot to GitHub Pages
@@ -32,3 +29,4 @@ jobs:
         with:
           branch: gh-pages
           folder: release/wwwroot
+          clean: true
