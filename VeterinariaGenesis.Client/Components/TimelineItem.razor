@@ -1,0 +1,67 @@
+@using VeterinariaGenesis.Application.DTOs
+
+<div class="relative flex items-start group">
+    <!-- Línea vertical -->
+    @if (!IsLast)
+    {
+        <div class="absolute top-10 left-6 -ml-px h-full w-0.5 bg-gray-200 group-hover:bg-blue-400 transition-colors duration-300" aria-hidden="true"></div>
+    }
+
+    <!-- Icono circular -->
+    <div class="relative flex items-center justify-center flex-shrink-0 w-12 h-12 @Item.ColorClase rounded-full ring-8 ring-white shadow-md z-10 transform transition-transform duration-300 group-hover:scale-110">
+        <i class="fas @Item.Icono text-white text-lg"></i>
+    </div>
+
+    <!-- Contenido -->
+    <div class="min-w-0 flex-1 ml-6 pt-1 mb-8">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+            <div class="flex justify-between items-center mb-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @GetBadgeColor(Item.TipoEvento)">
+                    @Item.TipoEvento
+                </span>
+                <span class="text-sm font-medium text-gray-500">
+                    <i class="far fa-calendar-alt mr-1"></i>
+                    @Item.Fecha.ToShortDateString()
+                </span>
+            </div>
+            
+            <h3 class="text-lg font-bold text-gray-900 mb-1">@Item.Titulo</h3>
+            
+            @if (!string.IsNullOrEmpty(Item.Descripcion))
+            {
+                <p class="text-gray-600 mb-3 text-sm">@Item.Descripcion</p>
+            }
+
+            @if (!string.IsNullOrEmpty(Item.DetallesExtras))
+            {
+                <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 border border-gray-100 mb-3">
+                    <p class="font-mono text-xs">@Item.DetallesExtras</p>
+                </div>
+            }
+
+            <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-user-md mr-2 text-blue-500"></i>
+                <span class="font-medium">Resp:</span> <span class="ml-1">@Item.MedicoResponsable</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public LineaTiempoItemDto Item { get; set; } = new();
+
+    [Parameter]
+    public bool IsLast { get; set; }
+
+    private string GetBadgeColor(string tipo)
+    {
+        return tipo switch
+        {
+            "Vacunación" => "bg-blue-100 text-blue-800",
+            "Cirugía" => "bg-red-100 text-red-800",
+            "Laboratorio" => "bg-green-100 text-green-800",
+            _ => "bg-gray-100 text-gray-800"
+        };
+    }
+}

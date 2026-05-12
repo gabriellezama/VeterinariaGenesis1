@@ -1,0 +1,96 @@
+@page "/historial-clinico/{MascotaId:guid}"
+@using VeterinariaGenesis.Application.DTOs
+@using VeterinariaGenesis.Client.Components
+@inject HttpClient Http
+
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header del Historial -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-10">
+                    <i class="fas fa-paw text-9xl -mt-8 -mr-8 transform rotate-12"></i>
+                </div>
+                <div class="relative z-10 flex items-center">
+                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-blue-600 text-3xl shadow-lg border-4 border-blue-200">
+                        <i class="fas fa-dog"></i>
+                    </div>
+                    <div class="ml-6">
+                        <h1 class="text-4xl font-extrabold tracking-tight">Historial Clínico Unificado</h1>
+                        <p class="mt-2 text-blue-100 text-lg">Revisión completa de vacunas, cirugías y laboratorios.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-6 bg-white border-b border-gray-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Paciente: <span class="text-blue-600">Max</span></h2>
+                    <p class="text-sm text-gray-500">Golden Retriever • 3 años • Macho</p>
+                </div>
+                <button class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-print mr-2"></i> Imprimir Reporte
+                </button>
+            </div>
+        </div>
+
+        <!-- Línea de tiempo -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 relative">
+            <h3 class="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                <i class="fas fa-history text-indigo-500 mr-3"></i> Línea de Tiempo Cronológica
+            </h3>
+            
+            @if (_isLoading)
+            {
+                <div class="flex flex-col items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+                    <p class="mt-4 text-gray-500 font-medium">Cargando historial médico...</p>
+                </div>
+            }
+            else if (_eventos == null || !_eventos.Any())
+            {
+                <div class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                    <i class="fas fa-folder-open text-gray-400 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900">No hay registros</h3>
+                    <p class="mt-1 text-gray-500">Esta mascota no tiene eventos médicos registrados en su historial.</p>
+                </div>
+            }
+            else
+            {
+                <div class="relative max-w-2xl mx-auto pl-4">
+                    @for (int i = 0; i < _eventos.Count; i++)
+                    {
+                        var item = _eventos[i];
+                        var isLast = i == _eventos.Count - 1;
+                        <TimelineItem Item="item" IsLast="isLast" />
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid MascotaId { get; set; }
+
+    private List<LineaTiempoItemDto>? _eventos;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Espera simulada para mostrar el spinner de carga
+            await Task.Delay(1000); 
+            _eventos = await Http.GetFromJsonAsync<List<LineaTiempoItemDto>>($"api/GestionMedica/historial/{MascotaId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar el historial: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,109 @@
+@page "/mascotas/crear/{ClienteId:guid}"
+@using VeterinariaGenesis.Client.Services
+@using VeterinariaGenesis.Domain.Entities
+@inject AppStateService AppState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Nueva Mascota | Veterinaria Génesis</PageTitle>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a Clientes
+        </button>
+        <h1 class="text-2xl font-bold text-gray-900">Registrar Nueva Mascota</h1>
+        <p class="text-sm text-gray-500">Añadiendo mascota para el cliente: <span class="font-bold text-indigo-600">@nombreCliente</span></p>
+    </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <EditForm Model="nuevaMascota" OnValidSubmit="GuardarMascota">
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Datos de la Mascota -->
+                <div class="space-y-4 md:col-span-2 lg:col-span-1">
+                    <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Datos Clínicos</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Mascota</label>
+                        <InputText @bind-Value="nuevaMascota.Nombre" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej. Firulais" required />
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Especie</label>
+                            <InputSelect @bind-Value="nuevaMascota.Especie" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                <option value="">Seleccionar...</option>
+                                <option value="Perro">Canino (Perro)</option>
+                                <option value="Gato">Felino (Gato)</option>
+                                <option value="Ave">Ave</option>
+                                <option value="Exótico">Exótico</option>
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Raza</label>
+                            <InputText @bind-Value="nuevaMascota.Raza" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej. Poodle" />
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Edad (Años)</label>
+                            <InputNumber @bind-Value="nuevaMascota.Edad" min="0" max="30" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                            <InputSelect @bind-Value="nuevaMascota.Sexo" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                <option value="">Seleccionar...</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end space-x-3">
+            <button type="button" @onclick="Volver" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
+                <i class="fas fa-paw mr-2"></i> Guardar Mascota
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public Guid ClienteId { get; set; }
+
+    private Mascota nuevaMascota = new Mascota();
+    private string nombreCliente = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == ClienteId);
+        if (cliente != null)
+        {
+            nombreCliente = $"{cliente.Nombres} {cliente.Apellidos}";
+            nuevaMascota.ClienteId = ClienteId;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/clientes");
+        }
+    }
+
+    private async Task GuardarMascota()
+    {
+        await AppState.AddMascotaAsync(nuevaMascota);
+        NavigationManager.NavigateTo("/clientes");
+    }
+
+    private void Volver()
+    {
+        NavigationManager.NavigateTo("/clientes");
+    }
+}

@@ -1,0 +1,111 @@
+@page "/login"
+@layout VeterinariaGenesis.Client.Layout.LoginLayout
+@using VeterinariaGenesis.Client.Services
+@inject AppStateService AppState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Iniciar Sesión | Veterinaria Génesis</PageTitle>
+
+<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 sm:p-10 w-full max-w-md animate-fade-in-up">
+    <div class="text-center mb-8">
+        <img class="mx-auto h-24 w-auto drop-shadow-lg" src="images/logo.png" alt="Veterinaria Génesis">
+        <h2 class="mt-6 text-3xl font-extrabold text-white tracking-tight">
+            Bienvenido de vuelta
+        </h2>
+        <p class="mt-2 text-sm text-indigo-200">
+            Ingresa tus credenciales para acceder al sistema
+        </p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="mb-4 bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-200 text-sm flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            @errorMessage
+        </div>
+    }
+
+    <form class="space-y-6" @onsubmit="HandleLogin">
+        <div>
+            <label for="username" class="block text-sm font-medium text-indigo-100">Usuario</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-user text-indigo-300"></i>
+                </div>
+                <input id="username" name="username" type="text" @bind="username" required 
+                    class="block w-full pl-10 pr-3 py-3 border border-indigo-400/30 rounded-xl bg-indigo-900/40 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all" 
+                    placeholder="Ej: Administrador">
+            </div>
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-indigo-100">Contraseña</label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-lock text-indigo-300"></i>
+                </div>
+                <input id="password" name="password" type="password" @bind="password" required 
+                    class="block w-full pl-10 pr-3 py-3 border border-indigo-400/30 rounded-xl bg-indigo-900/40 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all" 
+                    placeholder="••••••••">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <input id="remember-me" name="remember-me" type="checkbox" 
+                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-indigo-300 rounded bg-indigo-900/40 border-indigo-400/30">
+                <label for="remember-me" class="ml-2 block text-sm text-indigo-200">
+                    Recordarme
+                </label>
+            </div>
+
+            <div class="text-sm">
+                <a href="#" class="font-medium text-indigo-300 hover:text-indigo-200 transition-colors">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" 
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-[1.02]">
+                <i class="fas fa-sign-in-alt mr-2 mt-0.5"></i>
+                Iniciar Sesión
+            </button>
+        </div>
+    </form>
+    
+    <div class="mt-6 text-center text-xs text-indigo-300/60">
+        Veterinaria Génesis System v2.0
+    </div>
+</div>
+
+
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string errorMessage = "";
+
+    protected override void OnInitialized()
+    {
+        // Si ya está logueado, redirigir al home
+        if (AppState.IsLoggedIn)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private void HandleLogin()
+    {
+        var success = AppState.Login(username, password);
+        if (success)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Usuario o contraseña incorrectos. Usa Administrador / 123456";
+        }
+    }
+}

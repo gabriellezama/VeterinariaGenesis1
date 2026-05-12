@@ -1,0 +1,245 @@
+@page "/facturacion/crear"
+@using VeterinariaGenesis.Client.Services
+@using VeterinariaGenesis.Domain.Entities
+@inject AppStateService AppState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Punto de Venta | Veterinaria Génesis</PageTitle>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a facturas
+        </button>
+        <h1 class="text-2xl font-bold text-gray-900">Punto de Venta</h1>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Formulario Principal -->
+    <div class="lg:col-span-2 space-y-6">
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Datos Generales</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                    <select @bind="clienteSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                        <option value="">Seleccione un cliente...</option>
+                        @foreach (var c in AppState.Clientes)
+                        {
+                            <option value="@c.Id">@c.Nombres @c.Apellidos</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Médico/Asistente en Turno</label>
+                    <select @bind="trabajadorSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                        <option value="">Seleccione el profesional...</option>
+                        @foreach (var t in AppState.Trabajadores)
+                        {
+                            <option value="@t.Id">@t.Nombres @t.Apellidos (@t.Rol)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Agregar Producto o Servicio</h3>
+            
+            <div class="flex space-x-2">
+                <div class="flex-1">
+                    <select @bind="productoSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                        <option value="">Seleccionar del catálogo...</option>
+                        @foreach (var p in AppState.Productos)
+                        {
+                            <option value="@p.Id" disabled="@(p.Stock <= 0)">@p.Nombre ($@p.PrecioVenta.ToString("0.00")) @(p.Stock <= 0 ? "- AGOTADO" : "")</option>
+                        }
+                    </select>
+                </div>
+                <div class="w-24">
+                    <input type="number" @bind="cantidadSeleccionada" min="1" class="block w-full pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                </div>
+                <button @onclick="AgregarItem" class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg border border-indigo-200 font-medium hover:bg-indigo-100 transition-colors">
+                    Agregar
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b">
+                        <th class="px-6 py-3 font-medium">Descripción</th>
+                        <th class="px-6 py-3 font-medium">Cant.</th>
+                        <th class="px-6 py-3 font-medium">Precio Uni.</th>
+                        <th class="px-6 py-3 font-medium text-right">Subtotal</th>
+                        <th class="px-6 py-3 font-medium"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @if (!nuevaFactura.Detalles.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                No hay items agregados a la factura.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in nuevaFactura.Detalles)
+                        {
+                            <tr>
+                                <td class="px-6 py-3 font-medium text-gray-900">@item.DescripcionItem</td>
+                                <td class="px-6 py-3">@item.Cantidad</td>
+                                <td class="px-6 py-3">$@item.PrecioUnitario.ToString("0.00")</td>
+                                <td class="px-6 py-3 text-right font-medium">$@item.Subtotal.ToString("0.00")</td>
+                                <td class="px-6 py-3 text-right">
+                                    <button @onclick="() => RemoverItem(item)" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Panel de Cobro -->
+    <div class="bg-slate-900 text-white rounded-xl shadow-lg border border-slate-800 p-6 flex flex-col h-fit">
+        <h3 class="text-xl font-bold mb-6 border-b border-slate-700 pb-2">Resumen de Venta</h3>
+        
+        <div class="space-y-4 mb-8 flex-1">
+            <div class="flex justify-between text-slate-300">
+                <span>Subtotal</span>
+                <span>$@nuevaFactura.Subtotal.ToString("0.00")</span>
+            </div>
+            <div class="flex justify-between text-slate-300">
+                <span>IVA (15%)</span>
+                <span>$@nuevaFactura.Impuestos.ToString("0.00")</span>
+            </div>
+            <div class="flex justify-between text-xl font-bold border-t border-slate-700 pt-4 mt-2">
+                <span>TOTAL</span>
+                <span class="text-green-400">$@nuevaFactura.Total.ToString("0.00")</span>
+            </div>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="bg-red-900 text-red-200 p-3 rounded mb-4 text-sm">
+                @errorMessage
+            </div>
+        }
+
+        <button @onclick="ProcesarPago" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-bold text-lg transition-colors flex justify-center items-center">
+            <i class="fas fa-check-circle mr-2"></i> Facturar y Cobrar
+        </button>
+    </div>
+</div>
+
+@code {
+    private Factura nuevaFactura = new Factura();
+    
+    private string clienteSeleccionadoId = string.Empty;
+    private string trabajadorSeleccionadoId = string.Empty;
+    
+    private string productoSeleccionadoId = string.Empty;
+    private int cantidadSeleccionada = 1;
+    
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AppState.LoadClientesAsync();
+        await AppState.LoadTrabajadoresAsync();
+        await AppState.LoadProductosAsync();
+    }
+
+    private void AgregarItem()
+    {
+        errorMessage = string.Empty;
+        
+        if (string.IsNullOrEmpty(productoSeleccionadoId)) return;
+        
+        var guidId = Guid.Parse(productoSeleccionadoId);
+        var producto = AppState.Productos.FirstOrDefault(p => p.Id == guidId);
+        
+        if (producto != null)
+        {
+            if (producto.Stock < cantidadSeleccionada)
+            {
+                errorMessage = $"No hay suficiente stock. Disponible: {producto.Stock}";
+                return;
+            }
+            
+            var detalleExistente = nuevaFactura.Detalles.FirstOrDefault(d => d.ProductoId == producto.Id);
+            if (detalleExistente != null)
+            {
+                if (producto.Stock < detalleExistente.Cantidad + cantidadSeleccionada)
+                {
+                    errorMessage = $"Supera el stock disponible ({producto.Stock})";
+                    return;
+                }
+                detalleExistente.Cantidad += cantidadSeleccionada;
+            }
+            else
+            {
+                nuevaFactura.Detalles.Add(new DetalleFactura
+                {
+                    ProductoId = producto.Id,
+                    DescripcionItem = producto.Nombre,
+                    PrecioUnitario = producto.PrecioVenta,
+                    Cantidad = cantidadSeleccionada
+                });
+            }
+            
+            // Reset fields
+            productoSeleccionadoId = string.Empty;
+            cantidadSeleccionada = 1;
+        }
+    }
+
+    private void RemoverItem(DetalleFactura item)
+    {
+        nuevaFactura.Detalles.Remove(item);
+    }
+
+    private async Task ProcesarPago()
+    {
+        errorMessage = string.Empty;
+        
+        if (string.IsNullOrEmpty(clienteSeleccionadoId))
+        {
+            errorMessage = "Debe seleccionar un cliente.";
+            return;
+        }
+        
+        if (string.IsNullOrEmpty(trabajadorSeleccionadoId))
+        {
+            errorMessage = "Debe seleccionar un médico/trabajador en turno.";
+            return;
+        }
+        
+        if (!nuevaFactura.Detalles.Any())
+        {
+            errorMessage = "No hay items en la factura.";
+            return;
+        }
+        
+        nuevaFactura.ClienteId = Guid.Parse(clienteSeleccionadoId);
+        nuevaFactura.TrabajadorId = Guid.Parse(trabajadorSeleccionadoId);
+        
+        await AppState.AddFacturaAsync(nuevaFactura);
+        
+        NavigationManager.NavigateTo("/facturacion");
+    }
+
+    private void Volver()
+    {
+        NavigationManager.NavigateTo("/facturacion");
+    }
+}

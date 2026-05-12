@@ -1,0 +1,17 @@
+# Archivos de compilación
+**/bin/
+**/obj/
+
+# Configuración local (no subir credenciales)
+**/appsettings.Development.json
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Node modules (si hubiera)
+node_modules/

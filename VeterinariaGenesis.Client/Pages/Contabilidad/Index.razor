@@ -1,0 +1,166 @@
+@page "/contabilidad"
+@implements IDisposable
+@using VeterinariaGenesis.Client.Services
+@using VeterinariaGenesis.Domain.Entities
+@inject AppStateService AppState
+
+<PageTitle>Contabilidad | Veterinaria Génesis</PageTitle>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Contabilidad y Finanzas</h1>
+        <p class="text-sm text-gray-500">Reportes financieros generados automáticamente a partir de las operaciones.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Estado de Resultados -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-indigo-50 px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-indigo-900"><i class="fas fa-chart-bar mr-2"></i> Estado de Resultados</h3>
+            <p class="text-xs text-indigo-700">Pérdidas y Ganancias (Periodo Actual)</p>
+        </div>
+        <div class="p-6 space-y-4">
+            
+            <!-- Ingresos -->
+            <div>
+                <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">Ingresos Operativos</h4>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Ventas (Servicios y Productos)</span>
+                    <span class="font-medium">$@IngresosTotales.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between font-bold text-green-600 border-t pt-1 mt-1">
+                    <span>Total Ingresos</span>
+                    <span>$@IngresosTotales.ToString("0.00")</span>
+                </div>
+            </div>
+            
+            <!-- Costos y Gastos -->
+            <div class="mt-6">
+                <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">Costos y Gastos</h4>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Costo de Mercancía Vendida</span>
+                    <span class="font-medium text-red-500">-$@CostoMercanciaVendida.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Nómina (Salarios Base)</span>
+                    <span class="font-medium text-red-500">-$@GastoNomina.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between font-bold text-red-600 border-t pt-1 mt-1">
+                    <span>Total Gastos</span>
+                    <span>-$@TotalGastos.ToString("0.00")</span>
+                </div>
+            </div>
+            
+            <!-- Utilidad -->
+            <div class="mt-6 bg-gray-50 p-4 rounded-lg flex justify-between items-center border border-gray-200">
+                <span class="text-lg font-bold text-gray-900">Utilidad Neta</span>
+                <span class="text-2xl font-bold @(UtilidadNeta >= 0 ? "text-green-600" : "text-red-600")">
+                    $@UtilidadNeta.ToString("0.00")
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Balance General -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-teal-50 px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-teal-900"><i class="fas fa-balance-scale mr-2"></i> Balance General</h3>
+            <p class="text-xs text-teal-700">Situación Financiera a la fecha</p>
+        </div>
+        <div class="p-6 space-y-4">
+            
+            <!-- Activos -->
+            <div>
+                <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">Activos</h4>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Caja y Bancos (Capital Inicial + Utilidad)</span>
+                    <span class="font-medium">$@CajaYBancos.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Inventario de Productos (Costo)</span>
+                    <span class="font-medium">$@ValorInventario.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between font-bold text-blue-600 border-t pt-1 mt-1">
+                    <span>Total Activos</span>
+                    <span>$@TotalActivos.ToString("0.00")</span>
+                </div>
+            </div>
+            
+            <!-- Pasivos -->
+            <div class="mt-6">
+                <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">Pasivos</h4>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Cuentas por Pagar (Proveedores)</span>
+                    <span class="font-medium">$0.00</span>
+                </div>
+                <div class="flex justify-between font-bold text-red-600 border-t pt-1 mt-1">
+                    <span>Total Pasivos</span>
+                    <span>$0.00</span>
+                </div>
+            </div>
+            
+            <!-- Patrimonio -->
+            <div class="mt-6">
+                <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">Patrimonio Neto</h4>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Capital Social Inicial</span>
+                    <span class="font-medium">$@CapitalInicial.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Resultados del Ejercicio (Utilidad)</span>
+                    <span class="font-medium">$@UtilidadNeta.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between font-bold text-purple-600 border-t pt-1 mt-1">
+                    <span>Total Patrimonio</span>
+                    <span>$@TotalPatrimonio.ToString("0.00")</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    // ESTADO DE RESULTADOS
+    private decimal IngresosTotales => AppState.Facturas.Sum(f => f.Total);
+    
+    private decimal CostoMercanciaVendida => AppState.Facturas
+        .SelectMany(f => f.Detalles)
+        .Sum(d => 
+        {
+            var p = AppState.Productos.FirstOrDefault(prod => prod.Id == d.ProductoId);
+            return p != null ? p.PrecioCompra * d.Cantidad : 0;
+        });
+
+    private decimal GastoNomina => AppState.Trabajadores.Sum(t => t.SalarioBase);
+    
+    private decimal TotalGastos => CostoMercanciaVendida + GastoNomina;
+    
+    private decimal UtilidadNeta => IngresosTotales - TotalGastos;
+
+
+    // BALANCE GENERAL
+    private decimal CapitalInicial = 15000m; // Monto ficticio para que el balance tenga sentido al iniciar
+    private decimal CajaYBancos => CapitalInicial + UtilidadNeta;
+    
+    private decimal ValorInventario => AppState.Productos.Sum(p => p.PrecioCompra * p.Stock);
+    
+    private decimal TotalActivos => CajaYBancos + ValorInventario;
+    
+    private decimal TotalPatrimonio => CapitalInicial + UtilidadNeta; // Activo = Pasivo (0) + Patrimonio
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+        await AppState.LoadFacturasAsync();
+        await AppState.LoadProductosAsync();
+        await AppState.LoadTrabajadoresAsync();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+}
