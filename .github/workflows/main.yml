@@ -21,8 +21,7 @@ jobs:
       - name: Publish .NET Core Project
         run: dotnet publish VeterinariaGenesis.Client/VeterinariaGenesis.Client.csproj -c Release -o release --nologo
 
-      - name: Change base-tag in index.html
-        run: sed -i 's/<base href=".*" \/>/<base href=".\/" \/>/g' release/wwwroot/index.html
+      # No se necesita el sed command ya que lo pondremos manual en el index.html
 
       - name: copy index.html to 404.html
         run: cp release/wwwroot/index.html release/wwwroot/404.html
