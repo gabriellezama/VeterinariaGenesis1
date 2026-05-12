@@ -21,6 +21,9 @@ jobs:
       - name: Publish .NET Core Project
         run: dotnet publish VeterinariaGenesis.Client/VeterinariaGenesis.Client.csproj -c Release -o release --nologo
 
+      - name: Change base-tag in index.html for GitHub Pages
+        run: sed -i 's/<base href="\/" \/>/<base href="\/VeterinariaGenesis1\/" \/>/g' release/wwwroot/index.html
+
       # Forzando el archivo de desbloqueo en la carpeta de salida
       - name: Add .nojekyll
         run: touch release/wwwroot/.nojekyll
