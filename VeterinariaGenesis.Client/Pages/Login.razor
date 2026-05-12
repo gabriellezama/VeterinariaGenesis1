@@ -92,7 +92,7 @@
         // Si ya está logueado, redirigir al home
         if (AppState.IsLoggedIn)
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("");
         }
     }
 
@@ -101,7 +101,7 @@
         var success = AppState.Login(username, password);
         if (success)
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("");
         }
         else
         {

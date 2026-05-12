@@ -92,18 +92,18 @@
         }
         else
         {
-            NavigationManager.NavigateTo("/clientes");
+            NavigationManager.NavigateTo("clientes");
         }
     }
 
     private async Task GuardarMascota()
     {
         await AppState.AddMascotaAsync(nuevaMascota);
-        NavigationManager.NavigateTo("/clientes");
+        NavigationManager.NavigateTo("clientes");
     }
 
     private void Volver()
     {
-        NavigationManager.NavigateTo("/clientes");
+        NavigationManager.NavigateTo("clientes");
     }
 }

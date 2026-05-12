@@ -82,11 +82,11 @@
     private async Task GuardarTrabajador()
     {
         await AppState.AddTrabajadorAsync(nuevoTrabajador);
-        NavigationManager.NavigateTo("/trabajadores");
+        NavigationManager.NavigateTo("trabajadores");
     }
 
     private void Volver()
     {
-        NavigationManager.NavigateTo("/trabajadores");
+        NavigationManager.NavigateTo("trabajadores");
     }
 }

@@ -85,11 +85,11 @@
     private async Task GuardarProducto()
     {
         await AppState.AddProductoAsync(nuevoProducto);
-        NavigationManager.NavigateTo("/productos");
+        NavigationManager.NavigateTo("productos");
     }
 
     private void Volver()
     {
-        NavigationManager.NavigateTo("/productos");
+        NavigationManager.NavigateTo("productos");
     }
 }
