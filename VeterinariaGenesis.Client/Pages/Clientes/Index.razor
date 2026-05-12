@@ -71,6 +71,9 @@
                             }
                         </td>
                         <td class="px-6 py-4 text-right">
+                            <a href="https://wa.me/@(cliente.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="text-green-600 hover:text-green-900 p-2" title="Enviar WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
                             <button @onclick='() => NavigationManager.NavigateTo($"/mascotas/crear/{cliente.Id}")' class="text-indigo-600 hover:text-indigo-900 p-2" title="Agregar Mascota">
                                 <i class="fas fa-paw"></i>
                             </button>

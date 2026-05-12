@@ -108,7 +108,7 @@ else
             
             <!-- Acciones Topbar -->
             <div class="flex items-center space-x-4">
-                <button class="text-gray-400 hover:text-indigo-600 relative">
+                <button @onclick='() => NavigationManager.NavigateTo("/clientes")' class="text-gray-400 hover:text-indigo-600 relative">
                     <i class="far fa-bell text-xl"></i>
                     <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
