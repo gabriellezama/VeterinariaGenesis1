@@ -4,8 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Veterinaria Génesis</title>
-    <base href="/VeterinariaGenesis1/" />
-    <!-- Cargando Bootstrap desde un servidor externo para evitar errores de archivos faltantes -->
+    <!-- Este script detecta si estás en localhost o en GitHub y ajusta la dirección automáticamente -->
+    <script type="text/javascript">
+        var path = window.location.pathname;
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            document.write('<base href="/" />');
+        } else {
+            document.write('<base href="/VeterinariaGenesis1/" />');
+        }
+    </script>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -21,7 +29,7 @@
         <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; font-family: 'Outfit', sans-serif;">
             <div style="width: 60px; height: 60px; border: 5px solid #e2e8f0; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             <h2 style="margin-top: 20px; color: #1e293b; font-weight: 600;">Cargando Veterinaria Génesis...</h2>
-            <p style="color: #64748b;">Iniciando sistema en la nube</p>
+            <p style="color: #64748b;">Preparando entorno seguro</p>
         </div>
     </div>
 
@@ -31,8 +39,7 @@
         <a class="dismiss">🗙</a>
     </div>
     
-    <!-- Script de Blazor con ruta forzada -->
-    <script src="/VeterinariaGenesis1/_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
 
     <style>
         @keyframes spin {
