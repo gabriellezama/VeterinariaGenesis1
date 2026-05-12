@@ -21,7 +21,8 @@ jobs:
       - name: Publish .NET Core Project
         run: dotnet publish VeterinariaGenesis.Client/VeterinariaGenesis.Client.csproj -c Release -o release --nologo
 
-      - name: Add .nojekyll to prevent GitHub from ignoring _framework folder
+      # Forzando el archivo de desbloqueo en la carpeta de salida
+      - name: Add .nojekyll
         run: touch release/wwwroot/.nojekyll
 
       - name: Commit wwwroot to GitHub Pages
@@ -30,3 +31,5 @@ jobs:
           branch: gh-pages
           folder: release/wwwroot
           clean: true
+          # Esta opción asegura que el archivo .nojekyll se mantenga
+          force: true
