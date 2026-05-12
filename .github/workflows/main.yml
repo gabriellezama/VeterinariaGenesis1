@@ -24,6 +24,12 @@ jobs:
       - name: Change base-tag in index.html for GitHub Pages
         run: sed -i 's/<base href="\/" \/>/<base href="\/VeterinariaGenesis1\/" \/>/g' release/wwwroot/index.html
 
+      - name: Inject exact blazor script name
+        run: |
+          SCRIPT_NAME=$(basename $(ls release/wwwroot/_framework/blazor.webassembly.*.js | head -n 1))
+          echo "Found script: $SCRIPT_NAME"
+          sed -i "s/_framework\/blazor.webassembly.js/_framework\/$SCRIPT_NAME/g" release/wwwroot/index.html
+
       # Forzando el archivo de desbloqueo en la carpeta de salida
       - name: Add .nojekyll
         run: touch release/wwwroot/.nojekyll
