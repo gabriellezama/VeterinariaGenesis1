@@ -65,6 +65,12 @@ namespace VeterinariaGenesis.Api.Controllers
             evento.Descripcion = request.Descripcion;
             evento.MedicoResponsable = request.MedicoResponsable;
             evento.Tipo = request.Tipo;
+            
+            // Usar el título personalizado si se proporciona
+            if (!string.IsNullOrEmpty(request.Titulo))
+            {
+                evento.Descripcion = $"[{request.Titulo}] {evento.Descripcion}";
+            }
 
             await _repo.AgregarEventoAsync(evento);
             return Ok(evento);
@@ -72,10 +78,17 @@ namespace VeterinariaGenesis.Api.Controllers
 
         private string ObtenerTitulo(EventoMedico e)
         {
+            // Intentar extraer el título del formato [Titulo]
+            if (e.Descripcion.StartsWith("[") && e.Descripcion.Contains("]"))
+            {
+                int end = e.Descripcion.IndexOf("]");
+                return e.Descripcion.Substring(1, end - 1);
+            }
+
             if (e is Vacuna v) return $"Vacuna: {v.ProductoAplicado}";
             if (e is Cirugia c) return $"Cirugía: {e.Descripcion}";
             if (e is ExamenLaboratorio ex) return $"Laboratorio: {ex.TipoExamen}";
-            return "Consulta Médica";
+            return "Atención Médica";
         }
 
         private string ObtenerIcono(TipoEventoMedico tipo) => tipo switch
@@ -107,6 +120,7 @@ namespace VeterinariaGenesis.Api.Controllers
         public Guid MascotaId { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
         public TipoEventoMedico Tipo { get; set; }
+        public string Titulo { get; set; } = string.Empty; // Nuevo campo
         public string Descripcion { get; set; } = string.Empty;
         public string MedicoResponsable { get; set; } = string.Empty;
         public string InfoExtra1 { get; set; } = string.Empty;
