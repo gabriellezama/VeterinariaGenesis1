@@ -9,27 +9,26 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// CORS CONFIGURATION - MÁXIMA PRIORIDAD
+// CORS CONFIGURATION - MODO "PUERTAS ABIERTAS" TOTAL
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); // Ayuda con las peticiones de prueba (OPTIONS)
+              .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// EL CORS DEBE SER LO PRIMERITO QUE SE EJECUTA
-app.UseCors("AllowAll");
+// EL ORDEN ES CRÍTICO EN .NET 10
+app.UseRouting(); // Primero activamos el mapa de rutas
 
-// Quitamos HttpsRedirection temporalmente para evitar bloqueos por redirección
-// app.UseHttpsRedirection(); 
+app.UseCors("AllowAll"); // Luego ponemos el sello de aprobación
 
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
