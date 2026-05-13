@@ -50,7 +50,7 @@
                     
                     <div class="flex items-start gap-4 mb-6">
                         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-indigo-100">
-                            @cliente.Nombres.Substring(0, 1).ToUpper()
+                            @(string.IsNullOrEmpty(cliente.Nombres) ? "?" : cliente.Nombres.Substring(0, 1).ToUpper())
                         </div>
                         <div>
                             <h3 class="text-lg font-black text-slate-800">@cliente.Nombres</h3>
@@ -94,7 +94,7 @@
             <div class="p-8 bg-indigo-600 text-white flex justify-between items-start">
                 <div class="flex gap-6">
                     <div class="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl font-black border border-white/30">
-                        @clienteSeleccionado.Nombres.Substring(0, 1).ToUpper()
+                        @(string.IsNullOrEmpty(clienteSeleccionado.Nombres) ? "?" : clienteSeleccionado.Nombres.Substring(0, 1).ToUpper())
                     </div>
                     <div>
                         <h2 class="text-3xl font-black mb-1">@clienteSeleccionado.Nombres</h2>
@@ -116,8 +116,12 @@
                             {
                                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" @onclick='() => Nav.NavigateTo($"historial-clinico/{mascota.Id}")'>
                                     <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm">
-                                            <i class="fas @(mascota.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat") text-xl"></i>
+                                        <div class="w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-white text-5xl shadow-2xl border border-white/30">
+                                            @if (!string.IsNullOrEmpty(mascota?.Nombre)) {
+                                                <span>@mascota.Nombre.Substring(0, 1).ToUpper()</span>
+                                            } else {
+                                                <i class="fas @(mascota?.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat")"></i>
+                                            }
                                         </div>
                                         <div>
                                             <p class="font-bold text-slate-800">@mascota.Nombre</p>

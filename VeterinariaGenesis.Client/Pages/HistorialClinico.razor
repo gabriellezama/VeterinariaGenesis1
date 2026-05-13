@@ -19,7 +19,11 @@
                 
                 <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
                     <div class="w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-white text-5xl shadow-2xl border border-white/30">
-                        <i class="fas @(mascota?.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat")"></i>
+                        @if (!string.IsNullOrEmpty(mascota?.Nombre)) {
+                            <span>@mascota.Nombre.Substring(0, 1).ToUpper()</span>
+                        } else {
+                            <i class="fas @(mascota?.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat")"></i>
+                        }
                     </div>
                     <div class="text-center md:text-left flex-1">
                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
