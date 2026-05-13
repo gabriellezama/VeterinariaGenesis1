@@ -49,14 +49,14 @@ namespace VeterinariaGenesis.Client.Services
         // ============== CLIENTES ==============
         public async Task LoadClientesAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Cliente>>("api/clientes");
+            var result = await _http.GetFromJsonAsync<List<Cliente>>("api/Clientes");
             Clientes = result ?? new();
             NotifyStateChanged();
         }
 
         public async Task AddClienteAsync(Cliente cliente)
         {
-            var response = await _http.PostAsJsonAsync("api/clientes", cliente);
+            var response = await _http.PostAsJsonAsync("api/Clientes", cliente);
             var saved = await response.Content.ReadFromJsonAsync<Cliente>();
             if (saved != null) Clientes.Add(saved);
             NotifyStateChanged();
@@ -65,14 +65,14 @@ namespace VeterinariaGenesis.Client.Services
         // ============== MASCOTAS ==============
         public async Task LoadMascotasAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Mascota>>("api/mascotas");
+            var result = await _http.GetFromJsonAsync<List<Mascota>>("api/Mascotas");
             Mascotas = result ?? new();
             NotifyStateChanged();
         }
 
         public async Task AddMascotaAsync(Mascota mascota)
         {
-            var response = await _http.PostAsJsonAsync("api/mascotas", mascota);
+            var response = await _http.PostAsJsonAsync("api/Mascotas", mascota);
             var saved = await response.Content.ReadFromJsonAsync<Mascota>();
             if (saved != null) Mascotas.Add(saved);
             NotifyStateChanged();
@@ -83,7 +83,7 @@ namespace VeterinariaGenesis.Client.Services
         {
             try 
             {
-                var result = await _http.GetFromJsonAsync<List<Trabajador>>("api/trabajadores");
+                var result = await _http.GetFromJsonAsync<List<Trabajador>>("api/Trabajadores");
                 Trabajadores = result ?? new();
                 NotifyStateChanged();
             }
@@ -97,7 +97,7 @@ namespace VeterinariaGenesis.Client.Services
         {
             try
             {
-                var response = await _http.PostAsJsonAsync("api/trabajadores", trabajador);
+                var response = await _http.PostAsJsonAsync("api/Trabajadores", trabajador);
                 if (response.IsSuccessStatusCode)
                 {
                     // En lugar de intentar leer la respuesta (que puede fallar si hay problemas de formato),
@@ -117,14 +117,14 @@ namespace VeterinariaGenesis.Client.Services
         // ============== PRODUCTOS ==============
         public async Task LoadProductosAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Producto>>("api/productos");
+            var result = await _http.GetFromJsonAsync<List<Producto>>("api/Productos");
             Productos = result ?? new();
             NotifyStateChanged();
         }
 
         public async Task AddProductoAsync(Producto producto)
         {
-            var response = await _http.PostAsJsonAsync("api/productos", producto);
+            var response = await _http.PostAsJsonAsync("api/Productos", producto);
             var saved = await response.Content.ReadFromJsonAsync<Producto>();
             if (saved != null) Productos.Add(saved);
             NotifyStateChanged();
@@ -133,14 +133,14 @@ namespace VeterinariaGenesis.Client.Services
         // ============== FACTURAS ==============
         public async Task LoadFacturasAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Factura>>("api/facturas");
+            var result = await _http.GetFromJsonAsync<List<Factura>>("api/Facturas");
             Facturas = result ?? new();
             NotifyStateChanged();
         }
 
         public async Task AddFacturaAsync(Factura factura)
         {
-            var response = await _http.PostAsJsonAsync("api/facturas", factura);
+            var response = await _http.PostAsJsonAsync("api/Facturas", factura);
             var saved = await response.Content.ReadFromJsonAsync<Factura>();
             if (saved != null) Facturas.Add(saved);
             NotifyStateChanged();
