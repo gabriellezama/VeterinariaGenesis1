@@ -64,8 +64,13 @@
                     </div>
 
                     <div class="space-y-3 mb-6">
-                        <div class="flex items-center text-slate-600 text-sm">
-                            <i class="fas fa-phone-alt w-6 text-indigo-400"></i> @cliente.Telefono
+                        <div class="flex items-center justify-between text-slate-600 text-sm">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone-alt w-6 text-indigo-400"></i> @cliente.Telefono
+                            </div>
+                            <a href="https://wa.me/@(cliente.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Contactar por WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
                         </div>
                         <div class="flex items-center text-slate-600 text-sm">
                             <i class="fas fa-envelope w-6 text-indigo-400"></i> @cliente.Email
@@ -92,9 +97,12 @@
                     </div>
                     <div>
                         <h2 class="text-3xl font-black mb-1">@clienteSeleccionado.DisplayNombres</h2>
-                        <div class="flex gap-4 text-indigo-100 text-sm font-medium">
+                        <div class="flex gap-4 text-indigo-100 text-sm font-medium items-center">
                             <span><i class="fas fa-id-card mr-1"></i> @clienteSeleccionado.DisplayIdentificacion</span>
                             <span><i class="fas fa-map-marker-alt mr-1"></i> @clienteSeleccionado.Direccion</span>
+                            <a href="https://wa.me/@(clienteSeleccionado.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="bg-emerald-500/20 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg transition-all flex items-center gap-1">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
                         </div>
                     </div>
                 </div>
