@@ -3,6 +3,7 @@
 @using System
 @using System.Linq
 @using System.Threading.Tasks
+@using VeterinariaGenesis.Domain.Entities
 @using VeterinariaGenesis.Client.Services
 @inject AppStateService AppState
 
@@ -21,7 +22,7 @@
             {
                 @foreach (var trabajador in AppState.Trabajadores)
                 {
-                    <option value="@trabajador.Nombre">@trabajador.Nombre</option>
+                    <option value="@trabajador.Nombres">@trabajador.Nombres @trabajador.Apellidos</option>
                 }
             }
             else
@@ -118,7 +119,7 @@
         
         if (AppState.Trabajadores.Any())
         {
-            DoctorActual = AppState.Trabajadores.First().Nombre;
+            DoctorActual = AppState.Trabajadores.First().Nombres;
         }
     }
 
