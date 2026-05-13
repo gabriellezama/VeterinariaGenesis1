@@ -18,6 +18,14 @@
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <EditForm Model="nuevoTrabajador" OnValidSubmit="GuardarTrabajador">
         <div class="p-6">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    <span>@errorMessage</span>
+                </div>
+            }
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                     <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Datos Personales</h3>
@@ -66,11 +74,20 @@
         </div>
         
         <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end space-x-3">
-            <button type="button" @onclick="Volver" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <button type="button" @onclick="Volver" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors" disabled="@isSaving">
                 Cancelar
             </button>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
-                <i class="fas fa-save mr-2"></i> Guardar Trabajador
+            <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    <span>Guardando...</span>
+                }
+                else
+                {
+                    <i class="fas fa-save mr-2"></i>
+                    <span>Guardar Trabajador</span>
+                }
             </button>
         </div>
     </EditForm>
@@ -78,11 +95,26 @@
 
 @code {
     private Trabajador nuevoTrabajador = new Trabajador();
+    private string errorMessage = "";
+    private bool isSaving = false;
 
     private async Task GuardarTrabajador()
     {
-        await AppState.AddTrabajadorAsync(nuevoTrabajador);
-        NavigationManager.NavigateTo("trabajadores");
+        errorMessage = "";
+        isSaving = true;
+        
+        var success = await AppState.AddTrabajadorAsync(nuevoTrabajador);
+        
+        isSaving = false;
+        
+        if (success)
+        {
+            NavigationManager.NavigateTo("trabajadores");
+        }
+        else
+        {
+            errorMessage = "No se pudo conectar con el servidor de Railway. Por favor, verifica que tu backend esté encendido.";
+        }
     }
 
     private void Volver()

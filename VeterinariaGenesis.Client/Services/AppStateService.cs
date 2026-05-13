@@ -81,17 +81,37 @@ namespace VeterinariaGenesis.Client.Services
         // ============== TRABAJADORES ==============
         public async Task LoadTrabajadoresAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Trabajador>>("api/trabajadores");
-            Trabajadores = result ?? new();
-            NotifyStateChanged();
+            try 
+            {
+                var result = await _http.GetFromJsonAsync<List<Trabajador>>("api/trabajadores");
+                Trabajadores = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando trabajadores: {ex.Message}");
+            }
         }
 
-        public async Task AddTrabajadorAsync(Trabajador trabajador)
+        public async Task<bool> AddTrabajadorAsync(Trabajador trabajador)
         {
-            var response = await _http.PostAsJsonAsync("api/trabajadores", trabajador);
-            var saved = await response.Content.ReadFromJsonAsync<Trabajador>();
-            if (saved != null) Trabajadores.Add(saved);
-            NotifyStateChanged();
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/trabajadores", trabajador);
+                if (response.IsSuccessStatusCode)
+                {
+                    var saved = await response.Content.ReadFromJsonAsync<Trabajador>();
+                    if (saved != null) Trabajadores.Add(saved);
+                    NotifyStateChanged();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando trabajador: {ex.Message}");
+                return false;
+            }
         }
 
         // ============== PRODUCTOS ==============
