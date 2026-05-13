@@ -33,13 +33,13 @@
     <!-- Script estándar exacto para que .NET lo intercepte y le ponga el código hash -->
     <script src="_framework/blazor.webassembly.zxhwjtv6sc.js" autostart="false"></script>
     <script>
-        window.imprimirRecetario = () => {
+        window.imprimirDocumento = () => {
             window.print();
         };
     </script>
     <style>
         @media print {
-            .no-print, aside, header, button, .bg-slate-900, .fixed {
+            .no-print, aside, header, nav, button, .bg-slate-900, .fixed, .mb-6.flex.justify-between {
                 display: none !important;
             }
             .print-only {
@@ -48,14 +48,31 @@
             .page-transition {
                 margin: 0 !important;
                 padding: 0 !important;
+                background: white !important;
             }
             body {
                 background: white !important;
                 color: black !important;
             }
-            .shadow-lg, .shadow-2xl {
+            .rounded-xl, .rounded-3xl, .rounded-\[2\.5rem\] {
+                border-radius: 0 !important;
+                border: none !important;
                 box-shadow: none !important;
-                border: 1px solid #eee !important;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+                box-shadow: none !important;
+                border: 1px solid #f1f5f9 !important;
+            }
+            .bg-slate-50, .bg-gray-50 {
+                background: #fafafa !important;
+            }
+            .bg-indigo-600, .bg-blue-600 {
+                background: white !important;
+                color: black !important;
+                border-bottom: 2px solid #4f46e5 !important;
+            }
+            .text-white {
+                color: black !important;
             }
         }
         .print-only {
