@@ -20,7 +20,7 @@ namespace VeterinariaGenesis.Domain.Entities
         
         public List<DetalleFactura> Detalles { get; set; } = new List<DetalleFactura>();
 
-        public decimal Subtotal => Detalles.Sum(d => d.Subtotal);
+        public decimal Subtotal => Detalles?.Sum(d => d.Subtotal) ?? 0;
         public decimal Impuestos => Subtotal * 0.15m; // 15% IVA
         public decimal Total => Subtotal + Impuestos;
     }

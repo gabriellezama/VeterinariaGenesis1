@@ -221,10 +221,25 @@ else
             
             // Simular notificaciones basadas en datos reales
             if (AppState.Clientes.Any())
-                list.Add(new ActivityItem { Title = "Nuevo Cliente", Description = $"{AppState.Clientes.Last().Nombres} se ha unido.", Icon = "fa-user-plus", Color = "bg-indigo-500" });
-                
+            {
+                var lastCliente = AppState.Clientes.Last();
+                list.Add(new ActivityItem { 
+                    Title = "Nuevo Cliente", 
+                    Description = $"{(lastCliente.Nombres ?? "Nuevo cliente")} se ha unido.", 
+                    Icon = "fa-user-plus", 
+                    Color = "bg-indigo-500" 
+                });
+            }
             if (AppState.Mascotas.Any())
-                list.Add(new ActivityItem { Title = "Nueva Mascota", Description = $"{AppState.Mascotas.Last().Nombre} fue registrada.", Icon = "fa-paw", Color = "bg-amber-500" });
+            {
+                var lastMascota = AppState.Mascotas.Last();
+                list.Add(new ActivityItem { 
+                    Title = "Nueva Mascota", 
+                    Description = $"{(lastMascota.Nombre ?? "Nueva mascota")} fue registrada.", 
+                    Icon = "fa-paw", 
+                    Color = "bg-amber-500" 
+                });
+            }
                 
             if (AppState.Trabajadores.Any())
                 list.Add(new ActivityItem { Title = "Personal Actualizado", Description = "Se registró un nuevo profesional.", Icon = "fa-user-md", Color = "bg-teal-500" });
