@@ -174,6 +174,24 @@
                                 <span class="text-2xl font-black text-emerald-600">@totalVacunas</span>
                             }
                         </div>
+
+                        <div class="flex items-center justify-between p-4 bg-amber-50 rounded-3xl border border-amber-100/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-white text-xs">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                <span class="font-bold text-amber-800">Desparasitaciones</span>
+                            </div>
+                            @{ var totalDesparasitaciones = eventos.Count(e => e.TipoEvento == "Desparasitacion"); }
+                            @if (totalDesparasitaciones == 0)
+                            {
+                                <span class="text-sm font-bold text-amber-400 italic">Ninguna</span>
+                            }
+                            else
+                            {
+                                <span class="text-2xl font-black text-amber-600">@totalDesparasitaciones</span>
+                            }
+                        </div>
                         
                         <div class="flex items-center justify-between p-4 bg-rose-50 rounded-3xl border border-rose-100/50">
                             <div class="flex items-center gap-3">
@@ -236,11 +254,12 @@
                         <div>
                             <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Tipo de Evento</label>
                             <InputSelect @bind-Value="nuevoEvento.Tipo" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all">
-                                <option value="@TipoEventoMedico.Consulta">Consulta General</option>
-                                <option value="@TipoEventoMedico.Vacuna">Vacunación</option>
-                                <option value="@TipoEventoMedico.Cirugia">Cirugía</option>
-                                <option value="@TipoEventoMedico.ExamenLaboratorio">Laboratorio</option>
-                                <option value="@TipoEventoMedico.Grooming">Grooming (Peluquería)</option>
+                                <option value="@TipoEventoMedico.Consulta">🩺 Consulta General</option>
+                                <option value="@TipoEventoMedico.Vacuna">💉 Vacunación</option>
+                                <option value="@TipoEventoMedico.Desparasitacion">🪱 Desparasitación</option>
+                                <option value="@TipoEventoMedico.Cirugia">🔬 Cirugía</option>
+                                <option value="@TipoEventoMedico.ExamenLaboratorio">🧪 Laboratorio</option>
+                                <option value="@TipoEventoMedico.Grooming">✂️ Grooming (Peluquería)</option>
                             </InputSelect>
                         </div>
                         <div>
@@ -274,8 +293,60 @@
 
                     <div>
                         <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Descripción / Diagnóstico</label>
-                        <InputTextArea @bind-Value="nuevoEvento.Descripcion" rows="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Escriba los detalles médicos aquí..." />
+                        <InputTextArea @bind-Value="nuevoEvento.Descripcion" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Escriba los detalles médicos aquí..." />
                     </div>
+
+                    @* Campos adicionales según el tipo de evento *@
+                    @if (nuevoEvento.Tipo == TipoEventoMedico.Vacuna)
+                    {
+                        <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-100 space-y-4">
+                            <p class="text-[0.65rem] font-black text-emerald-600 uppercase tracking-widest">💉 Detalles de Vacunación</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Vacuna / Producto Aplicado</label>
+                                    <InputText @bind-Value="nuevoEvento.InfoExtra1" class="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Ej: Parvovirus, Rabia, Sextuple..." />
+                                </div>
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Fecha Próxima Dosis</label>
+                                    <InputDate @bind-Value="nuevoEvento.ProximaDosis" class="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 transition-all" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (nuevoEvento.Tipo == TipoEventoMedico.Desparasitacion)
+                    {
+                        <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100 space-y-4">
+                            <p class="text-[0.65rem] font-black text-amber-600 uppercase tracking-widest">🪱 Detalles de Desparasitación</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Producto Desparasitante</label>
+                                    <InputText @bind-Value="nuevoEvento.InfoExtra1" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 transition-all" placeholder="Ej: Drontal, Milbemax, Ivermectina..." />
+                                </div>
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Próxima Desparasitación</label>
+                                    <InputDate @bind-Value="nuevoEvento.ProximaDosis" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 transition-all" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (nuevoEvento.Tipo == TipoEventoMedico.Cirugia)
+                    {
+                        <div class="bg-rose-50 p-5 rounded-2xl border border-rose-100 space-y-4">
+                            <p class="text-[0.65rem] font-black text-rose-600 uppercase tracking-widest">🔬 Detalles de Cirugía</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Tipo de Anestesia</label>
+                                    <InputText @bind-Value="nuevoEvento.InfoExtra1" class="w-full px-4 py-3 bg-white border border-rose-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 transition-all" placeholder="Ej: General, Local, Epidural..." />
+                                </div>
+                                <div>
+                                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Reporte Post-Operatorio</label>
+                                    <InputText @bind-Value="nuevoEvento.InfoExtra2" class="w-full px-4 py-3 bg-white border border-rose-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 transition-all" placeholder="Ej: Recuperación satisfactoria..." />
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="p-8 bg-slate-50 flex flex-col border-t border-slate-100">
@@ -596,5 +667,6 @@
         public string MedicoResponsable { get; set; } = string.Empty;
         public string InfoExtra1 { get; set; } = string.Empty;
         public string InfoExtra2 { get; set; } = string.Empty;
+        public DateTime? ProximaDosis { get; set; }
     }
 }

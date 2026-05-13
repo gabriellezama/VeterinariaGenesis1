@@ -54,9 +54,16 @@ namespace VeterinariaGenesis.Api.Controllers
                         break;
                     case TipoEventoMedico.Vacuna:
                         DateTime? nextDose = null;
-                        if (!string.IsNullOrEmpty(request.InfoExtra2) && DateTime.TryParse(request.InfoExtra2, out var parsedDate)) 
+                        if (request.ProximaDosis.HasValue)
+                            nextDose = request.ProximaDosis;
+                        else if (!string.IsNullOrEmpty(request.InfoExtra2) && DateTime.TryParse(request.InfoExtra2, out var parsedDate))
                             nextDose = parsedDate;
                         evento = new Vacuna { ProductoAplicado = request.InfoExtra1, ProximaDosis = nextDose };
+                        break;
+                    case TipoEventoMedico.Desparasitacion:
+                        DateTime? nextDeworming = null;
+                        if (request.ProximaDosis.HasValue) nextDeworming = request.ProximaDosis;
+                        evento = new Vacuna { ProductoAplicado = request.InfoExtra1, ProximaDosis = nextDeworming };
                         break;
                     case TipoEventoMedico.Cirugia:
                         evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
@@ -143,5 +150,6 @@ namespace VeterinariaGenesis.Api.Controllers
         public decimal Costo { get; set; }
         public string InfoExtra1 { get; set; } = string.Empty;
         public string InfoExtra2 { get; set; } = string.Empty;
+        public DateTime? ProximaDosis { get; set; }
     }
 }
