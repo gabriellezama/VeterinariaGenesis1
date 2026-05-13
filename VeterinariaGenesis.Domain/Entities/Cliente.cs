@@ -31,6 +31,7 @@ namespace VeterinariaGenesis.Domain.Entities
         public string Direccion { get; set; } = string.Empty;
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
         
+        [BsonIgnore]
         public ICollection<Mascota> Mascotas { get; set; } = new List<Mascota>();
     }
 }
