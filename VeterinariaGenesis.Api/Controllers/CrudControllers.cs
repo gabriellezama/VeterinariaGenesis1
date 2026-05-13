@@ -116,4 +116,23 @@ namespace VeterinariaGenesis.Api.Controllers
             return Ok(factura);
         }
     }
+
+    [ApiController]
+    [Route("api/Proveedores")]
+    public class ProveedoresController : ControllerBase
+    {
+        private readonly ProveedorRepository _repo;
+        public ProveedoresController(ProveedorRepository repo) => _repo = repo;
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Proveedor proveedor)
+        {
+            proveedor.Id = Guid.NewGuid();
+            await _repo.CreateAsync(proveedor);
+            return Ok(proveedor);
+        }
+    }
 }

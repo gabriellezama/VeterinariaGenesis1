@@ -195,7 +195,7 @@ namespace VeterinariaGenesis.Client.Services
         {
             try
             {
-                var result = await _http.GetFromJsonAsync<List<Proveedor>>("api/proveedores");
+                var result = await _http.GetFromJsonAsync<List<Proveedor>>("api/Proveedores");
                 Proveedores = result ?? new();
                 NotifyStateChanged();
             }
@@ -209,7 +209,7 @@ namespace VeterinariaGenesis.Client.Services
         {
             try
             {
-                var response = await _http.PostAsJsonAsync("api/proveedores", proveedor);
+                var response = await _http.PostAsJsonAsync("api/Proveedores", proveedor);
                 if (response.IsSuccessStatusCode)
                 {
                     await LoadProveedoresAsync();
