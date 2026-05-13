@@ -32,23 +32,28 @@
     @if (mascota != null)
     {
         <!-- Cabecera de Mascota -->
-        <div class="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 border border-slate-50 mb-10 relative overflow-hidden">
+        <div class="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 border border-slate-50 mb-10 relative overflow-hidden no-print">
             <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
                 <i class="fas fa-paw text-9xl"></i>
             </div>
             
             <div class="flex flex-col md:flex-row gap-10 items-center relative z-10">
                 <div class="w-40 h-40 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-6xl shadow-2xl shadow-indigo-200 border-8 border-white">
-                    <i class="fas fa-dog"></i>
+                    <i class="fas @(mascota.Especie?.ToLower() == "gato" ? "fa-cat" : "fa-dog")"></i>
                 </div>
                 
                 <div class="flex-1 text-center md:text-left">
                     <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
                         <h2 class="text-5xl font-black text-slate-800 tracking-tighter">@mascota.Nombre</h2>
-                        <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100">@mascota.Raza</span>
+                        <div class="flex gap-2">
+                            <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100">@mascota.Raza</span>
+                            <button @onclick="AbrirModalEditarMascota" class="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center" title="Editar datos del paciente">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div class="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
                             <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">Especie</p>
                             <p class="font-bold text-slate-700">@mascota.Especie</p>
@@ -63,7 +68,11 @@
                         </div>
                         <div class="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
                             <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">Peso</p>
-                            <p class="font-bold text-slate-700">@mascota.Peso kg</p>
+                            <p class="font-bold text-indigo-600">@mascota.Peso kg</p>
+                        </div>
+                        <div class="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
+                            <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">Color</p>
+                            <p class="font-bold text-slate-700">@(string.IsNullOrEmpty(mascota.Color) ? "N/A" : mascota.Color)</p>
                         </div>
                     </div>
                 </div>
@@ -279,18 +288,89 @@
     </div>
 }
 
+@if (mostrarModalEditarMascota && mascota != null)
+{
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-zoom-in">
+            <div class="bg-amber-500 p-8 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-black tracking-tighter">Editar Paciente</h3>
+                    <p class="text-amber-100 text-xs font-bold uppercase tracking-widest">Modificando ficha de @mascota.Nombre</p>
+                </div>
+                <button @onclick="() => mostrarModalEditarMascota = false" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-10 space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Nombre</label>
+                        <input type="text" @bind="mascota.Nombre" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Raza</label>
+                        <input type="text" @bind="mascota.Raza" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Edad</label>
+                        <input type="number" @bind="mascota.Edad" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Peso (kg)</label>
+                        <input type="number" @bind="mascota.Peso" step="0.01" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Sexo</label>
+                        <select @bind="mascota.Sexo" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all">
+                            <option value="Macho">Macho</option>
+                            <option value="Hembra">Hembra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Color</label>
+                    <input type="text" @bind="mascota.Color" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" placeholder="Ej: Blanco con manchas negras..." />
+                </div>
+            </div>
+
+            <div class="p-8 bg-slate-50 flex justify-end gap-4 border-t border-slate-100">
+                <button @onclick="() => mostrarModalEditarMascota = false" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CANCELAR</button>
+                <button @onclick="GuardarCambiosMascota" disabled="@isSaving" class="px-10 py-3 bg-amber-500 text-white rounded-2xl font-black shadow-xl shadow-amber-100 hover:bg-amber-600 transition-all transform hover:-translate-y-1">
+                    @if (isSaving)
+                    {
+                        <i class="fas fa-spinner fa-spin mr-2"></i> <span>GUARDANDO...</span>
+                    }
+                    else
+                    {
+                        <span>ACTUALIZAR FICHA</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- FORMATO DE REPORTE COMPLETO PARA IMPRESIÓN -->
 @if (mascota != null)
 {
     <div class="print-only p-12 bg-white text-black font-sans">
-        <div class="flex justify-between items-center border-b-4 border-indigo-600 pb-8 mb-10">
-            <div>
-                <h1 class="text-4xl font-black text-indigo-600 tracking-tighter">VETERINARIA GÉNESIS</h1>
-                <p class="text-slate-500 font-bold uppercase tracking-[0.3em] text-xs">Expediente Médico Profesional</p>
+        <div class="flex justify-between items-start border-b-4 border-indigo-600 pb-8 mb-10">
+            <div class="flex items-center gap-6">
+                <img src="images/logo.png" class="w-24 h-24 object-contain" />
+                <div>
+                    <h1 class="text-4xl font-black text-indigo-600 tracking-tighter">VETERINARIA GÉNESIS</h1>
+                    <p class="text-slate-500 font-bold uppercase tracking-[0.3em] text-xs">Expediente Médico Profesional</p>
+                </div>
             </div>
             <div class="text-right text-xs font-bold text-slate-400">
                 <p>Fecha de Reporte: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
                 <p>Veterinaria Génesis S.A.</p>
+                <p>Frente a la Iglesia Católica, Génesis</p>
             </div>
         </div>
 
@@ -301,6 +381,7 @@
                     <p class="text-2xl font-black text-slate-800">@mascota.Nombre</p>
                     <p class="font-bold text-indigo-600">@mascota.Especie • @mascota.Raza</p>
                     <p class="text-sm text-slate-600">Edad: @mascota.Edad años • Sexo: @mascota.Sexo</p>
+                    <p class="text-sm text-slate-600">Peso: <span class="font-bold">@mascota.Peso kg</span> • Color: <span class="font-bold">@(string.IsNullOrEmpty(mascota.Color) ? "N/A" : mascota.Color)</span></p>
                 </div>
             </div>
             <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
@@ -397,10 +478,22 @@
     private Cliente? cliente;
     private List<LineaTiempoItemDto> eventos = new();
     private bool mostrarModal = false;
+    private bool mostrarModalEditarMascota = false;
     private EventoMedicoRequest nuevoEvento = new();
     private bool isSaving = false;
     private string errorModal = "";
     private LineaTiempoItemDto? eventoAImprimir;
+
+    private void AbrirModalEditarMascota() => mostrarModalEditarMascota = true;
+
+    private async Task GuardarCambiosMascota()
+    {
+        if (mascota == null) return;
+        isSaving = true;
+        var exito = await AppState.UpdateMascotaAsync(mascota);
+        if (exito) mostrarModalEditarMascota = false;
+        isSaving = false;
+    }
 
     protected override async Task OnInitializedAsync()
     {

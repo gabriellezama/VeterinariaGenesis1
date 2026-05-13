@@ -14,6 +14,7 @@ namespace VeterinariaGenesis.Domain.Entities
         public int Edad { get; set; }
         public string Sexo { get; set; } = string.Empty;
         public decimal Peso { get; set; }
+        public string Color { get; set; } = string.Empty;
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ClienteId { get; set; }
     }
