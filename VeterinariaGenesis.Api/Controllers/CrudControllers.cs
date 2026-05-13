@@ -5,7 +5,7 @@ using VeterinariaGenesis.Infrastructure.Repositories;
 namespace VeterinariaGenesis.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Clientes")]
     public class ClientesController : ControllerBase
     {
         private readonly ClienteRepository _repo;
@@ -24,7 +24,7 @@ namespace VeterinariaGenesis.Api.Controllers
     }
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Mascotas")]
     public class MascotasController : ControllerBase
     {
         private readonly MascotaRepository _repo;
@@ -43,7 +43,7 @@ namespace VeterinariaGenesis.Api.Controllers
     }
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Trabajadores")]
     public class TrabajadoresController : ControllerBase
     {
         private readonly TrabajadorRepository _repo;
@@ -62,7 +62,7 @@ namespace VeterinariaGenesis.Api.Controllers
     }
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Productos")]
     public class ProductosController : ControllerBase
     {
         private readonly ProductoRepository _repo;
@@ -81,7 +81,7 @@ namespace VeterinariaGenesis.Api.Controllers
     }
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Facturas")]
     public class FacturasController : ControllerBase
     {
         private readonly FacturaRepository _facturaRepo;
