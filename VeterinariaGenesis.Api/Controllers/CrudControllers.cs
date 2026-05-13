@@ -21,6 +21,20 @@ namespace VeterinariaGenesis.Api.Controllers
             await _repo.CreateAsync(cliente);
             return Ok(cliente);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] Cliente cliente)
+        {
+            await _repo.UpdateAsync(id, cliente);
+            return Ok(cliente);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
+        }
     }
 
     [ApiController]
@@ -39,6 +53,20 @@ namespace VeterinariaGenesis.Api.Controllers
             mascota.Id = Guid.NewGuid();
             await _repo.CreateAsync(mascota);
             return Ok(mascota);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] Mascota mascota)
+        {
+            await _repo.UpdateAsync(id, mascota);
+            return Ok(mascota);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
         }
     }
 
@@ -59,6 +87,20 @@ namespace VeterinariaGenesis.Api.Controllers
             await _repo.CreateAsync(trabajador);
             return Ok(trabajador);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] Trabajador trabajador)
+        {
+            await _repo.UpdateAsync(id, trabajador);
+            return Ok(trabajador);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
+        }
     }
 
     [ApiController]
@@ -77,6 +119,20 @@ namespace VeterinariaGenesis.Api.Controllers
             producto.Id = Guid.NewGuid();
             await _repo.CreateAsync(producto);
             return Ok(producto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] Producto producto)
+        {
+            await _repo.UpdateAsync(id, producto);
+            return Ok(producto);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
         }
     }
 
@@ -133,6 +189,20 @@ namespace VeterinariaGenesis.Api.Controllers
             proveedor.Id = Guid.NewGuid();
             await _repo.CreateAsync(proveedor);
             return Ok(proveedor);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] Proveedor proveedor)
+        {
+            await _repo.UpdateAsync(id, proveedor);
+            return Ok(proveedor);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
         }
     }
 }

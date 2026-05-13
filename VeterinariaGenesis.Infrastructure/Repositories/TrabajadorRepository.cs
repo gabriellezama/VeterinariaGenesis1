@@ -18,5 +18,11 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
 
         public async Task CreateAsync(Trabajador trabajador)
             => await _collection.InsertOneAsync(trabajador);
+
+        public async Task UpdateAsync(Guid id, Trabajador trabajador)
+            => await _collection.ReplaceOneAsync(t => t.Id == id, trabajador);
+
+        public async Task DeleteAsync(Guid id)
+            => await _collection.DeleteOneAsync(t => t.Id == id);
     }
 }

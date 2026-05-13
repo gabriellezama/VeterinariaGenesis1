@@ -73,6 +73,44 @@ namespace VeterinariaGenesis.Client.Services
             }
         }
 
+        public async Task<bool> UpdateClienteAsync(Cliente cliente)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Clientes/{cliente.Id}", cliente);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadClientesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando cliente: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteClienteAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/Clientes/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadClientesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando cliente: {ex.Message}");
+                return false;
+            }
+        }
+
         // ============== MASCOTAS ==============
         public async Task LoadMascotasAsync()
         {
@@ -96,6 +134,44 @@ namespace VeterinariaGenesis.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error guardando mascota: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateMascotaAsync(Mascota mascota)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Mascotas/{mascota.Id}", mascota);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadMascotasAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando mascota: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteMascotaAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/Mascotas/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadMascotasAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando mascota: {ex.Message}");
                 return false;
             }
         }
@@ -136,6 +212,44 @@ namespace VeterinariaGenesis.Client.Services
             }
         }
 
+        public async Task<bool> UpdateTrabajadorAsync(Trabajador trabajador)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Trabajadores/{trabajador.Id}", trabajador);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadTrabajadoresAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando trabajador: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteTrabajadorAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/Trabajadores/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadTrabajadoresAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando trabajador: {ex.Message}");
+                return false;
+            }
+        }
+
         // ============== PRODUCTOS ==============
         public async Task LoadProductosAsync()
         {
@@ -159,6 +273,44 @@ namespace VeterinariaGenesis.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error guardando producto: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProductoAsync(Producto producto)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Productos/{producto.Id}", producto);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProductosAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando producto: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteProductoAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/Productos/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProductosAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando producto: {ex.Message}");
                 return false;
             }
         }
@@ -220,6 +372,44 @@ namespace VeterinariaGenesis.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error guardando proveedor: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProveedorAsync(Proveedor proveedor)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Proveedores/{proveedor.Id}", proveedor);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProveedoresAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando proveedor: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteProveedorAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/Proveedores/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProveedoresAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando proveedor: {ex.Message}");
                 return false;
             }
         }

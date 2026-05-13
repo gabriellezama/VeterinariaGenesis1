@@ -18,6 +18,12 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
 
         public async Task CreateAsync(Proveedor proveedor)
             => await _collection.InsertOneAsync(proveedor);
+
+        public async Task UpdateAsync(Guid id, Proveedor proveedor)
+            => await _collection.ReplaceOneAsync(p => p.Id == id, proveedor);
+
+        public async Task DeleteAsync(Guid id)
+            => await _collection.DeleteOneAsync(p => p.Id == id);
     }
 
     public class ProductoRepository
@@ -34,6 +40,12 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
 
         public async Task CreateAsync(Producto producto)
             => await _collection.InsertOneAsync(producto);
+
+        public async Task UpdateAsync(Guid id, Producto producto)
+            => await _collection.ReplaceOneAsync(p => p.Id == id, producto);
+
+        public async Task DeleteAsync(Guid id)
+            => await _collection.DeleteOneAsync(p => p.Id == id);
 
         public async Task UpdateStockAsync(Guid id, int newStock)
         {
