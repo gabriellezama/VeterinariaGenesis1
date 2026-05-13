@@ -9,8 +9,10 @@ namespace VeterinariaGenesis.Domain.Entities
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid Id { get; set; } = Guid.NewGuid();
+        [BsonElement("Nombre")] // Para compatibilidad con datos viejos
         public string Nombres { get; set; } = string.Empty;
         public string Apellidos { get; set; } = string.Empty;
+        [BsonElement("Cedula")] // Para compatibilidad con datos viejos
         public string Identificacion { get; set; } = string.Empty;
         public string Telefono { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

@@ -171,8 +171,8 @@
 
     private List<Cliente> FilteredClientes => AppState.Clientes
         .Where(c => string.IsNullOrWhiteSpace(searchTerm) || 
-                    c.Nombres.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    c.Identificacion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    (c.Nombres != null && c.Nombres.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.Identificacion != null && c.Identificacion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
         .ToList();
 
     protected override async Task OnInitializedAsync()
