@@ -12,7 +12,9 @@ namespace VeterinariaGenesis.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
         public string NumeroFactura { get; set; } = $"FAC-{DateTime.Now.ToString("yyyyMMdd")}-{new Random().Next(1000, 9999)}";
         public DateTime FechaEmision { get; set; } = DateTime.Now;
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ClienteId { get; set; }
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid TrabajadorId { get; set; }
         
         public List<DetalleFactura> Detalles { get; set; } = new List<DetalleFactura>();
@@ -27,7 +29,9 @@ namespace VeterinariaGenesis.Domain.Entities
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid Id { get; set; } = Guid.NewGuid();
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid FacturaId { get; set; }
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ProductoId { get; set; }
         public string DescripcionItem { get; set; } = string.Empty;
         public int Cantidad { get; set; } = 1;
