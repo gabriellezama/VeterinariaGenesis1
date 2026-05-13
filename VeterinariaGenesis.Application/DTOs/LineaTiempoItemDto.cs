@@ -13,5 +13,6 @@ namespace VeterinariaGenesis.Application.DTOs
         public string DetallesExtras { get; set; } = string.Empty; // JSON o cadena formatada con info específica
         public string Icono { get; set; } = string.Empty;
         public string ColorClase { get; set; } = string.Empty;
+        public decimal Costo { get; set; }
     }
 }

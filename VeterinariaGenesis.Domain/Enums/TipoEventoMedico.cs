@@ -6,6 +6,7 @@ namespace VeterinariaGenesis.Domain.Enums
         Vacuna,
         Desparasitacion,
         Cirugia,
-        ExamenLaboratorio
+        ExamenLaboratorio,
+        Grooming
     }
 }

@@ -14,5 +14,6 @@ namespace VeterinariaGenesis.Domain.Entities
         public TipoEventoMedico Tipo { get; set; }
         public string Descripcion { get; set; } = string.Empty;
         public string MedicoResponsable { get; set; } = string.Empty;
+        public decimal Costo { get; set; }
     }
 }

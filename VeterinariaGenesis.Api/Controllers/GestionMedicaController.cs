@@ -33,7 +33,8 @@ namespace VeterinariaGenesis.Api.Controllers
                 MedicoResponsable = e.MedicoResponsable,
                 Icono = ObtenerIcono(e.Tipo),
                 ColorClase = ObtenerColor(e.Tipo),
-                DetallesExtras = ObtenerDetalles(e)
+                DetallesExtras = ObtenerDetalles(e),
+                Costo = e.Costo
             }).ToList();
 
             return Ok(dtos);
@@ -55,6 +56,9 @@ namespace VeterinariaGenesis.Api.Controllers
                 case TipoEventoMedico.Cirugia:
                     evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
                     break;
+                case TipoEventoMedico.Grooming:
+                    evento = new Consulta(); // Grooming usa estructura base por ahora
+                    break;
                 default:
                     evento = new Consulta(); // Fallback seguro
                     break;
@@ -65,6 +69,7 @@ namespace VeterinariaGenesis.Api.Controllers
             evento.Descripcion = request.Descripcion;
             evento.MedicoResponsable = request.MedicoResponsable;
             evento.Tipo = request.Tipo;
+            evento.Costo = request.Costo;
             
             // Usar el título personalizado si se proporciona
             if (!string.IsNullOrEmpty(request.Titulo))
@@ -96,6 +101,7 @@ namespace VeterinariaGenesis.Api.Controllers
             TipoEventoMedico.Vacuna => "fa-syringe",
             TipoEventoMedico.Cirugia => "fa-cut",
             TipoEventoMedico.ExamenLaboratorio => "fa-microscope",
+            TipoEventoMedico.Grooming => "fa-shower",
             _ => "fa-stethoscope"
         };
 
@@ -104,6 +110,7 @@ namespace VeterinariaGenesis.Api.Controllers
             TipoEventoMedico.Vacuna => "bg-emerald-500",
             TipoEventoMedico.Cirugia => "bg-rose-500",
             TipoEventoMedico.ExamenLaboratorio => "bg-amber-500",
+            TipoEventoMedico.Grooming => "bg-sky-500",
             _ => "bg-indigo-500"
         };
 
@@ -123,6 +130,7 @@ namespace VeterinariaGenesis.Api.Controllers
         public string Titulo { get; set; } = string.Empty; // Nuevo campo
         public string Descripcion { get; set; } = string.Empty;
         public string MedicoResponsable { get; set; } = string.Empty;
+        public decimal Costo { get; set; }
         public string InfoExtra1 { get; set; } = string.Empty;
         public string InfoExtra2 { get; set; } = string.Empty;
     }
