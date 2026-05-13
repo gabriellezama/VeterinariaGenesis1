@@ -43,45 +43,52 @@ namespace VeterinariaGenesis.Api.Controllers
         [HttpPost("evento")]
         public async Task<IActionResult> AgregarEvento([FromBody] EventoMedicoRequest request)
         {
-            EventoMedico evento;
-
-            switch (request.Tipo)
+            try 
             {
-                case TipoEventoMedico.Consulta:
-                    evento = new Consulta();
-                    break;
-                case TipoEventoMedico.Vacuna:
-                    DateTime? nextDose = null;
-                    if (!string.IsNullOrEmpty(request.InfoExtra2) && DateTime.TryParse(request.InfoExtra2, out var parsedDate)) 
-                        nextDose = parsedDate;
-                    evento = new Vacuna { ProductoAplicado = request.InfoExtra1, ProximaDosis = nextDose };
-                    break;
-                case TipoEventoMedico.Cirugia:
-                    evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
-                    break;
-                case TipoEventoMedico.Grooming:
-                    evento = new Grooming();
-                    break;
-                default:
-                    evento = new Consulta(); // Fallback seguro
-                    break;
-            }
+                EventoMedico evento;
 
-            evento.MascotaId = request.MascotaId;
-            evento.Fecha = request.Fecha;
-            evento.Descripcion = request.Descripcion;
-            evento.MedicoResponsable = request.MedicoResponsable;
-            evento.Tipo = request.Tipo;
-            evento.Costo = request.Costo;
-            
-            // Usar el título personalizado si se proporciona
-            if (!string.IsNullOrEmpty(request.Titulo))
+                switch (request.Tipo)
+                {
+                    case TipoEventoMedico.Consulta:
+                        evento = new Consulta();
+                        break;
+                    case TipoEventoMedico.Vacuna:
+                        DateTime? nextDose = null;
+                        if (!string.IsNullOrEmpty(request.InfoExtra2) && DateTime.TryParse(request.InfoExtra2, out var parsedDate)) 
+                            nextDose = parsedDate;
+                        evento = new Vacuna { ProductoAplicado = request.InfoExtra1, ProximaDosis = nextDose };
+                        break;
+                    case TipoEventoMedico.Cirugia:
+                        evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
+                        break;
+                    case TipoEventoMedico.Grooming:
+                        evento = new Grooming();
+                        break;
+                    default:
+                        evento = new Consulta(); // Fallback seguro
+                        break;
+                }
+
+                evento.MascotaId = request.MascotaId;
+                evento.Fecha = request.Fecha;
+                evento.Descripcion = request.Descripcion;
+                evento.MedicoResponsable = request.MedicoResponsable;
+                evento.Tipo = request.Tipo;
+                evento.Costo = request.Costo;
+                
+                // Usar el título personalizado si se proporciona
+                if (!string.IsNullOrEmpty(request.Titulo))
+                {
+                    evento.Descripcion = $"[{request.Titulo}] {evento.Descripcion}";
+                }
+
+                await _repo.AgregarEventoAsync(evento);
+                return Ok(evento);
+            }
+            catch (Exception ex)
             {
-                evento.Descripcion = $"[{request.Titulo}] {evento.Descripcion}";
+                return StatusCode(500, $"Error al guardar evento: {ex.Message}");
             }
-
-            await _repo.AgregarEventoAsync(evento);
-            return Ok(evento);
         }
 
         private string ObtenerTitulo(EventoMedico e)

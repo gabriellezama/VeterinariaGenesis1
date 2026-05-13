@@ -8,7 +8,11 @@ namespace VeterinariaGenesis.Domain.Entities
     [BsonKnownTypes(typeof(Vacuna), typeof(Cirugia), typeof(ExamenLaboratorio), typeof(Consulta), typeof(Grooming))]
     public abstract class EventoMedico
     {
+        [BsonId]
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid MascotaId { get; set; }
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
         public TipoEventoMedico Tipo { get; set; }
