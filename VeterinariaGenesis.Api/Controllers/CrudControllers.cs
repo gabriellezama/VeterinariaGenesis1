@@ -155,21 +155,38 @@ namespace VeterinariaGenesis.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Factura factura)
         {
-            factura.Id = Guid.NewGuid();
-
-            // Actualizar stock de cada producto
-            var productos = await _productoRepo.GetAllAsync();
-            foreach (var detalle in factura.Detalles)
+            try 
             {
-                var prod = productos.FirstOrDefault(p => p.Id == detalle.ProductoId);
-                if (prod != null)
-                {
-                    await _productoRepo.UpdateStockAsync(prod.Id, prod.Stock - detalle.Cantidad);
-                }
-            }
+                factura.Id = Guid.NewGuid();
+                // Asegurar que los IDs de los detalles coincidan con la factura
+                foreach(var d in factura.Detalles) d.FacturaId = factura.Id;
 
-            await _facturaRepo.CreateAsync(factura);
-            return Ok(factura);
+                // Actualizar stock de cada producto de forma segura
+                foreach (var detalle in factura.Detalles)
+                {
+                    try 
+                    {
+                        var prod = await _productoRepo.GetByIdAsync(detalle.ProductoId);
+                        if (prod != null)
+                        {
+                            decimal nuevoStock = prod.Stock - detalle.Cantidad;
+                            await _productoRepo.UpdateStockAsync(prod.Id, nuevoStock);
+                        }
+                    }
+                    catch (Exception exStock)
+                    {
+                        Console.WriteLine($"Error actualizando stock para {detalle.ProductoId}: {exStock.Message}");
+                        // Continuamos con el siguiente producto para no bloquear la factura
+                    }
+                }
+
+                await _facturaRepo.CreateAsync(factura);
+                return Ok(factura);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
         }
     }
 

@@ -38,6 +38,9 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
         public async Task<List<Producto>> GetAllAsync()
             => await _collection.Find(_ => true).ToListAsync();
 
+        public async Task<Producto> GetByIdAsync(Guid id)
+            => await _collection.Find(p => p.Id == id).FirstOrDefaultAsync();
+
         public async Task CreateAsync(Producto producto)
             => await _collection.InsertOneAsync(producto);
 
