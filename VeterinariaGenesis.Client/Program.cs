@@ -10,7 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton(sp =>
 {
-    var http = new HttpClient { BaseAddress = new Uri("https://veterinariagenesis1-production.up.railway.app/") };
+    var http = new HttpClient { BaseAddress = new Uri("https://veterinariagenesis1-production-3fc1.up.railway.app/") };
     return new AppStateService(http);
 });
 
