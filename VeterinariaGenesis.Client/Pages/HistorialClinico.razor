@@ -463,7 +463,8 @@
             <div class="text-right text-xs font-bold text-slate-400">
                 <p>Fecha de Reporte: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
                 <p>Veterinaria Génesis S.A.</p>
-                <p>Frente a la Iglesia Católica, Génesis</p>
+                <p>📍 Semaforos de la cañada 10 vara al este</p>
+                <p>📞 Tel: 8878-2492</p>
             </div>
         </div>
 
@@ -518,9 +519,11 @@
 @if (eventoAImprimir != null)
 {
     <div class="print-only p-12 bg-white text-black min-h-screen">
-        <div class="text-center mb-10 border-b-4 border-indigo-600 pb-8">
+        <div class="text-center mb-10 border-b-4 border-indigo-600 pb-8 flex flex-col items-center">
+            <img src="images/logo.png" class="h-24 mb-4" alt="Logo" />
             <h1 class="text-4xl font-black text-indigo-600">VETERINARIA GÉNESIS</h1>
             <p class="text-sm font-bold uppercase tracking-[0.3em] text-slate-500 mt-2">Recetario y Reporte Médico</p>
+            <p class="text-[0.65rem] font-bold text-slate-400 mt-2 uppercase">📍 Semaforos de la cañada 10 vara al este • 📞 Tel: 8878-2492</p>
         </div>
 
         <div class="grid grid-cols-2 gap-12 mb-10 text-sm">
