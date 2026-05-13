@@ -34,9 +34,12 @@
     <script>
       Blazor.start({
         loadBootResource: function (type, name, defaultUri, integrity) {
-          // Desactivar la verificación de integridad (SRI) porque GitHub Pages 
-          // a menudo modifica los saltos de línea de los archivos compilados, rompiendo el hash.
-          return defaultUri;
+          // Retornar explícitamente un 'fetch' con integrity vacío para forzar
+          // al navegador a ignorar la verificación de seguridad que rompe GitHub Pages.
+          return fetch(defaultUri, {
+            cache: 'no-cache',
+            integrity: ''
+          });
         }
       });
     </script>
