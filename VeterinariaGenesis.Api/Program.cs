@@ -23,12 +23,25 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // EL ORDEN ES CRÍTICO EN .NET 10
-app.UseRouting(); // Primero activamos el mapa de rutas
+app.UseRouting();
 
-app.UseCors("AllowAll"); // Luego ponemos el sello de aprobación
+app.UseCors("AllowAll");
+
+// Middleware de diagnóstico para ver errores reales en la consola de Railway
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR CRÍTICO]: {ex.Message}");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync($"Error interno: {ex.Message}");
+    }
+});
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
