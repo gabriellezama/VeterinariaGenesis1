@@ -36,10 +36,14 @@
         loadBootResource: function (type, name, defaultUri, integrity) {
           // Retornar explícitamente un 'fetch' con integrity vacío para forzar
           // al navegador a ignorar la verificación de seguridad que rompe GitHub Pages.
-          return fetch(defaultUri, {
-            cache: 'no-cache',
-            integrity: ''
-          });
+          // NOTA: Para el archivo principal 'dotnetjs', Blazor exige que se retorne una cadena de texto (URI), no una Promesa.
+          if (type !== 'dotnetjs') {
+            return fetch(defaultUri, {
+              cache: 'no-cache',
+              integrity: ''
+            });
+          }
+          return defaultUri;
         }
       });
     </script>
