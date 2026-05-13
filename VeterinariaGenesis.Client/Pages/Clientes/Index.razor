@@ -68,8 +68,9 @@
                             <div class="flex items-center">
                                 <i class="fas fa-phone-alt w-6 text-indigo-400"></i> @cliente.Telefono
                             </div>
-                            <a href="https://wa.me/@(cliente.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Contactar por WhatsApp">
-                                <i class="fab fa-whatsapp"></i>
+                            <a href="https://wa.me/505@(cliente.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center gap-2 hover:bg-emerald-500 hover:text-white transition-all shadow-sm border border-emerald-100" title="Contactar por WhatsApp">
+                                <i class="fab fa-whatsapp text-lg"></i>
+                                <span class="text-[0.65rem] font-black uppercase tracking-tight">WhatsApp</span>
                             </a>
                         </div>
                         <div class="flex items-center text-slate-600 text-sm">
@@ -100,8 +101,8 @@
                         <div class="flex gap-4 text-indigo-100 text-sm font-medium items-center">
                             <span><i class="fas fa-id-card mr-1"></i> @clienteSeleccionado.DisplayIdentificacion</span>
                             <span><i class="fas fa-map-marker-alt mr-1"></i> @clienteSeleccionado.Direccion</span>
-                            <a href="https://wa.me/@(clienteSeleccionado.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="bg-emerald-500/20 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg transition-all flex items-center gap-1">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            <a href="https://wa.me/505@(clienteSeleccionado.Telefono?.Replace(" ", "").Replace("-", ""))" target="_blank" class="bg-emerald-500/20 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 font-bold shadow-lg shadow-emerald-500/20">
+                                <i class="fab fa-whatsapp text-xl"></i> WhatsApp
                             </a>
                         </div>
                     </div>
