@@ -54,12 +54,23 @@ namespace VeterinariaGenesis.Client.Services
             NotifyStateChanged();
         }
 
-        public async Task AddClienteAsync(Cliente cliente)
+        public async Task<bool> AddClienteAsync(Cliente cliente)
         {
-            var response = await _http.PostAsJsonAsync("api/Clientes", cliente);
-            var saved = await response.Content.ReadFromJsonAsync<Cliente>();
-            if (saved != null) Clientes.Add(saved);
-            NotifyStateChanged();
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/Clientes", cliente);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadClientesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando cliente: {ex.Message}");
+                return false;
+            }
         }
 
         // ============== MASCOTAS ==============
@@ -70,12 +81,23 @@ namespace VeterinariaGenesis.Client.Services
             NotifyStateChanged();
         }
 
-        public async Task AddMascotaAsync(Mascota mascota)
+        public async Task<bool> AddMascotaAsync(Mascota mascota)
         {
-            var response = await _http.PostAsJsonAsync("api/Mascotas", mascota);
-            var saved = await response.Content.ReadFromJsonAsync<Mascota>();
-            if (saved != null) Mascotas.Add(saved);
-            NotifyStateChanged();
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/Mascotas", mascota);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadMascotasAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando mascota: {ex.Message}");
+                return false;
+            }
         }
 
         // ============== TRABAJADORES ==============
@@ -122,12 +144,23 @@ namespace VeterinariaGenesis.Client.Services
             NotifyStateChanged();
         }
 
-        public async Task AddProductoAsync(Producto producto)
+        public async Task<bool> AddProductoAsync(Producto producto)
         {
-            var response = await _http.PostAsJsonAsync("api/Productos", producto);
-            var saved = await response.Content.ReadFromJsonAsync<Producto>();
-            if (saved != null) Productos.Add(saved);
-            NotifyStateChanged();
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/Productos", producto);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProductosAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando producto: {ex.Message}");
+                return false;
+            }
         }
 
         // ============== FACTURAS ==============
@@ -138,12 +171,23 @@ namespace VeterinariaGenesis.Client.Services
             NotifyStateChanged();
         }
 
-        public async Task AddFacturaAsync(Factura factura)
+        public async Task<bool> AddFacturaAsync(Factura factura)
         {
-            var response = await _http.PostAsJsonAsync("api/Facturas", factura);
-            var saved = await response.Content.ReadFromJsonAsync<Factura>();
-            if (saved != null) Facturas.Add(saved);
-            NotifyStateChanged();
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/Facturas", factura);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadFacturasAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando factura: {ex.Message}");
+                return false;
+            }
         }
 
         // ============== PROVEEDORES ==============
