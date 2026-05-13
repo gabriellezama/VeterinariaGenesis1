@@ -11,8 +11,16 @@ namespace VeterinariaGenesis.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Nombres { get; set; } = string.Empty;
+
+        [BsonElement("Nombre")]
+        private string? NombreLegacy { set { if (string.IsNullOrEmpty(Nombres)) Nombres = value ?? ""; } }
+
         public string Apellidos { get; set; } = string.Empty;
+
         public string Identificacion { get; set; } = string.Empty;
+
+        [BsonElement("Cedula")]
+        private string? CedulaLegacy { set { if (string.IsNullOrEmpty(Identificacion)) Identificacion = value ?? ""; } }
         public string Telefono { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Direccion { get; set; } = string.Empty;
