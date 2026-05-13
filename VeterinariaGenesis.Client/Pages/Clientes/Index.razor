@@ -44,8 +44,12 @@
             @foreach (var cliente in FilteredClientes)
             {
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 card-hover group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button @onclick="() => EliminarCliente(cliente.Id)" class="text-rose-400 hover:text-rose-600 p-2"><i class="fas fa-trash"></i></button>
+                    <div class="absolute top-3 right-3">
+                        <button @onclick="() => EliminarCliente(cliente.Id)" 
+                                class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm flex items-center justify-center" 
+                                title="Eliminar Cliente">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                     
                     <div class="flex items-start gap-4 mb-6">
@@ -146,9 +150,15 @@
                 </div>
             </div>
             
-            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                <button @onclick="CerrarFicha" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CERRAR</button>
-                <button @onclick='() => Nav.NavigateTo($"clientes/editar/{clienteSeleccionado.Id}")' class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">EDITAR PERFIL</button>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                <button @onclick="() => EliminarCliente(clienteSeleccionado.Id)" 
+                        class="px-6 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-bold hover:bg-rose-600 hover:text-white transition-all">
+                    <i class="fas fa-trash-alt mr-2"></i> ELIMINAR CLIENTE
+                </button>
+                <div class="flex gap-3">
+                    <button @onclick="CerrarFicha" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CERRAR</button>
+                    <button @onclick='() => Nav.NavigateTo($"clientes/editar/{clienteSeleccionado.Id}")' class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">EDITAR PERFIL</button>
+                </div>
             </div>
         </div>
     </div>
@@ -177,7 +187,14 @@
 
     private async Task EliminarCliente(Guid id)
     {
-        await AppState.DeleteClienteAsync(id);
+        var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == id);
+        var confirmado = await JS.InvokeAsync<bool>("confirm", $"¿Estás seguro de eliminar al cliente {cliente?.Nombres}? Esta acción no se puede deshacer.");
+        
+        if (confirmado)
+        {
+            await AppState.DeleteClienteAsync(id);
+            clienteSeleccionado = null; // Cerrar modal si estaba abierto
+        }
     }
 
     public void Dispose()
