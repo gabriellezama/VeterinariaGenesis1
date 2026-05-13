@@ -12,6 +12,7 @@ namespace VeterinariaGenesis.Domain.Entities
         public string Descripcion { get; set; } = string.Empty;
         public decimal PrecioCompra { get; set; }
         public decimal PrecioVenta { get; set; }
+        public int Stock { get; set; }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid? ProveedorId { get; set; }
     }
