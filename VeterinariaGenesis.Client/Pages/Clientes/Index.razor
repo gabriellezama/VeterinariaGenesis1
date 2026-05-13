@@ -163,7 +163,7 @@
             
             <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <button @onclick="CerrarFicha" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CERRAR</button>
-                <button class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">EDITAR PERFIL</button>
+                <button @onclick='() => Nav.NavigateTo($"clientes/editar/{clienteSeleccionado.Id}")' class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">EDITAR PERFIL</button>
             </div>
         </div>
     </div>
