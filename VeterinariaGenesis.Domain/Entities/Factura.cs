@@ -30,8 +30,6 @@ namespace VeterinariaGenesis.Domain.Entities
 
     public class DetalleFactura
     {
-        [BsonId]
-        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid Id { get; set; } = Guid.NewGuid();
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid FacturaId { get; set; }
