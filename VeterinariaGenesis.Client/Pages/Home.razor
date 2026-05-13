@@ -40,9 +40,9 @@
             <i class="fas fa-paw"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Pacientes Atendidos Hoy</p>
-            <p class="text-2xl font-bold text-gray-900">12</p>
-            <p class="text-xs text-green-500 font-medium"><i class="fas fa-arrow-up"></i> 20% vs ayer</p>
+            <p class="text-sm font-medium text-gray-500">Total Pacientes</p>
+            <p class="text-2xl font-bold text-gray-900">@AppState.Mascotas.Count()</p>
+            <p class="text-xs text-green-500 font-medium"><i class="fas fa-check-circle"></i> Sistema Activo</p>
         </div>
     </div>
     
@@ -51,9 +51,9 @@
             <i class="fas fa-user-plus"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Nuevos Clientes (Mes)</p>
-            <p class="text-2xl font-bold text-gray-900">45</p>
-            <p class="text-xs text-green-500 font-medium"><i class="fas fa-arrow-up"></i> 5% vs mes ant.</p>
+            <p class="text-sm font-medium text-gray-500">Clientes Registrados</p>
+            <p class="text-2xl font-bold text-gray-900">@AppState.Clientes.Count()</p>
+            <p class="text-xs text-indigo-500 font-medium"><i class="fas fa-users"></i> Directorio</p>
         </div>
     </div>
     
@@ -62,48 +62,52 @@
             <i class="fas fa-dollar-sign"></i>
         </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Ingresos del Día</p>
-            <p class="text-2xl font-bold text-gray-900">$1,250.00</p>
+            <p class="text-sm font-medium text-gray-500">Ingresos Totales</p>
+            <p class="text-2xl font-bold text-gray-900">$@AppState.Facturas.Sum(f => f.Total).ToString("N2")</p>
         </div>
     </div>
 </div>
 
-<!-- Próximas Citas -->
+<!-- Últimas Actividades -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-        <h3 class="text-lg font-bold text-gray-900">Próximas Citas de Hoy</h3>
-        <button class="text-indigo-600 text-sm font-medium hover:text-indigo-800">Ver todas</button>
+        <h3 class="text-lg font-bold text-gray-900">Últimas Mascotas Registradas</h3>
+        <button @onclick='() => NavigationManager.NavigateTo("clientes")' class="text-indigo-600 text-sm font-medium hover:text-indigo-800">Ver todas</button>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                    <th class="px-6 py-3 font-medium">Hora</th>
+                    <th class="px-6 py-3 font-medium">Fecha Reg.</th>
                     <th class="px-6 py-3 font-medium">Mascota</th>
                     <th class="px-6 py-3 font-medium">Cliente</th>
-                    <th class="px-6 py-3 font-medium">Motivo</th>
+                    <th class="px-6 py-3 font-medium">Especie</th>
                     <th class="px-6 py-3 font-medium">Estado</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm">
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 font-medium text-gray-900">10:00 AM</td>
-                    <td class="px-6 py-4"><i class="fas fa-dog text-gray-400 mr-2"></i> Max (Golden)</td>
-                    <td class="px-6 py-4 text-gray-500">Carlos López</td>
-                    <td class="px-6 py-4">Revisión post-operatoria</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">En espera</span>
-                    </td>
-                </tr>
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 font-medium text-gray-900">11:30 AM</td>
-                    <td class="px-6 py-4"><i class="fas fa-cat text-gray-400 mr-2"></i> Luna (Siamesa)</td>
-                    <td class="px-6 py-4 text-gray-500">Ana Martínez</td>
-                    <td class="px-6 py-4">Vacunación (Triple felina)</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Confirmada</span>
-                    </td>
-                </tr>
+                @if (!AppState.Mascotas.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-400">No hay mascotas registradas aún.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var mascota in AppState.Mascotas.AsEnumerable().Reverse().Take(5))
+                    {
+                        var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == mascota.ClienteId);
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900">Hoy</td>
+                            <td class="px-6 py-4"><i class="fas @(mascota.Especie?.ToLower() == "gato" ? "fa-cat" : "fa-dog") text-indigo-400 mr-2"></i> @mascota.Nombre</td>
+                            <td class="px-6 py-4 text-gray-500">@(cliente?.Nombres ?? "Desconocido")</td>
+                            <td class="px-6 py-4">@mascota.Especie</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Activo</span>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
     </div>
@@ -116,6 +120,9 @@
     {
         AppState.OnChange += StateHasChanged;
         await AppState.LoadTrabajadoresAsync();
+        await AppState.LoadClientesAsync();
+        await AppState.LoadMascotasAsync();
+        await AppState.LoadFacturasAsync();
         
         if (AppState.Trabajadores.Any())
         {
