@@ -1,0 +1,122 @@
+@page "/proveedores"
+@implements IDisposable
+@using VeterinariaGenesis.Client.Services
+@using VeterinariaGenesis.Domain.Entities
+@inject AppStateService AppState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Proveedores | Veterinaria Génesis</PageTitle>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Gestión de Proveedores</h1>
+        <p class="text-sm text-gray-500">Administra las empresas y contactos que suministran tus productos.</p>
+    </div>
+    
+    <button @onclick="AbrirModalNuevo" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-md font-medium transition-colors flex items-center">
+        <i class="fas fa-plus mr-2"></i> Nuevo Proveedor
+    </button>
+</div>
+
+<!-- Lista de Proveedores -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                    <th class="px-6 py-4 font-medium">Empresa</th>
+                    <th class="px-6 py-4 font-medium">Contacto</th>
+                    <th class="px-6 py-4 font-medium">Teléfono</th>
+                    <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 text-sm">
+                @if (!AppState.Proveedores.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-400">No hay proveedores registrados.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var prov in AppState.Proveedores)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-gray-900">@prov.NombreEmpresa</td>
+                            <td class="px-6 py-4 text-gray-600">@prov.PersonaContacto</td>
+                            <td class="px-6 py-4">@prov.Telefono</td>
+                            <td class="px-6 py-4 text-right">
+                                <button class="text-blue-600 hover:text-blue-900 p-2"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Nuevo Proveedor -->
+@if (mostrarModal)
+{
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+            <div class="bg-indigo-600 px-6 py-4">
+                <h3 class="text-white font-bold text-lg">Nuevo Proveedor</h3>
+            </div>
+            
+            <EditForm Model="nuevoProveedor" OnValidSubmit="GuardarProveedor">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Empresa</label>
+                        <InputText @bind-Value="nuevoProveedor.NombreEmpresa" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Persona de Contacto</label>
+                        <InputText @bind-Value="nuevoProveedor.PersonaContacto" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <InputText @bind-Value="nuevoProveedor.Telefono" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+                    <button type="button" @onclick="CerrarModal" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">Cancelar</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">Guardar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private bool mostrarModal = false;
+    private Proveedor nuevoProveedor = new Proveedor();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+        await AppState.LoadProveedoresAsync();
+    }
+
+    private void AbrirModalNuevo()
+    {
+        nuevoProveedor = new Proveedor();
+        mostrarModal = true;
+    }
+
+    private void CerrarModal() => mostrarModal = false;
+
+    private async Task GuardarProveedor()
+    {
+        await AppState.AddProveedorAsync(nuevoProveedor);
+        mostrarModal = false;
+        await AppState.LoadProveedoresAsync();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+}

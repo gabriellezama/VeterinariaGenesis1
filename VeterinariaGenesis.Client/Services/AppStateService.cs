@@ -193,9 +193,35 @@ namespace VeterinariaGenesis.Client.Services
         // ============== PROVEEDORES ==============
         public async Task LoadProveedoresAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Proveedor>>("api/proveedores");
-            Proveedores = result ?? new();
-            NotifyStateChanged();
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Proveedor>>("api/proveedores");
+                Proveedores = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando proveedores: {ex.Message}");
+            }
+        }
+
+        public async Task<bool> AddProveedorAsync(Proveedor proveedor)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/proveedores", proveedor);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadProveedoresAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando proveedor: {ex.Message}");
+                return false;
+            }
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();
