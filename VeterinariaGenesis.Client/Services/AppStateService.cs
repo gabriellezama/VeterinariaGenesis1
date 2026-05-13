@@ -50,9 +50,17 @@ namespace VeterinariaGenesis.Client.Services
         // ============== CLIENTES ==============
         public async Task LoadClientesAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Cliente>>("api/Clientes");
-            Clientes = result ?? new();
-            NotifyStateChanged();
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Cliente>>("api/Clientes");
+                Clientes = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando clientes: {ex.Message}");
+                Clientes = new();
+            }
         }
 
         public async Task<bool> AddClienteAsync(Cliente cliente)
@@ -115,9 +123,17 @@ namespace VeterinariaGenesis.Client.Services
         // ============== MASCOTAS ==============
         public async Task LoadMascotasAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Mascota>>("api/Mascotas");
-            Mascotas = result ?? new();
-            NotifyStateChanged();
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Mascota>>("api/Mascotas");
+                Mascotas = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando mascotas: {ex.Message}");
+                Mascotas = new();
+            }
         }
 
         public async Task<bool> AddMascotaAsync(Mascota mascota)
@@ -254,9 +270,17 @@ namespace VeterinariaGenesis.Client.Services
         // ============== PRODUCTOS ==============
         public async Task LoadProductosAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Producto>>("api/Productos");
-            Productos = result ?? new();
-            NotifyStateChanged();
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Producto>>("api/Productos");
+                Productos = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando productos: {ex.Message}");
+                Productos = new();
+            }
         }
 
         public async Task<bool> AddProductoAsync(Producto producto)
@@ -319,9 +343,17 @@ namespace VeterinariaGenesis.Client.Services
         // ============== FACTURAS ==============
         public async Task LoadFacturasAsync()
         {
-            var result = await _http.GetFromJsonAsync<List<Factura>>("api/Facturas");
-            Facturas = result ?? new();
-            NotifyStateChanged();
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Factura>>("api/Facturas");
+                Facturas = result ?? new();
+                NotifyStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando facturas: {ex.Message}");
+                Facturas = new();
+            }
         }
 
         public async Task<bool> AddFacturaAsync(Factura factura)
