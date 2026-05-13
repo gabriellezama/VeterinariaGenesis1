@@ -12,12 +12,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// Configure CORS for Blazor Client
+// Configure CORS - MODO ULTRA PERMISIVO
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazor", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(_ => true) // Acepta CUALQUIER origen (GitHub, Local, etc)
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -25,8 +25,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// EL ORDEN ES CRÍTICO: CORS debe ir ANTES que cualquier otro middleware
-app.UseCors("AllowBlazor");
+// EL ORDEN ES CRÍTICO: CORS DEBE IR PRIMERO
+app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
 {
