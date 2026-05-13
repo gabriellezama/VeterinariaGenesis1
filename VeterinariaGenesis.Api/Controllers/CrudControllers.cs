@@ -185,7 +185,8 @@ namespace VeterinariaGenesis.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error interno: {ex.Message}");
+                var msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, $"Error al procesar factura: {msg}");
             }
         }
     }

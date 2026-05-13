@@ -352,7 +352,9 @@ else
         }
         else
         {
-            errorMessage = "Error al conectar con el servidor. Intente de nuevo.";
+            errorMessage = !string.IsNullOrEmpty(AppState.LastErrorMessage) 
+                ? AppState.LastErrorMessage 
+                : "Error al conectar con el servidor. Intente de nuevo.";
         }
         
         isProcessing = false;

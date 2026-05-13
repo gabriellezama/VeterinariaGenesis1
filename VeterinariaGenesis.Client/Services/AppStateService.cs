@@ -21,6 +21,7 @@ namespace VeterinariaGenesis.Client.Services
         public List<Factura> Facturas { get; private set; } = new();
 
         public bool IsLoggedIn { get; private set; } = false;
+        public string LastErrorMessage { get; private set; } = string.Empty;
 
         public event Action? OnChange;
 
@@ -377,10 +378,13 @@ namespace VeterinariaGenesis.Client.Services
                     await LoadFacturasAsync();
                     return true;
                 }
+                
+                LastErrorMessage = await response.Content.ReadAsStringAsync();
                 return false;
             }
             catch (Exception ex)
             {
+                LastErrorMessage = ex.Message;
                 Console.WriteLine($"Error guardando factura: {ex.Message}");
                 return false;
             }
