@@ -63,7 +63,7 @@
         </div>
         <div>
             <p class="text-sm font-medium text-gray-500">Ingresos Totales</p>
-            <p class="text-2xl font-bold text-gray-900">$@AppState.Facturas.Sum(f => f.Total).ToString("N2")</p>
+            <p class="text-2xl font-bold text-gray-900">$@((AppState.Facturas?.Sum(f => f.Total) ?? 0).ToString("N2"))</p>
         </div>
     </div>
 </div>
@@ -86,7 +86,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm">
-                @if (!AppState.Mascotas.Any())
+                @if (AppState.Mascotas == null || !AppState.Mascotas.Any())
                 {
                     <tr>
                         <td colspan="5" class="px-6 py-8 text-center text-gray-400">No hay mascotas registradas aún.</td>
@@ -94,7 +94,7 @@
                 }
                 else
                 {
-                    @foreach (var mascota in AppState.Mascotas.AsEnumerable().Reverse().Take(5))
+                    @foreach (var mascota in AppState.Mascotas.OrderByDescending(m => m.Id).Take(5))
                     {
                         var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == mascota.ClienteId);
                         <tr class="hover:bg-gray-50 transition-colors">
