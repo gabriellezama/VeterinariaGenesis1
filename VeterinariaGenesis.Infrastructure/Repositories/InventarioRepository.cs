@@ -47,7 +47,7 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
         public async Task DeleteAsync(Guid id)
             => await _collection.DeleteOneAsync(p => p.Id == id);
 
-        public async Task UpdateStockAsync(Guid id, int newStock)
+        public async Task UpdateStockAsync(Guid id, decimal newStock)
         {
             var update = Builders<Producto>.Update.Set(p => p.Stock, newStock);
             await _collection.UpdateOneAsync(p => p.Id == id, update);
