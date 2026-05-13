@@ -1,4 +1,7 @@
 @page "/"
+@implements IDisposable
+@using VeterinariaGenesis.Client.Services
+@inject AppStateService AppState
 
 <PageTitle>Dashboard | Veterinaria Génesis</PageTitle>
 
@@ -11,10 +14,17 @@
     <div class="w-64">
         <label for="doctor" class="block text-xs font-medium text-gray-500 mb-1">Doctor en Turno</label>
         <select id="doctor" @bind="DoctorActual" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
-            <option value="Dr. López">Dr. López</option>
-            <option value="Dra. Martínez">Dra. Martínez</option>
-            <option value="Dr. Admin">Dr. Admin</option>
-            <option value="Dra. Gómez">Dra. Gómez</option>
+            @if (AppState.Trabajadores.Any())
+            {
+                @foreach (var trabajador in AppState.Trabajadores)
+                {
+                    <option value="@trabajador.Nombre">@trabajador.Nombre</option>
+                }
+            }
+            else
+            {
+                <option value="Sin Personal Registrado">Sin Personal Registrado</option>
+            }
         </select>
     </div>
 </div>
@@ -96,5 +106,21 @@
 </div>
 
 @code {
-    private string DoctorActual { get; set; } = "Dr. Admin";
+    private string DoctorActual { get; set; } = "Sin Personal Registrado";
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+        await AppState.LoadTrabajadoresAsync();
+        
+        if (AppState.Trabajadores.Any())
+        {
+            DoctorActual = AppState.Trabajadores.First().Nombre;
+        }
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
 }
