@@ -50,11 +50,11 @@
                     
                     <div class="flex items-start gap-4 mb-6">
                         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-indigo-100">
-                            @cliente.Nombre.Substring(0, 1).ToUpper()
+                            @cliente.Nombres.Substring(0, 1).ToUpper()
                         </div>
                         <div>
-                            <h3 class="text-lg font-black text-slate-800">@cliente.Nombre</h3>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ID: @cliente.Cedula</span>
+                            <h3 class="text-lg font-black text-slate-800">@cliente.Nombres</h3>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ID: @cliente.Identificacion</span>
                         </div>
                     </div>
 
@@ -94,12 +94,12 @@
             <div class="p-8 bg-indigo-600 text-white flex justify-between items-start">
                 <div class="flex gap-6">
                     <div class="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl font-black border border-white/30">
-                        @clienteSeleccionado.Nombre.Substring(0, 1).ToUpper()
+                        @clienteSeleccionado.Nombres.Substring(0, 1).ToUpper()
                     </div>
                     <div>
-                        <h2 class="text-3xl font-black mb-1">@clienteSeleccionado.Nombre</h2>
+                        <h2 class="text-3xl font-black mb-1">@clienteSeleccionado.Nombres</h2>
                         <div class="flex gap-4 text-indigo-100 text-sm font-medium">
-                            <span><i class="fas fa-id-card mr-1"></i> @clienteSeleccionado.Cedula</span>
+                            <span><i class="fas fa-id-card mr-1"></i> @clienteSeleccionado.Identificacion</span>
                             <span><i class="fas fa-map-marker-alt mr-1"></i> @clienteSeleccionado.Direccion</span>
                         </div>
                     </div>
@@ -136,12 +136,12 @@
                     <div>
                         <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Historial de Visitas</h3>
                         <div class="space-y-4">
-                            @foreach (var fact in AppState.Facturas.Where(f => f.ClienteId == clienteSeleccionado.Id).OrderByDescending(f => f.Fecha))
+                            @foreach (var fact in AppState.Facturas.Where(f => f.ClienteId == clienteSeleccionado.Id).OrderByDescending(f => f.FechaEmision))
                             {
                                 <div class="p-4 border-l-4 border-indigo-500 bg-white shadow-sm rounded-r-2xl flex justify-between items-center">
                                     <div>
                                         <p class="font-bold text-slate-800">Visita Médica / Venta</p>
-                                        <p class="text-xs text-slate-400">@fact.Fecha.ToString("dd MMMM, yyyy")</p>
+                                        <p class="text-xs text-slate-400">@fact.FechaEmision.ToString("dd MMMM, yyyy")</p>
                                     </div>
                                     <p class="font-black text-indigo-600">C$ @fact.Total.ToString("N2")</p>
                                 </div>
@@ -171,8 +171,8 @@
 
     private List<Cliente> FilteredClientes => AppState.Clientes
         .Where(c => string.IsNullOrWhiteSpace(searchTerm) || 
-                    c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    c.Cedula.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    c.Nombres.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    c.Identificacion.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
         .ToList();
 
     protected override async Task OnInitializedAsync()
