@@ -107,14 +107,60 @@ else
             </div>
             
             <!-- Acciones Topbar -->
-            <div class="flex items-center space-x-4">
-                <button @onclick='() => NavigationManager.NavigateTo("clientes")' class="text-gray-400 hover:text-indigo-600 relative">
+            <div class="flex items-center space-x-4 relative">
+                <button @onclick="ToggleNotifications" class="text-gray-400 hover:text-indigo-600 relative transition-colors">
                     <i class="far fa-bell text-xl"></i>
-                    <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[10px] items-center justify-center font-bold border border-white">3</span>
-                    </span>
+                    @if (RecentActivities.Any())
+                    {
+                        <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-4 w-4">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[10px] items-center justify-center font-bold border border-white">
+                                @RecentActivities.Count()
+                            </span>
+                        </span>
+                    }
                 </button>
+
+                <!-- Menú de Notificaciones -->
+                @if (showNotifications)
+                {
+                    <div class="absolute right-0 mt-12 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-fade-in-down" style="top: 10px;">
+                        <div class="bg-indigo-600 px-4 py-3 flex justify-between items-center">
+                            <h4 class="text-white font-bold text-sm">Notificaciones Recientes</h4>
+                            <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">Nuevas</span>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            @if (!RecentActivities.Any())
+                            {
+                                <div class="p-8 text-center">
+                                    <i class="fas fa-bell-slash text-gray-200 text-3xl mb-2"></i>
+                                    <p class="text-xs text-gray-400">No hay actividades recientes</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="divide-y divide-gray-50">
+                                    @foreach (var activity in RecentActivities)
+                                    {
+                                        <div class="p-4 hover:bg-gray-50 transition-colors flex items-start">
+                                            <div class="w-8 h-8 rounded-full @activity.Color flex items-center justify-center text-white text-xs flex-shrink-0">
+                                                <i class="fas @activity.Icon"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-xs font-bold text-gray-900">@activity.Title</p>
+                                                <p class="text-[10px] text-gray-500">@activity.Description</p>
+                                                <p class="text-[9px] text-indigo-400 mt-1">Hace un momento</p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="bg-gray-50 p-2 text-center border-t border-gray-100">
+                            <button @onclick="ToggleNotifications" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800">Marcar todas como leídas</button>
+                        </div>
+                    </div>
+                }
             </div>
         </header>
 
@@ -148,6 +194,38 @@ else
     private void HandleLogout()
     {
         AppState.Logout();
+    }
+
+    private bool showNotifications = false;
+
+    private void ToggleNotifications() => showNotifications = !showNotifications;
+
+    private List<ActivityItem> RecentActivities
+    {
+        get
+        {
+            var list = new List<ActivityItem>();
+            
+            // Simular notificaciones basadas en datos reales
+            if (AppState.Clientes.Any())
+                list.Add(new ActivityItem { Title = "Nuevo Cliente", Description = $"{AppState.Clientes.Last().Nombres} se ha unido.", Icon = "fa-user-plus", Color = "bg-indigo-500" });
+                
+            if (AppState.Mascotas.Any())
+                list.Add(new ActivityItem { Title = "Nueva Mascota", Description = $"{AppState.Mascotas.Last().Nombre} fue registrada.", Icon = "fa-paw", Color = "bg-amber-500" });
+                
+            if (AppState.Trabajadores.Any())
+                list.Add(new ActivityItem { Title = "Personal Actualizado", Description = "Se registró un nuevo profesional.", Icon = "fa-user-md", Color = "bg-teal-500" });
+
+            return list;
+        }
+    }
+
+    public class ActivityItem
+    {
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string Color { get; set; } = "";
     }
 
     public void Dispose()
