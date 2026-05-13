@@ -3,38 +3,33 @@ using VeterinariaGenesis.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Configure Clean Architecture Layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// Configure CORS - MODO ULTRA PERMISIVO
+// CORS CONFIGURATION - MÁXIMA PRIORIDAD
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true) // Acepta CUALQUIER origen (GitHub, Local, etc)
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10)); // Ayuda con las peticiones de prueba (OPTIONS)
     });
 });
 
 var app = builder.Build();
 
-// EL ORDEN ES CRÍTICO: CORS DEBE IR PRIMERO
+// EL CORS DEBE SER LO PRIMERITO QUE SE EJECUTA
 app.UseCors("AllowAll");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Quitamos HttpsRedirection temporalmente para evitar bloqueos por redirección
+// app.UseHttpsRedirection(); 
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
