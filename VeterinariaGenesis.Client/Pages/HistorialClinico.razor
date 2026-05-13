@@ -214,7 +214,17 @@
 
                     <div>
                         <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Médico Responsable</label>
-                        <InputText @bind-Value="nuevoEvento.MedicoResponsable" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Nombre del veterinario" required />
+                        <div class="relative">
+                            <i class="fas fa-user-md absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400"></i>
+                            <select @bind="nuevoEvento.MedicoResponsable" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none">
+                                <option value="">Seleccione un veterinario...</option>
+                                @foreach (var doc in AppState.Trabajadores)
+                                {
+                                    <option value="@doc.Nombres">@doc.Nombres (@doc.Especialidad)</option>
+                                }
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+                        </div>
                     </div>
 
                     <div>
@@ -265,6 +275,7 @@
     {
         AppState.OnChange += StateHasChanged;
         await CargarDatos();
+        await AppState.LoadTrabajadoresAsync();
     }
 
     private async Task CargarDatos()

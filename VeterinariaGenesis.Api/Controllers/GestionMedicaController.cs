@@ -47,7 +47,7 @@ namespace VeterinariaGenesis.Api.Controllers
             switch (request.Tipo)
             {
                 case TipoEventoMedico.Consulta:
-                    evento = new Vacuna(); // Usamos Vacuna como contenedor base si no hay uno específico
+                    evento = new Consulta();
                     break;
                 case TipoEventoMedico.Vacuna:
                     evento = new Vacuna { ProductoAplicado = request.InfoExtra1, Lote = request.InfoExtra2 };
@@ -56,11 +56,7 @@ namespace VeterinariaGenesis.Api.Controllers
                     evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
                     break;
                 default:
-                    // Podríamos crear una clase "ConsultaGeneral" pero usaremos Vacuna o similar temporalmente 
-                    // o simplemente una implementación concreta básica si fuera necesario.
-                    // Para simplificar, usaremos un objeto anónimo o una clase concreta.
-                    // Vamos a crear una clase "Consulta" en Domain si no existe.
-                    evento = new Vacuna(); // Fallback
+                    evento = new Consulta(); // Fallback seguro
                     break;
             }
 
