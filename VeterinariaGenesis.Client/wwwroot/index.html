@@ -29,7 +29,16 @@
     </div>
     
     <!-- Script estándar exacto para que .NET lo intercepte y le ponga el código hash -->
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+      Blazor.start({
+        loadBootResource: function (type, name, defaultUri, integrity) {
+          // Desactivar la verificación de integridad (SRI) porque GitHub Pages 
+          // a menudo modifica los saltos de línea de los archivos compilados, rompiendo el hash.
+          return defaultUri;
+        }
+      });
+    </script>
 
     <style>
         @keyframes spin {
