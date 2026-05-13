@@ -98,6 +98,56 @@ namespace VeterinariaGenesis.Api.Controllers
             }
         }
 
+        [HttpPut("evento/{id}")]
+        public async Task<IActionResult> ActualizarEvento(Guid id, [FromBody] EventoMedicoRequest request)
+        {
+            try
+            {
+                var existente = await _repo.ObtenerEventoPorIdAsync(id);
+                if (existente == null) return NotFound();
+
+                existente.Fecha = request.Fecha;
+                existente.Descripcion = request.Descripcion;
+                existente.MedicoResponsable = request.MedicoResponsable;
+                existente.Costo = request.Costo;
+
+                if (!string.IsNullOrEmpty(request.Titulo))
+                    existente.Descripcion = $"[{request.Titulo}] {request.Descripcion}";
+
+                if (existente is Vacuna v)
+                {
+                    v.ProductoAplicado = request.InfoExtra1;
+                    if (request.ProximaDosis.HasValue) v.ProximaDosis = request.ProximaDosis;
+                }
+                else if (existente is Cirugia c)
+                {
+                    c.TipoAnestesia = request.InfoExtra1;
+                    c.ReportePostOperatorio = request.InfoExtra2;
+                }
+
+                await _repo.ActualizarEventoAsync(id, existente);
+                return Ok(existente);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al actualizar evento: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("evento/{id}")]
+        public async Task<IActionResult> EliminarEvento(Guid id)
+        {
+            try
+            {
+                await _repo.EliminarEventoAsync(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al eliminar evento: {ex.Message}");
+            }
+        }
+
         private string ObtenerTitulo(EventoMedico e)
         {
             // Intentar extraer el título del formato [Titulo]

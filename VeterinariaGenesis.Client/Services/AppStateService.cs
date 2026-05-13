@@ -494,6 +494,34 @@ namespace VeterinariaGenesis.Client.Services
             }
         }
 
+        public async Task<bool> UpdateEventoMedicoAsync(Guid id, object request)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/GestionMedica/evento/{id}", request);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando evento médico: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteEventoMedicoAsync(Guid id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/GestionMedica/evento/{id}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando evento médico: {ex.Message}");
+                return false;
+            }
+        }
+
         private void NotifyStateChanged() => OnChange?.Invoke();
     }
 }

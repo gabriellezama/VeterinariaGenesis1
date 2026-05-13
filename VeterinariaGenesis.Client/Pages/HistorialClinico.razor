@@ -124,6 +124,12 @@
                                             </div>
                                         </div>
                                         <div class="flex gap-2">
+                                            <button @onclick="() => AbrirModalEditar(item)" class="text-[0.65rem] font-black bg-amber-50 text-amber-600 px-4 py-2 rounded-xl hover:bg-amber-500 hover:text-white transition-all flex items-center">
+                                                <i class="fas fa-edit mr-2"></i> EDITAR
+                                            </button>
+                                            <button @onclick="() => EliminarEvento(item)" class="text-[0.65rem] font-black bg-rose-50 text-rose-500 px-4 py-2 rounded-xl hover:bg-rose-500 hover:text-white transition-all flex items-center">
+                                                <i class="fas fa-trash mr-2"></i>
+                                            </button>
                                             <button @onclick="() => ImprimirReceta(item)" class="text-[0.65rem] font-black bg-slate-50 text-slate-500 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all flex items-center">
                                                 <i class="fas fa-print mr-2"></i> RECETA
                                             </button>
@@ -235,8 +241,8 @@
         <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-zoom-in">
             <div class="bg-indigo-600 p-8 text-white flex justify-between items-center">
                 <div>
-                    <h3 class="text-2xl font-black tracking-tighter">Nuevo Registro</h3>
-                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-widest">Añadiendo evento para @mascota?.Nombre</p>
+                    <h3 class="text-2xl font-black tracking-tighter">@(eventoEditandoId.HasValue ? "Editar Registro" : "Nuevo Registro")</h3>
+                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-widest">@(eventoEditandoId.HasValue ? "Modificando evento de" : "Añadiendo evento para") @mascota?.Nombre</p>
                 </div>
                 <button @onclick="CerrarModal" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
                     <i class="fas fa-times"></i>
@@ -567,6 +573,7 @@
     private bool mostrarModal = false;
     private bool mostrarModalEditarMascota = false;
     private EventoMedicoRequest nuevoEvento = new();
+    private Guid? eventoEditandoId = null;
     private bool isSaving = false;
     private string errorModal = "";
     private LineaTiempoItemDto? eventoAImprimir;
@@ -604,7 +611,37 @@
 
     private void AbrirModal()
     {
+        eventoEditandoId = null;
         nuevoEvento = new EventoMedicoRequest { MascotaId = MascotaId, Fecha = DateTime.Now };
+        errorModal = "";
+        mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(LineaTiempoItemDto item)
+    {
+        eventoEditandoId = item.Id;
+        // Extraer título del formato [Titulo] descripcion
+        var titulo = item.Titulo;
+        var descripcion = item.Descripcion ?? "";
+        if (descripcion.StartsWith("[") && descripcion.Contains("]"))
+        {
+            int end = descripcion.IndexOf("]");
+            titulo = descripcion.Substring(1, end - 1);
+            descripcion = descripcion.Substring(end + 2).TrimStart();
+        }
+
+        Enum.TryParse<TipoEventoMedico>(item.TipoEvento, out var tipo);
+
+        nuevoEvento = new EventoMedicoRequest
+        {
+            MascotaId = MascotaId,
+            Fecha = item.Fecha,
+            Tipo = tipo,
+            Titulo = titulo,
+            Descripcion = descripcion,
+            MedicoResponsable = item.MedicoResponsable ?? "",
+            Costo = item.Costo
+        };
         errorModal = "";
         mostrarModal = true;
     }
@@ -628,10 +665,20 @@
         isSaving = true;
         errorModal = "";
         
-        var exito = await AppState.AddEventoMedicoAsync(nuevoEvento);
+        bool exito;
+        if (eventoEditandoId.HasValue)
+        {
+            exito = await AppState.UpdateEventoMedicoAsync(eventoEditandoId.Value, nuevoEvento);
+        }
+        else
+        {
+            exito = await AppState.AddEventoMedicoAsync(nuevoEvento);
+        }
+
         if (exito)
         {
             mostrarModal = false;
+            eventoEditandoId = null;
             await CargarDatos();
         }
         else
@@ -642,6 +689,16 @@
     }
 
     private async Task Imprimir() => await JS.InvokeVoidAsync("imprimirDocumento");
+
+    private async Task EliminarEvento(LineaTiempoItemDto item)
+    {
+        var confirmado = await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el registro '{item.Titulo}'? Esta acción no se puede deshacer.");
+        if (confirmado)
+        {
+            await AppState.DeleteEventoMedicoAsync(item.Id);
+            await CargarDatos();
+        }
+    }
 
     private async Task ImprimirReceta(LineaTiempoItemDto item)
     {

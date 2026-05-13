@@ -20,6 +20,11 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
             await _collection.InsertOneAsync(evento);
         }
 
+        public async Task<EventoMedico?> ObtenerEventoPorIdAsync(Guid id)
+        {
+            return await _collection.Find(e => e.Id == id).FirstOrDefaultAsync();
+        }
+
         public async Task<List<EventoMedico>> ObtenerHistorialPorMascotaAsync(Guid mascotaId)
         {
             return await _collection.Find(e => e.MascotaId == mascotaId)
