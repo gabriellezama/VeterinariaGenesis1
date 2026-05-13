@@ -1,69 +1,40 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using VeterinariaGenesis.Application.Interfaces;
+using MongoDB.Driver;
 using VeterinariaGenesis.Domain.Entities;
+using VeterinariaGenesis.Infrastructure.Data;
+using VeterinariaGenesis.Application.Interfaces;
 
 namespace VeterinariaGenesis.Infrastructure.Repositories
 {
     public class HistorialMedicoRepository : IHistorialMedicoRepository
     {
-        // Simulando una base de datos en memoria (MongoDB / SQL Server)
-        private readonly List<EventoMedico> _eventosSimulados = new();
+        private readonly IMongoCollection<EventoMedico> _collection;
 
-        public HistorialMedicoRepository()
+        public HistorialMedicoRepository(MongoDbContext context)
         {
-            // Seed data para pruebas
-            var mascotaId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-            
-            _eventosSimulados.Add(new Vacuna 
-            { 
-                MascotaId = mascotaId,
-                Fecha = DateTime.UtcNow.AddMonths(-6),
-                MedicoResponsable = "Dr. López",
-                Descripcion = "Vacunación anual",
-                ProductoAplicado = "Rabia + Quíntuple",
-                Lote = "L-48593",
-                ProximaDosis = DateTime.UtcNow.AddMonths(6)
-            });
-
-            _eventosSimulados.Add(new Cirugia 
-            { 
-                MascotaId = mascotaId,
-                Fecha = DateTime.UtcNow.AddMonths(-2),
-                MedicoResponsable = "Dra. Martínez",
-                Descripcion = "Esterilización",
-                TipoAnestesia = "Inhalada (Isofluorano)",
-                ReportePostOperatorio = "Sin complicaciones, recuperación favorable.",
-                ConsentimientoInformadoDigital = true
-            });
-
-            _eventosSimulados.Add(new ExamenLaboratorio 
-            { 
-                MascotaId = mascotaId,
-                Fecha = DateTime.UtcNow.AddDays(-10),
-                MedicoResponsable = "Dr. López",
-                Descripcion = "Chequeo de rutina",
-                TipoExamen = "Hemograma Completo",
-                Resultados = "Glóbulos blancos levemente elevados. Sugerir observación."
-            });
+            _collection = context.EventosMedicos;
         }
 
         public async Task AgregarEventoAsync(EventoMedico evento)
         {
-            _eventosSimulados.Add(evento);
-            await Task.CompletedTask;
+            if (evento.Id == Guid.Empty) evento.Id = Guid.NewGuid();
+            await _collection.InsertOneAsync(evento);
         }
 
         public async Task<List<EventoMedico>> ObtenerHistorialPorMascotaAsync(Guid mascotaId)
         {
-            // Filtrar eventos por la mascota. Si enviamos un Empty Guid, devolvemos todos para la demo.
-            var eventos = mascotaId == Guid.Empty 
-                ? _eventosSimulados 
-                : _eventosSimulados.Where(e => e.MascotaId == mascotaId).ToList();
+            return await _collection.Find(e => e.MascotaId == mascotaId)
+                                    .SortByDescending(e => e.Fecha)
+                                    .ToListAsync();
+        }
 
-            return await Task.FromResult(eventos);
+        public async Task ActualizarEventoAsync(Guid id, EventoMedico evento)
+        {
+            await _collection.ReplaceOneAsync(e => e.Id == id, evento);
+        }
+
+        public async Task EliminarEventoAsync(Guid id)
+        {
+            await _collection.DeleteOneAsync(e => e.Id == id);
         }
     }
 }

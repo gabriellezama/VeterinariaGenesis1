@@ -9,5 +9,7 @@ namespace VeterinariaGenesis.Application.Interfaces
     {
         Task<List<EventoMedico>> ObtenerHistorialPorMascotaAsync(Guid mascotaId);
         Task AgregarEventoAsync(EventoMedico evento);
+        Task ActualizarEventoAsync(Guid id, EventoMedico evento);
+        Task EliminarEventoAsync(Guid id);
     }
 }

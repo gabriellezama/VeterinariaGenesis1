@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using VeterinariaGenesis.Domain.Entities;
+using VeterinariaGenesis.Application.DTOs;
 
 namespace VeterinariaGenesis.Client.Services
 {
@@ -410,6 +411,34 @@ namespace VeterinariaGenesis.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error eliminando proveedor: {ex.Message}");
+                return false;
+            }
+        }
+
+        // ============== GESTIÓN MÉDICA ==============
+        public async Task<List<LineaTiempoItemDto>> GetHistorialClinicoAsync(Guid mascotaId)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<LineaTiempoItemDto>>($"api/GestionMedica/historial/{mascotaId}") ?? new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando historial: {ex.Message}");
+                return new();
+            }
+        }
+
+        public async Task<bool> AddEventoMedicoAsync(object request)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/GestionMedica/evento", request);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error guardando evento médico: {ex.Message}");
                 return false;
             }
         }

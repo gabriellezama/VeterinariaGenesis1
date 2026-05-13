@@ -1,96 +1,288 @@
 @page "/historial-clinico/{MascotaId:guid}"
 @using VeterinariaGenesis.Application.DTOs
 @using VeterinariaGenesis.Client.Components
-@inject HttpClient Http
+@using VeterinariaGenesis.Domain.Enums
+@inject VeterinariaGenesis.Client.Services.AppStateService AppState
+@inject NavigationManager Nav
+@implements IDisposable
 
-<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header del Historial -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-8 text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 opacity-10">
-                    <i class="fas fa-paw text-9xl -mt-8 -mr-8 transform rotate-12"></i>
+<PageTitle>Historial Clínico | Veterinaria Génesis</PageTitle>
+
+<div class="page-transition min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header con Datos de la Mascota -->
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-indigo-100/50 overflow-hidden mb-8 border border-white animate-slide-up">
+            <div class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-800 px-10 py-10 text-white relative">
+                <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
+                    <i class="fas fa-paw text-[12rem] -mt-12 -mr-12 transform rotate-12"></i>
                 </div>
-                <div class="relative z-10 flex items-center">
-                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-blue-600 text-3xl shadow-lg border-4 border-blue-200">
-                        <i class="fas fa-dog"></i>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div class="w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-white text-5xl shadow-2xl border border-white/30">
+                        <i class="fas @(mascota?.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat")"></i>
                     </div>
-                    <div class="ml-6">
-                        <h1 class="text-4xl font-extrabold tracking-tight">Historial Clínico Unificado</h1>
-                        <p class="mt-2 text-blue-100 text-lg">Revisión completa de vacunas, cirugías y laboratorios.</p>
+                    <div class="text-center md:text-left flex-1">
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
+                            <h1 class="text-4xl font-black tracking-tight">@mascota?.Nombre</h1>
+                            <span class="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold uppercase tracking-widest border border-white/20">Expediente Médico</span>
+                        </div>
+                        <p class="text-indigo-100 text-lg font-medium">@mascota?.Raza • @mascota?.Edad años • @(mascota?.Sexo ?? "No especificado")</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @onclick="AbrirModalNuevo" class="bg-white text-indigo-700 hover:bg-indigo-50 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-indigo-900/20 flex items-center group">
+                            <i class="fas fa-plus-circle mr-2 group-hover:rotate-90 transition-transform"></i> NUEVA ENTRADA
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <div class="px-8 py-6 bg-white border-b border-gray-100 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900">Paciente: <span class="text-blue-600">Max</span></h2>
-                    <p class="text-sm text-gray-500">Golden Retriever • 3 años • Macho</p>
+            <div class="px-10 py-6 bg-white flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-8">
+                    <div class="flex flex-col">
+                        <span class="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest">Propietario</span>
+                        <span class="text-slate-700 font-bold">@cliente?.Nombres</span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-100"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest">Última Visita</span>
+                        <span class="text-slate-700 font-bold">@(_eventos?.FirstOrDefault()?.Fecha.ToShortDateString() ?? "N/A")</span>
+                    </div>
                 </div>
-                <button class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center">
-                    <i class="fas fa-print mr-2"></i> Imprimir Reporte
+                <button class="text-slate-400 hover:text-indigo-600 font-bold text-sm flex items-center transition-colors">
+                    <i class="fas fa-print mr-2"></i> IMPRIMIR HISTORIAL
                 </button>
             </div>
         </div>
 
-        <!-- Línea de tiempo -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 relative">
-            <h3 class="text-2xl font-bold text-gray-900 mb-8 flex items-center">
-                <i class="fas fa-history text-indigo-500 mr-3"></i> Línea de Tiempo Cronológica
-            </h3>
-            
-            @if (_isLoading)
-            {
-                <div class="flex flex-col items-center justify-center py-12">
-                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-                    <p class="mt-4 text-gray-500 font-medium">Cargando historial médico...</p>
-                </div>
-            }
-            else if (_eventos == null || !_eventos.Any())
-            {
-                <div class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                    <i class="fas fa-folder-open text-gray-400 text-5xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900">No hay registros</h3>
-                    <p class="mt-1 text-gray-500">Esta mascota no tiene eventos médicos registrados en su historial.</p>
-                </div>
-            }
-            else
-            {
-                <div class="relative max-w-2xl mx-auto pl-4">
-                    @for (int i = 0; i < _eventos.Count; i++)
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Línea de Tiempo -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                    <h3 class="text-xl font-black text-slate-800 mb-8 flex items-center">
+                        <i class="fas fa-stream text-indigo-500 mr-3"></i> Actividad Médica Reciente
+                    </h3>
+                    
+                    @if (_isLoading)
                     {
-                        var item = _eventos[i];
-                        var isLast = i == _eventos.Count - 1;
-                        <TimelineItem Item="item" IsLast="isLast" />
+                        <div class="flex flex-col items-center justify-center py-20">
+                            <div class="relative w-16 h-16">
+                                <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+                            </div>
+                            <p class="mt-4 text-slate-400 font-bold text-sm tracking-widest animate-pulse">SINCRONIZANDO EXPEDIENTE...</p>
+                        </div>
+                    }
+                    else if (_eventos == null || !_eventos.Any())
+                    {
+                        <div class="text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                            <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-200 text-4xl shadow-sm">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-700">Sin registros médicos</h3>
+                            <p class="text-slate-400 max-w-xs mx-auto mt-2">No se han encontrado eventos para @mascota?.Nombre. Comienza agregando uno nuevo.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="relative pl-8 border-l-2 border-slate-100 space-y-12 ml-4">
+                            @foreach (var item in _eventos)
+                            {
+                                <div class="relative animate-fade-in">
+                                    <!-- Punto en la línea -->
+                                    <div class="absolute -left-[2.6rem] top-0 w-8 h-8 rounded-xl @item.ColorClase shadow-lg shadow-current/20 flex items-center justify-center text-white text-xs border-4 border-white">
+                                        <i class="fas @item.Icono"></i>
+                                    </div>
+                                    
+                                    <div class="bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-indigo-100/50 p-6 rounded-3xl border border-transparent hover:border-indigo-100 transition-all group">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="text-[0.65rem] font-black text-indigo-400 uppercase tracking-widest">@item.TipoEvento • @item.Fecha.ToString("dd MMM, yyyy")</span>
+                                            <span class="text-xs text-slate-400 font-medium">Dr. @item.MedicoResponsable</span>
+                                        </div>
+                                        <h4 class="text-lg font-black text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">@item.Titulo</h4>
+                                        <p class="text-slate-500 text-sm leading-relaxed mb-4">@item.Descripcion</p>
+                                        
+                                        @if (!string.IsNullOrEmpty(item.DetallesExtras))
+                                        {
+                                            <div class="flex items-center gap-2 py-2 px-4 bg-white rounded-xl border border-slate-100 w-fit">
+                                                <i class="fas fa-info-circle text-indigo-400 text-xs"></i>
+                                                <span class="text-[0.7rem] font-bold text-slate-500 italic">@item.DetallesExtras</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
-            }
+            </div>
+
+            <!-- Columna Derecha: Estadísticas / Info Rápida -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 card-hover">
+                    <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Resumen de Salud</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-shield-alt text-emerald-500"></i>
+                                <span class="text-sm font-bold text-emerald-700">Vacunas</span>
+                            </div>
+                            <span class="text-lg font-black text-emerald-700">@(_eventos?.Count(e => e.TipoEvento == "Vacuna") ?? 0)</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-rose-50 rounded-2xl">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-notes-medical text-rose-500"></i>
+                                <span class="text-sm font-bold text-rose-700">Cirugías</span>
+                            </div>
+                            <span class="text-lg font-black text-rose-700">@(_eventos?.Count(e => e.TipoEvento == "Cirugia") ?? 0)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-200">
+                    <div class="absolute -bottom-8 -right-8 opacity-10">
+                        <i class="fas fa-heartbeat text-9xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-4 relative z-10">Recordatorio</h3>
+                    <p class="text-indigo-100 text-sm mb-6 relative z-10 leading-relaxed">Mantener el historial actualizado es vital para un diagnóstico preciso en emergencias.</p>
+                    <button class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-xs transition-all relative z-10">AGENDAR PRÓXIMA CITA</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-@code {
-    [Parameter]
-    public Guid MascotaId { get; set; }
+<!-- Modal para Nueva Entrada -->
+@if (mostrarModal)
+{
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-zoom-in">
+            <div class="bg-indigo-600 px-10 py-8 flex justify-between items-center text-white">
+                <div>
+                    <h3 class="font-black text-2xl">Nuevo Registro</h3>
+                    <p class="text-indigo-100 text-sm">Añadiendo evento para @mascota?.Nombre</p>
+                </div>
+                <button @onclick="CerrarModal" class="w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-2xl transition-colors">&times;</button>
+            </div>
+            
+            <EditForm Model="nuevoEvento" OnValidSubmit="GuardarEvento">
+                <div class="p-10 space-y-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Tipo de Evento</label>
+                            <InputSelect @bind-Value="nuevoEvento.Tipo" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <option value="@TipoEventoMedico.Consulta">Consulta General</option>
+                                <option value="@TipoEventoMedico.Vacuna">Vacunación</option>
+                                <option value="@TipoEventoMedico.Cirugia">Cirugía</option>
+                                <option value="@TipoEventoMedico.ExamenLaboratorio">Laboratorio</option>
+                            </InputSelect>
+                        </div>
+                        <div>
+                            <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Fecha</label>
+                            <InputDate @bind-Value="nuevoEvento.Fecha" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" />
+                        </div>
+                    </div>
 
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Médico Responsable</label>
+                        <InputText @bind-Value="nuevoEvento.MedicoResponsable" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Nombre del veterinario" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Descripción / Diagnóstico</label>
+                        <InputTextArea @bind-Value="nuevoEvento.Descripcion" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Detalles de la consulta..." required />
+                    </div>
+
+                    @if (nuevoEvento.Tipo == TipoEventoMedico.Vacuna)
+                    {
+                        <div class="grid grid-cols-2 gap-6 animate-slide-up">
+                            <div>
+                                <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Vacuna Aplicada</label>
+                                <InputText @bind-Value="nuevoEvento.InfoExtra1" class="w-full px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Ej. Rabia" />
+                            </div>
+                            <div>
+                                <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Lote</label>
+                                <InputText @bind-Value="nuevoEvento.InfoExtra2" class="w-full px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Ej. L-485" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="p-8 bg-slate-50 flex justify-end gap-4 border-t border-slate-100">
+                    <button type="button" @onclick="CerrarModal" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CANCELAR</button>
+                    <button type="submit" class="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transform hover:-translate-y-1">
+                        GUARDAR REGISTRO
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid MascotaId { get; set; }
+
+    private Mascota? mascota;
+    private Cliente? cliente;
     private List<LineaTiempoItemDto>? _eventos;
     private bool _isLoading = true;
+    private bool mostrarModal = false;
+
+    private EventoMedicoRequest nuevoEvento = new();
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        AppState.OnChange += StateHasChanged;
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        _isLoading = true;
+        
+        // Cargar mascota y cliente desde AppState
+        mascota = AppState.Mascotas.FirstOrDefault(m => m.Id == MascotaId);
+        if (mascota != null)
         {
-            // Espera simulada para mostrar el spinner de carga
-            await Task.Delay(1000); 
-            _eventos = await Http.GetFromJsonAsync<List<LineaTiempoItemDto>>($"api/GestionMedica/historial/{MascotaId}");
+            cliente = AppState.Clientes.FirstOrDefault(c => c.Id == mascota.ClienteId);
         }
-        catch (Exception ex)
+
+        // Cargar historial
+        _eventos = await AppState.GetHistorialClinicoAsync(MascotaId);
+        _isLoading = false;
+    }
+
+    private void AbrirModalNuevo()
+    {
+        nuevoEvento = new EventoMedicoRequest { MascotaId = MascotaId, Fecha = DateTime.Now };
+        mostrarModal = true;
+    }
+
+    private void CerrarModal() => mostrarModal = false;
+
+    private async Task GuardarEvento()
+    {
+        var exito = await AppState.AddEventoMedicoAsync(nuevoEvento);
+        if (exito)
         {
-            Console.WriteLine($"Error al cargar el historial: {ex.Message}");
+            mostrarModal = false;
+            await CargarDatos();
         }
-        finally
-        {
-            _isLoading = false;
-        }
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+    // Clase local para el formulario (debe coincidir con la del controlador)
+    public class EventoMedicoRequest
+    {
+        public Guid MascotaId { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.Now;
+        public TipoEventoMedico Tipo { get; set; } = TipoEventoMedico.Consulta;
+        public string Descripcion { get; set; } = string.Empty;
+        public string MedicoResponsable { get; set; } = string.Empty;
+        public string InfoExtra1 { get; set; } = string.Empty;
+        public string InfoExtra2 { get; set; } = string.Empty;
     }
 }

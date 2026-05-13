@@ -23,5 +23,6 @@ namespace VeterinariaGenesis.Infrastructure.Data
         public IMongoCollection<Proveedor> Proveedores => _database.GetCollection<Proveedor>("Proveedores");
         public IMongoCollection<Producto> Productos => _database.GetCollection<Producto>("Productos");
         public IMongoCollection<Factura> Facturas => _database.GetCollection<Factura>("Facturas");
+        public IMongoCollection<EventoMedico> EventosMedicos => _database.GetCollection<EventoMedico>("EventosMedicos");
     }
 }

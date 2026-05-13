@@ -114,7 +114,7 @@
                         <div class="space-y-4">
                             @foreach (var mascota in AppState.Mascotas.Where(m => m.ClienteId == clienteSeleccionado.Id))
                             {
-                                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" @onclick='() => Nav.NavigateTo($"mascotas/perfil/{mascota.Id}")'>
+                                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" @onclick='() => Nav.NavigateTo($"historial-clinico/{mascota.Id}")'>
                                     <div class="flex items-center gap-3">
                                         <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm">
                                             <i class="fas @(mascota.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat") text-xl"></i>
