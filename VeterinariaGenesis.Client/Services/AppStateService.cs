@@ -100,9 +100,9 @@ namespace VeterinariaGenesis.Client.Services
                 var response = await _http.PostAsJsonAsync("api/trabajadores", trabajador);
                 if (response.IsSuccessStatusCode)
                 {
-                    var saved = await response.Content.ReadFromJsonAsync<Trabajador>();
-                    if (saved != null) Trabajadores.Add(saved);
-                    NotifyStateChanged();
+                    // En lugar de intentar leer la respuesta (que puede fallar si hay problemas de formato),
+                    // simplemente refrescamos la lista completa del servidor.
+                    await LoadTrabajadoresAsync();
                     return true;
                 }
                 return false;
