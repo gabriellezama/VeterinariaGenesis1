@@ -4,97 +4,181 @@
 @using VeterinariaGenesis.Domain.Entities
 @inject AppStateService AppState
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <PageTitle>Facturación | Veterinaria Génesis</PageTitle>
 
-<div class="mb-6 flex justify-between items-center">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900">Historial de Facturación</h1>
-        <p class="text-sm text-gray-500">Gestión de facturas emitidas por servicios y productos.</p>
+<div class="no-print">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Historial de Facturación</h1>
+            <p class="text-sm text-gray-500">Gestión de facturas emitidas por servicios y productos.</p>
+        </div>
+        
+        <button @onclick='() => NavigationManager.NavigateTo("facturacion/crear")' class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-md font-medium transition-colors flex items-center">
+            <i class="fas fa-file-invoice mr-2"></i> Nueva Factura
+        </button>
     </div>
-    
-    <button @onclick='() => NavigationManager.NavigateTo("facturacion/crear")' class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-md font-medium transition-colors flex items-center">
-        <i class="fas fa-file-invoice mr-2"></i> Nueva Factura
-    </button>
+
+    <!-- Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+            <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl mr-4">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Facturas</p>
+                <p class="text-2xl font-bold text-gray-900">@AppState.Facturas.Count</p>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+            <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl mr-4">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Ingresos Totales (Hoy)</p>
+                <p class="text-2xl font-bold text-gray-900">$@AppState.Facturas.Where(f => f.FechaEmision.Date == DateTime.Today).Sum(f => f.Total).ToString("0.00")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <th class="px-6 py-4 font-medium">Nº Factura</th>
+                        <th class="px-6 py-4 font-medium">Fecha</th>
+                        <th class="px-6 py-4 font-medium">Cliente</th>
+                        <th class="px-6 py-4 font-medium">Atendido por</th>
+                        <th class="px-6 py-4 font-medium">Total</th>
+                        <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @foreach (var factura in AppState.Facturas.OrderByDescending(f => f.FechaEmision))
+                    {
+                        var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == factura.ClienteId);
+                        var trabajador = AppState.Trabajadores.FirstOrDefault(t => t.Id == factura.TrabajadorId);
+                        
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-indigo-600">
+                                @factura.NumeroFactura
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @factura.FechaEmision.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td class="px-6 py-4 text-gray-900">
+                                @(cliente != null ? $"{cliente.Nombres} {cliente.Apellidos}" : "Desconocido")
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                @(trabajador != null ? $"{trabajador.Nombres} {trabajador.Apellidos}" : "Desconocido")
+                            </td>
+                            <td class="px-6 py-4 font-bold text-gray-900">
+                                $@factura.Total.ToString("0.00")
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button @onclick="() => ImprimirFactura(factura)" class="text-blue-600 hover:text-blue-900 p-2" title="Imprimir/Ver">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- Resumen -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
-        <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl mr-4">
-            <i class="fas fa-file-invoice-dollar"></i>
+@if (facturaAImprimir != null)
+{
+    <!-- FORMATO DE FACTURA PARA IMPRESIÓN (Visible solo en PDF/Impresora) -->
+    <div class="print-only p-10 bg-white text-black font-sans">
+        <div class="text-center mb-8 border-b-2 border-slate-200 pb-6">
+            <h1 class="text-3xl font-black">VETERINARIA GÉNESIS</h1>
+            <p class="text-sm uppercase tracking-widest text-slate-500 font-bold">Comprobante de Venta Profesional</p>
+            <p class="text-xs mt-2">Dirección: Frente a la Iglesia Católica, Génesis • Tel: 8888-8888</p>
         </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Total Facturas</p>
-            <p class="text-2xl font-bold text-gray-900">@AppState.Facturas.Count</p>
-        </div>
-    </div>
-    
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
-        <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl mr-4">
-            <i class="fas fa-money-bill-wave"></i>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium">Ingresos Totales (Hoy)</p>
-            <p class="text-2xl font-bold text-gray-900">$@AppState.Facturas.Where(f => f.FechaEmision.Date == DateTime.Today).Sum(f => f.Total).ToString("0.00")</p>
-        </div>
-    </div>
-</div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                    <th class="px-6 py-4 font-medium">Nº Factura</th>
-                    <th class="px-6 py-4 font-medium">Fecha</th>
-                    <th class="px-6 py-4 font-medium">Cliente</th>
-                    <th class="px-6 py-4 font-medium">Atendido por</th>
-                    <th class="px-6 py-4 font-medium">Total</th>
-                    <th class="px-6 py-4 font-medium text-right">Acciones</th>
+        <div class="grid grid-cols-2 gap-8 mb-8 text-sm">
+            <div>
+                <p class="text-slate-400 font-black uppercase text-[0.6rem]">Facturado a:</p>
+                <p class="text-lg font-bold">@AppState.Clientes.FirstOrDefault(c => c.Id == facturaAImprimir.ClienteId)?.Nombres</p>
+                <p>ID: @AppState.Clientes.FirstOrDefault(c => c.Id == facturaAImprimir.ClienteId)?.Identificacion</p>
+            </div>
+            <div class="text-right">
+                <p class="text-slate-400 font-black uppercase text-[0.6rem]">Detalles:</p>
+                <p class="font-bold">Factura #: @facturaAImprimir.NumeroFactura</p>
+                <p>Fecha: @facturaAImprimir.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
+                <p>Atendido por: @AppState.Trabajadores.FirstOrDefault(t => t.Id == facturaAImprimir.TrabajadorId)?.Nombres</p>
+            </div>
+        </div>
+
+        <table class="w-full mb-8 text-sm">
+            <thead class="border-b-2 border-slate-800">
+                <tr>
+                    <th class="py-3 text-left">DESCRIPCIÓN</th>
+                    <th class="py-3 text-center">CANT.</th>
+                    <th class="py-3 text-right">PRECIO</th>
+                    <th class="py-3 text-right">TOTAL</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 text-sm">
-                @foreach (var factura in AppState.Facturas.OrderByDescending(f => f.FechaEmision))
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in facturaAImprimir.Detalles)
                 {
-                    var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == factura.ClienteId);
-                    var trabajador = AppState.Trabajadores.FirstOrDefault(t => t.Id == factura.TrabajadorId);
-                    
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-medium text-indigo-600">
-                            @factura.NumeroFactura
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">
-                            @factura.FechaEmision.ToString("dd/MM/yyyy HH:mm")
-                        </td>
-                        <td class="px-6 py-4 text-gray-900">
-                            @(cliente != null ? $"{cliente.Nombres} {cliente.Apellidos}" : "Desconocido")
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">
-                            @(trabajador != null ? $"{trabajador.Nombres} {trabajador.Apellidos}" : "Desconocido")
-                        </td>
-                        <td class="px-6 py-4 font-bold text-gray-900">
-                            $@factura.Total.ToString("0.00")
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-blue-600 hover:text-blue-900 p-2" title="Imprimir/Ver">
-                                <i class="fas fa-print"></i>
-                            </button>
-                        </td>
+                    <tr>
+                        <td class="py-3 font-medium">@item.DescripcionItem</td>
+                        <td class="py-3 text-center">@item.Cantidad.ToString("0.##")</td>
+                        <td class="py-3 text-right">$@item.PrecioUnitario.ToString("0.00")</td>
+                        <td class="py-3 text-right font-bold">$@item.Subtotal.ToString("0.00")</td>
                     </tr>
                 }
             </tbody>
         </table>
+
+        <div class="flex justify-end">
+            <div class="w-64 space-y-2 border-t-2 border-slate-800 pt-4">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Subtotal:</span>
+                    <span class="font-bold">$@facturaAImprimir.Subtotal.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">IVA (15%):</span>
+                    <span class="font-bold">$@facturaAImprimir.Impuestos.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-xl border-t border-slate-100 pt-2 mt-2">
+                    <span class="font-black">TOTAL:</span>
+                    <span class="font-black">$@facturaAImprimir.Total.ToString("0.00")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 text-center text-[0.65rem] text-slate-400">
+            <p>Gracias por confiar en Veterinaria Génesis</p>
+            <p>Este documento es un comprobante de pago válido.</p>
+        </div>
     </div>
-</div>
+}
 
 @code {
+    private Factura? facturaAImprimir = null;
+
     protected override async Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
         await AppState.LoadFacturasAsync();
         await AppState.LoadClientesAsync();
         await AppState.LoadTrabajadoresAsync();
+    }
+
+    private async Task ImprimirFactura(Factura factura)
+    {
+        facturaAImprimir = factura;
+        StateHasChanged();
+        await Task.Delay(200); // Dar tiempo a Blazor para renderizar la sección print-only
+        await JS.InvokeVoidAsync("imprimirDocumento");
+        facturaAImprimir = null;
     }
 
     public void Dispose()

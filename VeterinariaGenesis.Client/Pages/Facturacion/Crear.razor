@@ -3,146 +3,256 @@
 @using VeterinariaGenesis.Domain.Entities
 @inject AppStateService AppState
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <PageTitle>Punto de Venta | Veterinaria Génesis</PageTitle>
 
-<div class="mb-6 flex justify-between items-center">
-    <div>
-        <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i> Volver a facturas
-        </button>
-        <h1 class="text-2xl font-bold text-gray-900">Punto de Venta</h1>
+@if (!pagoExitoso)
+{
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Volver a facturas
+            </button>
+            <h1 class="text-2xl font-bold text-gray-900">Punto de Venta</h1>
+        </div>
     </div>
-</div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Formulario Principal -->
-    <div class="lg:col-span-2 space-y-6">
-        
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Datos Generales</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                    <select @bind="clienteSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                        <option value="">Seleccione un cliente...</option>
-                        @foreach (var c in AppState.Clientes)
-                        {
-                            <option value="@c.Id">@c.Nombres @c.Apellidos</option>
-                        }
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Médico/Asistente en Turno</label>
-                    <select @bind="trabajadorSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                        <option value="">Seleccione el profesional...</option>
-                        @foreach (var t in AppState.Trabajadores)
-                        {
-                            <option value="@t.Id">@t.Nombres @t.Apellidos (@t.Rol)</option>
-                        }
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Agregar Producto o Servicio</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario Principal -->
+        <div class="lg:col-span-2 space-y-6">
             
-            <div class="flex space-x-2">
-                <div class="flex-1">
-                    <select @bind="productoSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                        <option value="">Seleccionar del catálogo...</option>
-                        @foreach (var p in AppState.Productos)
-                        {
-                            <option value="@p.Id" disabled="@(p.Stock <= 0)">@p.Nombre ($@p.PrecioVenta.ToString("0.00")) @(p.Stock <= 0 ? "- AGOTADO" : "")</option>
-                        }
-                    </select>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Datos Generales</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select @bind="clienteSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            <option value="">Seleccione un cliente...</option>
+                            @foreach (var c in AppState.Clientes)
+                            {
+                                <option value="@c.Id">@c.Nombres @c.Apellidos</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Médico/Asistente en Turno</label>
+                        <select @bind="trabajadorSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            <option value="">Seleccione el profesional...</option>
+                            @foreach (var t in AppState.Trabajadores)
+                            {
+                                <option value="@t.Id">@t.Nombres @t.Apellidos (@t.Rol)</option>
+                            }
+                        </select>
+                    </div>
                 </div>
-                <div class="w-32">
-                    <input type="number" @bind="cantidadSeleccionada" step="0.01" min="0.01" class="block w-full pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
-                </div>
-                <button @onclick="AgregarItem" class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg border border-indigo-200 font-medium hover:bg-indigo-100 transition-colors">
-                    Agregar
-                </button>
             </div>
-        </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b">
-                        <th class="px-6 py-3 font-medium">Descripción</th>
-                        <th class="px-6 py-3 font-medium">Cant.</th>
-                        <th class="px-6 py-3 font-medium">Precio Uni.</th>
-                        <th class="px-6 py-3 font-medium text-right">Subtotal</th>
-                        <th class="px-6 py-3 font-medium"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-sm">
-                    @if (!nuevaFactura.Detalles.Any())
-                    {
-                        <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                No hay items agregados a la factura.
-                            </td>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Agregar Producto o Servicio</h3>
+                
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <select @bind="productoSeleccionadoId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            <option value="">Seleccionar del catálogo...</option>
+                            @foreach (var p in AppState.Productos)
+                            {
+                                <option value="@p.Id" disabled="@(p.Stock <= 0)">@p.Nombre ($@p.PrecioVenta.ToString("0.00")) @(p.Stock <= 0 ? "- AGOTADO" : "")</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="w-32">
+                        <input type="number" @bind="cantidadSeleccionada" step="0.01" min="0.01" class="block w-full pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+                    <button @onclick="AgregarItem" class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg border border-indigo-200 font-medium hover:bg-indigo-100 transition-colors">
+                        Agregar
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b">
+                            <th class="px-6 py-3 font-medium">Descripción</th>
+                            <th class="px-6 py-3 font-medium text-center">Cant.</th>
+                            <th class="px-6 py-3 font-medium text-right">Precio Uni.</th>
+                            <th class="px-6 py-3 font-medium text-right">Subtotal</th>
+                            <th class="px-6 py-3 font-medium"></th>
                         </tr>
-                    }
-                    else
-                    {
-                        @foreach (var item in nuevaFactura.Detalles)
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-sm">
+                        @if (!nuevaFactura.Detalles.Any())
                         {
                             <tr>
-                                <td class="px-6 py-3 font-medium text-gray-900">@item.DescripcionItem</td>
-                                <td class="px-6 py-3">@item.Cantidad</td>
-                                <td class="px-6 py-3">$@item.PrecioUnitario.ToString("0.00")</td>
-                                <td class="px-6 py-3 text-right font-medium">$@item.Subtotal.ToString("0.00")</td>
-                                <td class="px-6 py-3 text-right">
-                                    <button @onclick="() => RemoverItem(item)" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                    No hay items agregados a la factura.
                                 </td>
                             </tr>
                         }
-                    }
-                </tbody>
-            </table>
+                        else
+                        {
+                            @foreach (var item in nuevaFactura.Detalles)
+                            {
+                                <tr>
+                                    <td class="px-6 py-3 font-medium text-gray-900">@item.DescripcionItem</td>
+                                    <td class="px-6 py-3 text-center">@item.Cantidad.ToString("0.##")</td>
+                                    <td class="px-6 py-3 text-right">$@item.PrecioUnitario.ToString("0.00")</td>
+                                    <td class="px-6 py-3 text-right font-medium">$@item.Subtotal.ToString("0.00")</td>
+                                    <td class="px-6 py-3 text-right">
+                                        <button @onclick="() => RemoverItem(item)" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel de Cobro -->
+        <div class="bg-slate-900 text-white rounded-xl shadow-lg border border-slate-800 p-6 flex flex-col h-fit">
+            <h3 class="text-xl font-bold mb-6 border-b border-slate-700 pb-2">Resumen de Venta</h3>
+            
+            <div class="space-y-4 mb-8 flex-1">
+                <div class="flex justify-between text-slate-300">
+                    <span>Subtotal</span>
+                    <span>$@nuevaFactura.Subtotal.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                    <span>IVA (15%)</span>
+                    <span>$@nuevaFactura.Impuestos.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold border-t border-slate-700 pt-4 mt-2">
+                    <span>TOTAL</span>
+                    <span class="text-green-400">$@nuevaFactura.Total.ToString("0.00")</span>
+                </div>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="bg-red-900 text-red-200 p-3 rounded mb-4 text-sm">
+                    @errorMessage
+                </div>
+            }
+
+            <button @onclick="ProcesarPago" disabled="@isProcessing" class="w-full @(isProcessing ? "bg-slate-700" : "bg-green-500 hover:bg-green-600") text-white py-4 rounded-xl font-bold text-lg transition-colors flex justify-center items-center shadow-lg shadow-green-900/20">
+                @if (isProcessing)
+                {
+                    <i class="fas fa-spinner fa-spin mr-2"></i> <span>PROCESANDO...</span>
+                }
+                else
+                {
+                    <i class="fas fa-check-circle mr-2"></i> <span>FACTURAR Y COBRAR</span>
+                }
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Vista de Éxito y Recibo para Impresión -->
+    <div class="max-w-2xl mx-auto animate-fade-in no-print">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+            <div class="bg-green-500 p-8 text-white text-center">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="text-3xl font-black mb-2">¡Venta Completada!</h2>
+                <p class="text-green-100">La factura @nuevaFactura.NumeroFactura ha sido generada con éxito.</p>
+            </div>
+            
+            <div class="p-8 space-y-6">
+                <div class="flex justify-center gap-4">
+                    <button @onclick="Imprimir" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all">
+                        <i class="fas fa-print"></i> IMPRIMIR RECIBO (PDF)
+                    </button>
+                    <button @onclick="NuevaVenta" class="flex-1 py-4 bg-slate-100 text-slate-700 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                        <i class="fas fa-plus"></i> NUEVA VENTA
+                    </button>
+                </div>
+                
+                <button @onclick="Volver" class="w-full py-3 text-slate-400 font-bold text-sm hover:text-slate-600">
+                    VOLVER AL LISTADO DE FACTURAS
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Panel de Cobro -->
-    <div class="bg-slate-900 text-white rounded-xl shadow-lg border border-slate-800 p-6 flex flex-col h-fit">
-        <h3 class="text-xl font-bold mb-6 border-b border-slate-700 pb-2">Resumen de Venta</h3>
-        
-        <div class="space-y-4 mb-8 flex-1">
-            <div class="flex justify-between text-slate-300">
-                <span>Subtotal</span>
-                <span>$@nuevaFactura.Subtotal.ToString("0.00")</span>
+    <!-- FORMATO DE FACTURA PARA IMPRESIÓN (Visible solo en PDF/Impresora) -->
+    <div class="print-only p-10 bg-white text-black font-sans">
+        <div class="text-center mb-8 border-b-2 border-slate-200 pb-6">
+            <h1 class="text-3xl font-black">VETERINARIA GÉNESIS</h1>
+            <p class="text-sm uppercase tracking-widest text-slate-500 font-bold">Comprobante de Venta Profesional</p>
+            <p class="text-xs mt-2">Dirección: Frente a la Iglesia Católica, Génesis • Tel: 8888-8888</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 mb-8 text-sm">
+            <div>
+                <p class="text-slate-400 font-black uppercase text-[0.6rem]">Facturado a:</p>
+                <p class="text-lg font-bold">@AppState.Clientes.FirstOrDefault(c => c.Id == nuevaFactura.ClienteId)?.Nombres</p>
+                <p>ID: @AppState.Clientes.FirstOrDefault(c => c.Id == nuevaFactura.ClienteId)?.Identificacion</p>
             </div>
-            <div class="flex justify-between text-slate-300">
-                <span>IVA (15%)</span>
-                <span>$@nuevaFactura.Impuestos.ToString("0.00")</span>
-            </div>
-            <div class="flex justify-between text-xl font-bold border-t border-slate-700 pt-4 mt-2">
-                <span>TOTAL</span>
-                <span class="text-green-400">$@nuevaFactura.Total.ToString("0.00")</span>
+            <div class="text-right">
+                <p class="text-slate-400 font-black uppercase text-[0.6rem]">Detalles:</p>
+                <p class="font-bold">Factura #: @nuevaFactura.NumeroFactura</p>
+                <p>Fecha: @nuevaFactura.FechaEmision.ToString("dd/MM/yyyy HH:mm")</p>
+                <p>Atendido por: @AppState.Trabajadores.FirstOrDefault(t => t.Id == nuevaFactura.TrabajadorId)?.Nombres</p>
             </div>
         </div>
-        
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="bg-red-900 text-red-200 p-3 rounded mb-4 text-sm">
-                @errorMessage
-            </div>
-        }
 
-        <button @onclick="ProcesarPago" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-bold text-lg transition-colors flex justify-center items-center">
-            <i class="fas fa-check-circle mr-2"></i> Facturar y Cobrar
-        </button>
+        <table class="w-full mb-8 text-sm">
+            <thead class="border-b-2 border-slate-800">
+                <tr>
+                    <th class="py-3 text-left">DESCRIPCIÓN</th>
+                    <th class="py-3 text-center">CANT.</th>
+                    <th class="py-3 text-right">PRECIO</th>
+                    <th class="py-3 text-right">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in nuevaFactura.Detalles)
+                {
+                    <tr>
+                        <td class="py-3 font-medium">@item.DescripcionItem</td>
+                        <td class="py-3 text-center">@item.Cantidad.ToString("0.##")</td>
+                        <td class="py-3 text-right">$@item.PrecioUnitario.ToString("0.00")</td>
+                        <td class="py-3 text-right font-bold">$@item.Subtotal.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="flex justify-end">
+            <div class="w-64 space-y-2 border-t-2 border-slate-800 pt-4">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Subtotal:</span>
+                    <span class="font-bold">$@nuevaFactura.Subtotal.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">IVA (15%):</span>
+                    <span class="font-bold">$@nuevaFactura.Impuestos.ToString("0.00")</span>
+                </div>
+                <div class="flex justify-between text-xl border-t border-slate-100 pt-2 mt-2">
+                    <span class="font-black">TOTAL:</span>
+                    <span class="font-black">$@nuevaFactura.Total.ToString("0.00")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 text-center text-[0.65rem] text-slate-400">
+            <p>Gracias por confiar en Veterinaria Génesis</p>
+            <p>Este documento es un comprobante de pago válido.</p>
+        </div>
     </div>
-</div>
+}
 
 @code {
     private Factura nuevaFactura = new Factura();
+    private bool pagoExitoso = false;
+    private bool isProcessing = false;
     
     private string clienteSeleccionadoId = string.Empty;
     private string trabajadorSeleccionadoId = string.Empty;
@@ -229,13 +339,36 @@
             errorMessage = "No hay items en la factura.";
             return;
         }
-        
+
+        isProcessing = true;
         nuevaFactura.ClienteId = Guid.Parse(clienteSeleccionadoId);
         nuevaFactura.TrabajadorId = Guid.Parse(trabajadorSeleccionadoId);
         
-        await AppState.AddFacturaAsync(nuevaFactura);
+        var exito = await AppState.AddFacturaAsync(nuevaFactura);
         
-        NavigationManager.NavigateTo("facturacion");
+        if (exito)
+        {
+            pagoExitoso = true;
+        }
+        else
+        {
+            errorMessage = "Error al conectar con el servidor. Intente de nuevo.";
+        }
+        
+        isProcessing = false;
+    }
+
+    private async Task Imprimir()
+    {
+        await JS.InvokeVoidAsync("imprimirDocumento");
+    }
+
+    private void NuevaVenta()
+    {
+        nuevaFactura = new Factura();
+        pagoExitoso = false;
+        clienteSeleccionadoId = string.Empty;
+        trabajadorSeleccionadoId = string.Empty;
     }
 
     private void Volver()
