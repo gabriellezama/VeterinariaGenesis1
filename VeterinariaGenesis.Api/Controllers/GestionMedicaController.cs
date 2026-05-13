@@ -51,13 +51,16 @@ namespace VeterinariaGenesis.Api.Controllers
                     evento = new Consulta();
                     break;
                 case TipoEventoMedico.Vacuna:
-                    evento = new Vacuna { ProductoAplicado = request.InfoExtra1, Lote = request.InfoExtra2 };
+                    DateTime? nextDose = null;
+                    if (!string.IsNullOrEmpty(request.InfoExtra2) && DateTime.TryParse(request.InfoExtra2, out var parsedDate)) 
+                        nextDose = parsedDate;
+                    evento = new Vacuna { ProductoAplicado = request.InfoExtra1, ProximaDosis = nextDose };
                     break;
                 case TipoEventoMedico.Cirugia:
                     evento = new Cirugia { TipoAnestesia = request.InfoExtra1, ReportePostOperatorio = request.InfoExtra2 };
                     break;
                 case TipoEventoMedico.Grooming:
-                    evento = new Consulta(); // Grooming usa estructura base por ahora
+                    evento = new Grooming();
                     break;
                 default:
                     evento = new Consulta(); // Fallback seguro

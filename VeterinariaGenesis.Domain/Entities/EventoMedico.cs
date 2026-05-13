@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace VeterinariaGenesis.Domain.Entities
 {
     [BsonDiscriminator(RootClass = true)]
-    [BsonKnownTypes(typeof(Vacuna), typeof(Cirugia), typeof(ExamenLaboratorio), typeof(Consulta))]
+    [BsonKnownTypes(typeof(Vacuna), typeof(Cirugia), typeof(ExamenLaboratorio), typeof(Consulta), typeof(Grooming))]
     public abstract class EventoMedico
     {
         public Guid Id { get; set; } = Guid.NewGuid();
