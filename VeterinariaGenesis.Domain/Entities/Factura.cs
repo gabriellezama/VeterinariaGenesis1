@@ -15,7 +15,7 @@ namespace VeterinariaGenesis.Domain.Entities
         public DateTime FechaEmision { get; set; } = DateTime.Now;
 
         [BsonElement("Fecha")]
-        private DateTime? FechaVieja { set { if (value.HasValue) FechaEmision = value.Value; } }
+        private DateTime? FechaVieja { get => null; set { if (value.HasValue) FechaEmision = value.Value; } }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ClienteId { get; set; }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
