@@ -163,7 +163,7 @@ else
                             }
                         </div>
                         <div class="bg-gray-50 p-2 text-center border-t border-gray-100">
-                            <button @onclick="ToggleNotifications" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800">Marcar todas como leídas</button>
+                            <button @onclick="MarkAsRead" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800">Marcar todas como leídas</button>
                         </div>
                     </div>
                 }
@@ -203,10 +203,17 @@ else
     }
 
     private bool showNotifications = false;
+    private int notificationsSeenCount = 0;
 
     private void ToggleNotifications() => showNotifications = !showNotifications;
 
-    private List<ActivityItem> RecentActivities
+    private void MarkAsRead()
+    {
+        notificationsSeenCount = RecentActivitiesRaw.Count();
+        showNotifications = false;
+    }
+
+    private List<ActivityItem> RecentActivitiesRaw
     {
         get
         {
@@ -225,6 +232,8 @@ else
             return list;
         }
     }
+
+    private List<ActivityItem> RecentActivities => notificationsSeenCount >= RecentActivitiesRaw.Count() ? new() : RecentActivitiesRaw;
 
     public class ActivityItem
     {

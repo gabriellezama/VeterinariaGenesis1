@@ -144,12 +144,38 @@
                     </div>
                     <h3 class="text-lg font-bold mb-4 relative z-10">Recordatorio</h3>
                     <p class="text-indigo-100 text-sm mb-6 relative z-10 leading-relaxed">Mantener el historial actualizado es vital para un diagnóstico preciso en emergencias.</p>
-                    <button class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-xs transition-all relative z-10">AGENDAR PRÓXIMA CITA</button>
+                    <button @onclick="AbrirModalCita" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-xs transition-all relative z-10">AGENDAR PRÓXIMA CITA</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal para Nueva Cita -->
+@if (mostrarModalCita)
+{
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-zoom-in">
+            <div class="bg-purple-600 px-8 py-6 text-white flex justify-between items-center">
+                <h3 class="font-black text-xl">Programar Cita</h3>
+                <button @onclick="CerrarModalCita" class="text-2xl">&times;</button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Fecha Sugerida</label>
+                    <input type="date" @bind="fechaCita" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm" />
+                </div>
+                <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100">
+                    <p class="text-xs text-purple-700 font-medium">Se enviará una notificación al propietario @cliente?.Nombres para confirmar la cita de @mascota?.Nombre.</p>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button @onclick="CerrarModalCita" class="px-4 py-2 font-bold text-slate-400">CANCELAR</button>
+                <button @onclick="CerrarModalCita" class="px-6 py-2 bg-purple-600 text-white rounded-xl font-bold">AGENDAR</button>
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Modal para Nueva Entrada -->
 @if (mostrarModal)
@@ -226,6 +252,8 @@
     private List<LineaTiempoItemDto>? _eventos;
     private bool _isLoading = true;
     private bool mostrarModal = false;
+    private bool mostrarModalCita = false;
+    private DateTime fechaCita = DateTime.Now.AddDays(7);
 
     private EventoMedicoRequest nuevoEvento = new();
 
@@ -258,6 +286,9 @@
     }
 
     private void CerrarModal() => mostrarModal = false;
+
+    private void AbrirModalCita() => mostrarModalCita = true;
+    private void CerrarModalCita() => mostrarModalCita = false;
 
     private async Task GuardarEvento()
     {
