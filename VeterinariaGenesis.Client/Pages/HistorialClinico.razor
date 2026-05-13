@@ -164,7 +164,15 @@
                                 </div>
                                 <span class="font-bold text-emerald-800">Vacunas</span>
                             </div>
-                            <span class="text-2xl font-black text-emerald-600">@eventos.Count(e => e.TipoEvento == "Vacuna")</span>
+                            @{ var totalVacunas = eventos.Count(e => e.TipoEvento == "Vacuna"); }
+                            @if (totalVacunas == 0)
+                            {
+                                <span class="text-sm font-bold text-emerald-400 italic">Ninguna</span>
+                            }
+                            else
+                            {
+                                <span class="text-2xl font-black text-emerald-600">@totalVacunas</span>
+                            }
                         </div>
                         
                         <div class="flex items-center justify-between p-4 bg-rose-50 rounded-3xl border border-rose-100/50">
@@ -174,7 +182,15 @@
                                 </div>
                                 <span class="font-bold text-rose-800">Cirugías</span>
                             </div>
-                            <span class="text-2xl font-black text-rose-600">@eventos.Count(e => e.TipoEvento == "Cirugia")</span>
+                            @{ var totalCirugias = eventos.Count(e => e.TipoEvento == "Cirugia"); }
+                            @if (totalCirugias == 0)
+                            {
+                                <span class="text-sm font-bold text-rose-400 italic">Ninguna</span>
+                            }
+                            else
+                            {
+                                <span class="text-2xl font-black text-rose-600">@totalCirugias</span>
+                            }
                         </div>
                     </div>
                 </div>
