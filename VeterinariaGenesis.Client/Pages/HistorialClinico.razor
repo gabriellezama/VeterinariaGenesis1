@@ -4,9 +4,10 @@
 @using VeterinariaGenesis.Domain.Enums
 @inject VeterinariaGenesis.Client.Services.AppStateService AppState
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 @implements IDisposable
 
-<PageTitle>Historial Clínico | Veterinaria Génesis</PageTitle>
+<PageTitle>Historial Clínico | Veterinaria Génésis</PageTitle>
 
 <div class="page-transition min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
@@ -142,15 +143,45 @@
                     </div>
                 </div>
 
-                <div class="bg-indigo-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-200">
+                <div class="p-8 bg-indigo-600 rounded-[2rem] text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
                     <div class="absolute -bottom-8 -right-8 opacity-10">
                         <i class="fas fa-heartbeat text-9xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold mb-4 relative z-10">Recordatorio</h3>
-                    <p class="text-indigo-100 text-sm mb-6 relative z-10 leading-relaxed">Mantener el historial actualizado es vital para un diagnóstico preciso en emergencias.</p>
-                    <button @onclick="AbrirModalCita" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-xs transition-all relative z-10">AGENDAR PRÓXIMA CITA</button>
+                    <h3 class="text-lg font-bold mb-4 relative z-10">Reporte Médico</h3>
+                    <p class="text-indigo-100 text-sm mb-6 relative z-10 leading-relaxed">Genera un documento PDF profesional con el historial completo para el propietario.</p>
+                    <div class="space-y-3">
+                        <button @onclick="Imprimir" class="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold text-xs transition-all relative z-10 flex items-center justify-center gap-2">
+                            <i class="fas fa-file-pdf"></i> DESCARGAR PDF
+                        </button>
+                        <button @onclick="AbrirModalCita" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-xs transition-all relative z-10">AGENDAR PRÓXIMA CITA</button>
+                    </div>
                 </div>
-            </div>
+        </div>
+    </div>
+</div></div>
+
+<!-- Encabezado para Impresión (Sólo visible en PDF/Impresora) -->
+<div class="print-only p-12">
+    <div class="flex justify-between items-center border-b-2 border-indigo-600 pb-8 mb-8">
+        <div>
+            <h1 class="text-4xl font-black text-indigo-600">VETERINARIA GÉNESIS</h1>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Expediente Médico Profesional</p>
+        </div>
+        <div class="text-right">
+            <p class="font-bold">Fecha de Reporte: @DateTime.Now.ToString("dd/MM/yyyy")</p>
+            <p class="text-slate-500">ID Mascota: @mascota?.Id.ToString().Substring(0,8)</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-8 mb-8 bg-slate-50 p-6 rounded-2xl">
+        <div>
+            <h3 class="text-xs font-black text-slate-400 uppercase mb-2">PACIENTE</h3>
+            <p class="text-xl font-bold">@mascota?.Nombre</p>
+            <p class="text-slate-600">@mascota?.Especie - @mascota?.Raza (@mascota?.Edad años)</p>
+        </div>
+        <div>
+            <h3 class="text-xs font-black text-slate-400 uppercase mb-2">PROPIETARIO</h3>
+            <p class="text-xl font-bold">@cliente?.Nombres @cliente?.Apellidos</p>
+            <p class="text-slate-600">ID: @cliente?.Identificacion | Tel: @cliente?.Telefono</p>
         </div>
     </div>
 </div>
@@ -304,6 +335,11 @@
 
     private void AbrirModalCita() => mostrarModalCita = true;
     private void CerrarModalCita() => mostrarModalCita = false;
+
+    private async Task Imprimir()
+    {
+        await JS.InvokeVoidAsync("imprimirRecetario");
+    }
 
     private async Task GuardarEvento()
     {

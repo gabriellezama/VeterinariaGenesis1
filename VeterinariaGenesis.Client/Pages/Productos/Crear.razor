@@ -1,22 +1,23 @@
 @page "/productos/crear"
+@page "/productos/editar/{Id:guid}"
 @using VeterinariaGenesis.Client.Services
 @using VeterinariaGenesis.Domain.Entities
 @inject AppStateService AppState
 @inject NavigationManager NavigationManager
 
-<PageTitle>Añadir Producto | Veterinaria Génesis</PageTitle>
+<PageTitle>@(Id == null ? "Añadir Producto" : "Editar Producto") | Veterinaria Génesis</PageTitle>
 
 <div class="mb-6 flex justify-between items-center">
     <div>
         <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
             <i class="fas fa-arrow-left mr-2"></i> Volver al inventario
         </button>
-        <h1 class="text-2xl font-bold text-gray-900">Registrar Nuevo Producto</h1>
+        <h1 class="text-2xl font-bold text-gray-900">@(Id == null ? "Registrar Nuevo Producto" : "Editar Producto")</h1>
     </div>
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <EditForm Model="nuevoProducto" OnValidSubmit="GuardarProducto">
+    <EditForm Model="producto" OnValidSubmit="GuardarProducto">
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Información del Producto -->
@@ -25,17 +26,17 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto</label>
-                        <InputText @bind-Value="nuevoProducto.Nombre" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
+                        <InputText @bind-Value="producto.Nombre" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <InputTextArea @bind-Value="nuevoProducto.Descripcion" rows="2" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                        <InputTextArea @bind-Value="producto.Descripcion" rows="2" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-                        <InputSelect @bind-Value="nuevoProducto.ProveedorId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                        <InputSelect @bind-Value="producto.ProveedorId" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                             <option value="">Ninguno</option>
                             @foreach (var p in AppState.Proveedores)
                             {
@@ -52,17 +53,17 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Costo (Compra) $</label>
-                            <InputNumber @bind-Value="nuevoProducto.PrecioCompra" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                            <InputNumber @bind-Value="producto.PrecioCompra" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Precio Venta $</label>
-                            <InputNumber @bind-Value="nuevoProducto.PrecioVenta" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                            <InputNumber @bind-Value="producto.PrecioVenta" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad Inicial en Stock</label>
-                        <InputNumber @bind-Value="nuevoProducto.Stock" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad en Stock</label>
+                        <InputNumber @bind-Value="producto.Stock" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
                 </div>
             </div>
@@ -73,18 +74,46 @@
                 Cancelar
             </button>
             <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
-                <i class="fas fa-save mr-2"></i> Guardar Producto
+                <i class="fas fa-save mr-2"></i> @(Id == null ? "Guardar Producto" : "Guardar Cambios")
             </button>
         </div>
     </EditForm>
 </div>
 
 @code {
-    private Producto nuevoProducto = new Producto();
+    [Parameter] public Guid? Id { get; set; }
+    private Producto producto = new Producto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AppState.LoadProveedoresAsync();
+        
+        if (Id != null)
+        {
+            var existing = AppState.Productos.FirstOrDefault(p => p.Id == Id);
+            if (existing != null)
+            {
+                producto = new Producto
+                {
+                    Id = existing.Id,
+                    Nombre = existing.Nombre,
+                    Descripcion = existing.Descripcion,
+                    ProveedorId = existing.ProveedorId,
+                    PrecioCompra = existing.PrecioCompra,
+                    PrecioVenta = existing.PrecioVenta,
+                    Stock = existing.Stock
+                };
+            }
+        }
+    }
 
     private async Task GuardarProducto()
     {
-        await AppState.AddProductoAsync(nuevoProducto);
+        if (Id == null)
+            await AppState.AddProductoAsync(producto);
+        else
+            await AppState.UpdateProductoAsync(producto);
+            
         NavigationManager.NavigateTo("productos");
     }
 

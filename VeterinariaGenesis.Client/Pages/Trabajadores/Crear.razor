@@ -1,22 +1,23 @@
 @page "/trabajadores/crear"
+@page "/trabajadores/editar/{Id:guid}"
 @using VeterinariaGenesis.Client.Services
 @using VeterinariaGenesis.Domain.Entities
 @inject AppStateService AppState
 @inject NavigationManager NavigationManager
 
-<PageTitle>Nuevo Trabajador | Veterinaria Génesis</PageTitle>
+<PageTitle>@(Id == null ? "Nuevo Trabajador" : "Editar Trabajador") | Veterinaria Génesis</PageTitle>
 
 <div class="mb-6 flex justify-between items-center">
     <div>
         <button @onclick="Volver" class="text-gray-500 hover:text-indigo-600 mb-2 flex items-center transition-colors">
             <i class="fas fa-arrow-left mr-2"></i> Volver al directorio
         </button>
-        <h1 class="text-2xl font-bold text-gray-900">Registrar Nuevo Trabajador</h1>
+        <h1 class="text-2xl font-bold text-gray-900">@(Id == null ? "Registrar Nuevo Trabajador" : "Editar Trabajador")</h1>
     </div>
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <EditForm Model="nuevoTrabajador" OnValidSubmit="GuardarTrabajador">
+    <EditForm Model="trabajador" OnValidSubmit="GuardarTrabajador">
         <div class="p-6">
             @if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -32,17 +33,17 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
-                        <InputText @bind-Value="nuevoTrabajador.Nombres" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
+                        <InputText @bind-Value="trabajador.Nombres" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
-                        <InputText @bind-Value="nuevoTrabajador.Apellidos" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
+                        <InputText @bind-Value="trabajador.Apellidos" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                        <InputText @bind-Value="nuevoTrabajador.Telefono" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
+                        <InputText @bind-Value="trabajador.Telefono" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" required />
                     </div>
                 </div>
                 
@@ -51,7 +52,7 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Rol / Puesto</label>
-                        <InputSelect @bind-Value="nuevoTrabajador.Rol" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                        <InputSelect @bind-Value="trabajador.Rol" class="block w-full pl-3 pr-10 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                             <option value="">Seleccionar...</option>
                             <option value="Veterinario">Veterinario</option>
                             <option value="Asistente">Asistente Médico</option>
@@ -62,12 +63,12 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
-                        <InputText @bind-Value="nuevoTrabajador.Especialidad" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej. Cirugía, Dermatología..." />
+                        <InputText @bind-Value="trabajador.Especialidad" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej. Cirugía, Dermatología..." />
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Salario Base ($)</label>
-                        <InputNumber @bind-Value="nuevoTrabajador.SalarioBase" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                        <InputNumber @bind-Value="trabajador.SalarioBase" class="w-full pl-3 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
                 </div>
             </div>
@@ -86,7 +87,7 @@
                 else
                 {
                     <i class="fas fa-save mr-2"></i>
-                    <span>Guardar Trabajador</span>
+                    <span>@(Id == null ? "Guardar Trabajador" : "Guardar Cambios")</span>
                 }
             </button>
         </div>
@@ -94,16 +95,42 @@
 </div>
 
 @code {
-    private Trabajador nuevoTrabajador = new Trabajador();
+    [Parameter] public Guid? Id { get; set; }
+    private Trabajador trabajador = new Trabajador();
     private string errorMessage = "";
     private bool isSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null)
+        {
+            var existing = AppState.Trabajadores.FirstOrDefault(t => t.Id == Id);
+            if (existing != null)
+            {
+                trabajador = new Trabajador
+                {
+                    Id = existing.Id,
+                    Nombres = existing.Nombres,
+                    Apellidos = existing.Apellidos,
+                    Telefono = existing.Telefono,
+                    Rol = existing.Rol,
+                    Especialidad = existing.Especialidad,
+                    SalarioBase = existing.SalarioBase
+                };
+            }
+        }
+    }
 
     private async Task GuardarTrabajador()
     {
         errorMessage = "";
         isSaving = true;
         
-        var success = await AppState.AddTrabajadorAsync(nuevoTrabajador);
+        bool success;
+        if (Id == null)
+            success = await AppState.AddTrabajadorAsync(trabajador);
+        else
+            success = await AppState.UpdateTrabajadorAsync(trabajador);
         
         isSaving = false;
         
@@ -113,7 +140,7 @@
         }
         else
         {
-            errorMessage = "No se pudo conectar con el servidor de Railway. Por favor, verifica que tu backend esté encendido.";
+            errorMessage = "No se pudo guardar la información. Por favor, intenta de nuevo.";
         }
     }
 

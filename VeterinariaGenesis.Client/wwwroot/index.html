@@ -33,6 +33,36 @@
     <!-- Script estándar exacto para que .NET lo intercepte y le ponga el código hash -->
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
     <script>
+        window.imprimirRecetario = () => {
+            window.print();
+        };
+    </script>
+    <style>
+        @media print {
+            .no-print, aside, header, button, .bg-slate-900, .fixed {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .page-transition {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .shadow-lg, .shadow-2xl {
+                box-shadow: none !important;
+                border: 1px solid #eee !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+    <script>
       Blazor.start({
         loadBootResource: function (type, name, defaultUri, integrity) {
           // Retornar explícitamente un 'fetch' con integrity vacío para forzar

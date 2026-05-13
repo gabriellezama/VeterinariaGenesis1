@@ -65,7 +65,7 @@
                             }
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <button class="text-blue-600 hover:text-blue-900 p-2" title="Editar">
+                            <button @onclick='() => NavigationManager.NavigateTo($"productos/editar/{producto.Id}")' class="text-blue-600 hover:text-blue-900 p-2" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>

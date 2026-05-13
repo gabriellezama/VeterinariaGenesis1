@@ -53,13 +53,15 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var result = await _http.GetFromJsonAsync<List<Cliente>>("api/Clientes");
-                Clientes = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Clientes = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error cargando clientes: {ex.Message}");
-                Clientes = new();
             }
         }
 
@@ -126,13 +128,15 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var result = await _http.GetFromJsonAsync<List<Mascota>>("api/Mascotas");
-                Mascotas = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Mascotas = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error cargando mascotas: {ex.Message}");
-                Mascotas = new();
             }
         }
 
@@ -199,8 +203,11 @@ namespace VeterinariaGenesis.Client.Services
             try 
             {
                 var result = await _http.GetFromJsonAsync<List<Trabajador>>("api/Trabajadores");
-                Trabajadores = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Trabajadores = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
@@ -273,13 +280,15 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var result = await _http.GetFromJsonAsync<List<Producto>>("api/Productos");
-                Productos = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Productos = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error cargando productos: {ex.Message}");
-                Productos = new();
             }
         }
 
@@ -346,13 +355,15 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var result = await _http.GetFromJsonAsync<List<Factura>>("api/Facturas");
-                Facturas = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Facturas = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error cargando facturas: {ex.Message}");
-                Facturas = new();
             }
         }
 
@@ -381,8 +392,11 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var result = await _http.GetFromJsonAsync<List<Proveedor>>("api/Proveedores");
-                Proveedores = result ?? new();
-                NotifyStateChanged();
+                if (result != null)
+                {
+                    Proveedores = result;
+                    NotifyStateChanged();
+                }
             }
             catch (Exception ex)
             {
@@ -466,7 +480,12 @@ namespace VeterinariaGenesis.Client.Services
             try
             {
                 var response = await _http.PostAsJsonAsync("api/GestionMedica/evento", request);
-                return response.IsSuccessStatusCode;
+                if (response.IsSuccessStatusCode)
+                {
+                    NotifyStateChanged();
+                    return true;
+                }
+                return false;
             }
             catch (Exception ex)
             {
