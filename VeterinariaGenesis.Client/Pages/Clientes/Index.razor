@@ -20,15 +20,19 @@
 
 <!-- Filtros -->
 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center">
-    <div class="relative flex-1 min-w-[200px]">
+    <div class="relative flex-1 min-w-[300px]">
         <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
             <i class="fas fa-search text-gray-400"></i>
         </span>
-        <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Buscar por nombre, teléfono o email...">
+        <input type="text" 
+               @bind="searchTerm" 
+               @bind:event="oninput"
+               class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" 
+               placeholder="Buscar por nombre, teléfono o email...">
     </div>
-    <button class="bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-200 font-medium transition-colors">
-        <i class="fas fa-filter"></i> Filtros
-    </button>
+    <div class="text-xs text-gray-500">
+        Mostrando @FilteredClientes.Count() de @AppState.Clientes.Count() clientes
+    </div>
 </div>
 
 <!-- Tabla de Clientes -->
@@ -44,16 +48,16 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 text-sm">
-                @foreach (var cliente in AppState.Clientes)
+                @foreach (var cliente in FilteredClientes)
                 {
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="flex items-center">
+                            <div class="flex items-center cursor-pointer" @onclick="() => VerDetalles(cliente)">
                                 <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-                                    @(cliente.Nombres.FirstOrDefault())@(cliente.Apellidos.FirstOrDefault())
+                                    @(cliente.Nombres?.FirstOrDefault() ?? 'C')@(cliente.Apellidos?.FirstOrDefault() ?? 'G')
                                 </div>
                                 <div class="ml-4">
-                                    <div class="font-medium text-gray-900">@cliente.Nombres @cliente.Apellidos</div>
+                                    <div class="font-medium text-gray-900 hover:text-indigo-600 transition-colors">@cliente.Nombres @cliente.Apellidos</div>
                                     <div class="text-xs text-gray-500">ID: @cliente.Id.ToString().Substring(0, 8)</div>
                                 </div>
                             </div>
@@ -66,7 +70,7 @@
                             @foreach (var mascota in AppState.Mascotas.Where(m => m.ClienteId == cliente.Id))
                             {
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2 mt-1">
-                                    <i class="fas @(mascota.Especie.ToLower() == "gato" ? "fa-cat" : "fa-dog") mr-1"></i> @mascota.Nombre
+                                    <i class="fas @(mascota.Especie?.ToLower() == "gato" ? "fa-cat" : "fa-dog") mr-1"></i> @mascota.Nombre
                                 </span>
                             }
                         </td>
@@ -77,8 +81,8 @@
                             <button @onclick='() => NavigationManager.NavigateTo($"mascotas/crear/{cliente.Id}")' class="text-indigo-600 hover:text-indigo-900 p-2" title="Agregar Mascota">
                                 <i class="fas fa-paw"></i>
                             </button>
-                            <button class="text-blue-600 hover:text-blue-900 p-2" title="Editar">
-                                <i class="fas fa-edit"></i>
+                            <button @onclick="() => VerDetalles(cliente)" class="text-blue-600 hover:text-blue-900 p-2" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
                             </button>
                         </td>
                     </tr>
@@ -88,12 +92,91 @@
     </div>
 </div>
 
+<!-- Modal de Detalles del Cliente -->
+@if (mostrarModal && clienteSeleccionado != null)
+{
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in">
+            <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg">Ficha del Cliente</h3>
+                <button @onclick="CerrarModal" class="text-white/80 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center mb-8 pb-6 border-b">
+                    <div class="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl font-bold">
+                        @(clienteSeleccionado.Nombres?.FirstOrDefault())@(clienteSeleccionado.Apellidos?.FirstOrDefault())
+                    </div>
+                    <div class="ml-6">
+                        <h2 class="text-2xl font-bold text-gray-900">@clienteSeleccionado.Nombres @clienteSeleccionado.Apellidos</h2>
+                        <div class="flex flex-wrap gap-4 mt-2">
+                            <span class="text-sm text-gray-500"><i class="fas fa-phone mr-2 text-indigo-400"></i> @clienteSeleccionado.Telefono</span>
+                            <span class="text-sm text-gray-500"><i class="fas fa-envelope mr-2 text-indigo-400"></i> @clienteSeleccionado.Email</span>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2 text-indigo-400"></i> @clienteSeleccionado.Direccion</div>
+                    </div>
+                </div>
+
+                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Mascotas Registradas</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach (var mascota in AppState.Mascotas.Where(m => m.ClienteId == clienteSeleccionado.Id))
+                    {
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex items-center">
+                            <div class="w-12 h-12 rounded-lg @(mascota.Especie?.ToLower() == "gato" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600") flex items-center justify-center text-xl">
+                                <i class="fas @(mascota.Especie?.ToLower() == "gato" ? "fa-cat" : "fa-dog")"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-bold text-gray-900">@mascota.Nombre</div>
+                                <div class="text-xs text-gray-500">@mascota.Especie - @mascota.Raza (@mascota.Edad años)</div>
+                                <div class="text-xs text-gray-400">Sexo: @mascota.Sexo</div>
+                            </div>
+                        </div>
+                    }
+                    <button @onclick='() => NavigationManager.NavigateTo($"mascotas/crear/{clienteSeleccionado.Id}")' class="border-2 border-dashed border-gray-200 rounded-xl p-4 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:border-indigo-200 transition-all">
+                        <i class="fas fa-plus-circle mr-2"></i> Añadir otra mascota
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                <button @onclick="CerrarModal" class="bg-white border border-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                    Cerrar Ficha
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
+    private string searchTerm = "";
+    private bool mostrarModal = false;
+    private Cliente? clienteSeleccionado;
+
+    private IEnumerable<Cliente> FilteredClientes => AppState.Clientes
+        .Where(c => string.IsNullOrWhiteSpace(searchTerm) || 
+                    (c.Nombres + " " + c.Apellidos).Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    c.Telefono.Contains(searchTerm) ||
+                    c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
     protected override async Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
         await AppState.LoadClientesAsync();
         await AppState.LoadMascotasAsync();
+    }
+
+    private void VerDetalles(Cliente cliente)
+    {
+        clienteSeleccionado = cliente;
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+        clienteSeleccionado = null;
     }
 
     public void Dispose()
