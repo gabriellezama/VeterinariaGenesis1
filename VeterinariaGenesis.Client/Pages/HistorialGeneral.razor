@@ -1,0 +1,87 @@
+@page "/historial-clinico"
+@using VeterinariaGenesis.Client.Services
+@using VeterinariaGenesis.Domain.Entities
+@inject AppStateService AppState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Historiales Médicos | Veterinaria Génesis</PageTitle>
+
+<div class="mb-8 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-black text-slate-800 tracking-tighter">Buscador de Historiales</h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-[0.65rem]">Selecciona un paciente para ver su actividad médica</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 border border-slate-50 mb-10">
+    <div class="relative max-w-xl">
+        <span class="absolute inset-y-0 left-0 pl-4 flex items-center">
+            <i class="fas fa-search text-slate-400"></i>
+        </span>
+        <input type="text" @bind="busqueda" @bind:event="oninput" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Buscar mascota por nombre o raza...">
+    </div>
+</div>
+
+@if (MascotasFiltradas == null)
+{
+    <div class="flex justify-center p-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+    </div>
+}
+else if (!MascotasFiltradas.Any())
+{
+    <div class="bg-white rounded-[2.5rem] p-20 text-center border-2 border-dashed border-slate-100">
+        <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200 text-4xl">
+            <i class="fas fa-paw"></i>
+        </div>
+        <h4 class="text-xl font-bold text-slate-400 mb-2">No se encontraron mascotas</h4>
+        <p class="text-slate-300 text-sm">Prueba con otro nombre o registra una nueva mascota en la sección de Clientes.</p>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var mascota in MascotasFiltradas)
+        {
+            <div @onclick="() => VerHistorial(mascota.Id)" class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-100 border border-slate-50 hover:border-indigo-200 transition-all cursor-pointer group transform hover:-translate-y-1">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl flex items-center justify-center text-indigo-400 text-2xl group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-dog"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-lg font-black text-slate-800 truncate">@mascota.Nombre</h4>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">@mascota.Raza</p>
+                    </div>
+                    <div class="text-slate-300 group-hover:text-indigo-500 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+                    <span class="text-[0.6rem] bg-indigo-50 text-indigo-500 px-3 py-1 rounded-lg font-black uppercase">@mascota.Especie</span>
+                    <span class="text-[0.65rem] font-bold text-slate-400 italic">Haz clic para ver historial</span>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private string busqueda = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AppState.LoadMascotasAsync();
+    }
+
+    private IEnumerable<Mascota> MascotasFiltradas => 
+        AppState.Mascotas.Where(m => 
+            string.IsNullOrEmpty(busqueda) || 
+            m.Nombre.Contains(busqueda, StringComparison.OrdinalIgnoreCase) || 
+            m.Raza.Contains(busqueda, StringComparison.OrdinalIgnoreCase));
+
+    private void VerHistorial(Guid id)
+    {
+        NavigationManager.NavigateTo($"historial-clinico/{id}");
+    }
+}
