@@ -11,8 +11,11 @@ namespace VeterinariaGenesis.Domain.Entities
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string NumeroFactura { get; set; } = $"FAC-{DateTime.Now.ToString("yyyyMMdd")}-{new Random().Next(1000, 9999)}";
-        [BsonElement("Fecha")] // Compatibilidad
+        
         public DateTime FechaEmision { get; set; } = DateTime.Now;
+
+        [BsonElement("Fecha")]
+        private DateTime? FechaVieja { set { if (value.HasValue) FechaEmision = value.Value; } }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ClienteId { get; set; }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
