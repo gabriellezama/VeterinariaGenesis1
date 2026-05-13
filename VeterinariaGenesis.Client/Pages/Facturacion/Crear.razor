@@ -58,8 +58,8 @@
                         }
                     </select>
                 </div>
-                <div class="w-24">
-                    <input type="number" @bind="cantidadSeleccionada" min="1" class="block w-full pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                <div class="w-32">
+                    <input type="number" @bind="cantidadSeleccionada" step="0.01" min="0.01" class="block w-full pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
                 </div>
                 <button @onclick="AgregarItem" class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg border border-indigo-200 font-medium hover:bg-indigo-100 transition-colors">
                     Agregar
@@ -148,7 +148,7 @@
     private string trabajadorSeleccionadoId = string.Empty;
     
     private string productoSeleccionadoId = string.Empty;
-    private int cantidadSeleccionada = 1;
+    private decimal cantidadSeleccionada = 1;
     
     private string errorMessage = string.Empty;
 
@@ -172,7 +172,7 @@
         {
             if (producto.Stock < cantidadSeleccionada)
             {
-                errorMessage = $"No hay suficiente stock. Disponible: {producto.Stock}";
+                errorMessage = $"No hay suficiente stock. Disponible: {producto.Stock:0.##} lbs/und";
                 return;
             }
             
@@ -181,7 +181,7 @@
             {
                 if (producto.Stock < detalleExistente.Cantidad + cantidadSeleccionada)
                 {
-                    errorMessage = $"Supera el stock disponible ({producto.Stock})";
+                    errorMessage = $"Supera el stock disponible ({producto.Stock:0.##})";
                     return;
                 }
                 detalleExistente.Cantidad += cantidadSeleccionada;

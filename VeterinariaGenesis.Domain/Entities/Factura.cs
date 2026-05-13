@@ -38,7 +38,7 @@ namespace VeterinariaGenesis.Domain.Entities
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ProductoId { get; set; }
         public string DescripcionItem { get; set; } = string.Empty;
-        public int Cantidad { get; set; } = 1;
+        public decimal Cantidad { get; set; } = 1;
         public decimal PrecioUnitario { get; set; }
         
         public decimal Subtotal => Cantidad * PrecioUnitario;
