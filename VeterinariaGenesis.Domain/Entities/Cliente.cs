@@ -12,31 +12,8 @@ namespace VeterinariaGenesis.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Nombres { get; set; } = string.Empty;
-
-        [BsonElement("nombres")]
-        private string? NombresLower { set { if (string.IsNullOrEmpty(Nombres)) Nombres = value ?? ""; } }
-
-        [BsonElement("Nombre")]
-        private string? NombreLegacy { set { if (string.IsNullOrEmpty(Nombres)) Nombres = value ?? ""; } }
-
-        [BsonElement("nombre")]
-        private string? NombreLower { set { if (string.IsNullOrEmpty(Nombres)) Nombres = value ?? ""; } }
-
         public string Apellidos { get; set; } = string.Empty;
-
-        [BsonElement("apellidos")]
-        private string? ApellidosLower { set { if (string.IsNullOrEmpty(Apellidos)) Apellidos = value ?? ""; } }
-
         public string Identificacion { get; set; } = string.Empty;
-
-        [BsonElement("identificacion")]
-        private string? IdentificacionLower { set { if (string.IsNullOrEmpty(Identificacion)) Identificacion = value ?? ""; } }
-
-        [BsonElement("Cedula")]
-        private string? CedulaLegacy { set { if (string.IsNullOrEmpty(Identificacion)) Identificacion = value ?? ""; } }
-
-        [BsonElement("cedula")]
-        private string? CedulaLower { set { if (string.IsNullOrEmpty(Identificacion)) Identificacion = value ?? ""; } }
         public string Telefono { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Direccion { get; set; } = string.Empty;
@@ -44,5 +21,27 @@ namespace VeterinariaGenesis.Domain.Entities
         
         [BsonIgnore]
         public ICollection<Mascota> Mascotas { get; set; } = new List<Mascota>();
+
+        // Este diccionario captura cualquier campo con nombre diferente (nombres, cedula, etc.)
+        // permitiendo que la aplicación lea datos antiguos sin fallar al guardar nuevos.
+        [BsonExtraElements]
+        public IDictionary<string, object> ExtraElements { get; set; } = new Dictionary<string, object>();
+
+        // Propiedades de conveniencia para mapear datos antiguos al cargar
+        [BsonIgnore]
+        public string DisplayNombres => string.IsNullOrEmpty(Nombres) ? GetFromExtra("nombres", "Nombre", "nombre") : Nombres;
+
+        [BsonIgnore]
+        public string DisplayIdentificacion => string.IsNullOrEmpty(Identificacion) ? GetFromExtra("identificacion", "Cedula", "cedula") : Identificacion;
+
+        private string GetFromExtra(params string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                if (ExtraElements.TryGetValue(key, out var value))
+                    return value?.ToString() ?? "";
+            }
+            return "";
+        }
     }
 }
