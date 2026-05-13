@@ -182,18 +182,18 @@ else
     protected override void OnInitialized()
     {
         AppState.OnChange += HandleStateChanged;
-        if (!AppState.IsLoggedIn)
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !AppState.IsLoggedIn && !NavigationManager.Uri.Contains("/login"))
         {
-            NavigationManager.NavigateTo("login", forceLoad: false);
+            NavigationManager.NavigateTo("login");
         }
     }
 
     private void HandleStateChanged()
     {
-        if (!AppState.IsLoggedIn)
-        {
-            NavigationManager.NavigateTo("login", forceLoad: false);
-        }
         InvokeAsync(StateHasChanged);
     }
 
@@ -220,25 +220,31 @@ else
             var list = new List<ActivityItem>();
             
             // Simular notificaciones basadas en datos reales
-            if (AppState.Clientes.Any())
+            if (AppState.Clientes != null && AppState.Clientes.Any())
             {
-                var lastCliente = AppState.Clientes.Last();
-                list.Add(new ActivityItem { 
-                    Title = "Nuevo Cliente", 
-                    Description = $"{(lastCliente.Nombres ?? "Nuevo cliente")} se ha unido.", 
-                    Icon = "fa-user-plus", 
-                    Color = "bg-indigo-500" 
-                });
+                var lastCliente = AppState.Clientes.LastOrDefault();
+                if (lastCliente != null)
+                {
+                    list.Add(new ActivityItem { 
+                        Title = "Nuevo Cliente", 
+                        Description = $"{(lastCliente.Nombres ?? "Nuevo cliente")} se ha unido.", 
+                        Icon = "fa-user-plus", 
+                        Color = "bg-indigo-500" 
+                    });
+                }
             }
-            if (AppState.Mascotas.Any())
+            if (AppState.Mascotas != null && AppState.Mascotas.Any())
             {
-                var lastMascota = AppState.Mascotas.Last();
-                list.Add(new ActivityItem { 
-                    Title = "Nueva Mascota", 
-                    Description = $"{(lastMascota.Nombre ?? "Nueva mascota")} fue registrada.", 
-                    Icon = "fa-paw", 
-                    Color = "bg-amber-500" 
-                });
+                var lastMascota = AppState.Mascotas.LastOrDefault();
+                if (lastMascota != null)
+                {
+                    list.Add(new ActivityItem { 
+                        Title = "Nueva Mascota", 
+                        Description = $"{(lastMascota.Nombre ?? "Nueva mascota")} fue registrada.", 
+                        Icon = "fa-paw", 
+                        Color = "bg-amber-500" 
+                    });
+                }
             }
                 
             if (AppState.Trabajadores.Any())

@@ -65,17 +65,6 @@
                         <div class="flex items-center text-slate-600 text-sm">
                             <i class="fas fa-envelope w-6 text-indigo-400"></i> @cliente.Email
                         </div>
-                        <div class="flex items-center text-slate-600 text-sm">
-                            <i class="fas fa-paw w-6 text-indigo-400"></i> 
-                            @{
-                                var mascotas = AppState.Mascotas.Where(m => m.ClienteId == cliente.Id).ToList();
-                                if (mascotas.Any()) {
-                                    <span>@(string.Join(", ", mascotas.Select(m => m.Nombre)))</span>
-                                } else {
-                                    <span class="italic text-slate-300">Sin mascotas registradas</span>
-                                }
-                            }
-                        </div>
                     </div>
 
                     <button @onclick="() => VerFicha(cliente)" class="w-full py-3 bg-slate-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl font-bold text-sm transition-all flex items-center justify-center group/btn">
@@ -116,12 +105,8 @@
                             {
                                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" @onclick='() => Nav.NavigateTo($"historial-clinico/{mascota.Id}")'>
                                     <div class="flex items-center gap-3">
-                                        <div class="w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-white text-5xl shadow-2xl border border-white/30">
-                                            @if (!string.IsNullOrEmpty(mascota?.Nombre)) {
-                                                <span>@mascota.Nombre.Substring(0, 1).ToUpper()</span>
-                                            } else {
-                                                <i class="fas @(mascota?.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat")"></i>
-                                            }
+                                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm">
+                                            <i class="fas @(mascota.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat") text-xl"></i>
                                         </div>
                                         <div>
                                             <p class="font-bold text-slate-800">@mascota.Nombre</p>
