@@ -131,3 +131,132 @@ code {
         transform: translateY(0);
     }
 }
+
+/* ===================== */
+/* Dark Mode Overrides   */
+/* ===================== */
+
+/* Global body, backgrounds and text overrides */
+html.dark, html.dark body {
+    background-color: #0f172a !important; /* bg-slate-900 */
+    color: #f1f5f9 !important; /* text-slate-100 */
+}
+
+/* Card and Container overrides */
+html.dark .bg-white {
+    background-color: #1e293b !important; /* bg-slate-800 */
+    color: #f1f5f9 !important;
+}
+
+html.dark .bg-gray-50, html.dark .bg-slate-50, html.dark .bg-slate-50\/50, html.dark .bg-gray-100 {
+    background-color: #0f172a !important; /* bg-slate-900 */
+}
+
+html.dark .text-slate-900, html.dark .text-gray-900, html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-gray-800 {
+    color: #f8fafc !important; /* text-slate-50 */
+}
+
+html.dark .text-slate-500, html.dark .text-gray-500, html.dark .text-slate-400 {
+    color: #94a3b8 !important; /* text-slate-400 */
+}
+
+/* Borders and dividers */
+html.dark .border-slate-100, 
+html.dark .border-slate-200, 
+html.dark .border-gray-200, 
+html.dark .border-gray-100,
+html.dark .border-slate-50,
+html.dark .divide-slate-50,
+html.dark .divide-gray-100 {
+    border-color: #334155 !important; /* border-slate-700 */
+}
+
+/* Input Fields and Selects */
+html.dark input, 
+html.dark select, 
+html.dark textarea,
+html.dark .form-control {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+html.dark input::placeholder, 
+html.dark textarea::placeholder {
+    color: #64748b !important;
+}
+
+/* Table styling in dark mode */
+html.dark table {
+    color: #cbd5e1 !important;
+}
+
+html.dark thead {
+    background-color: #0f172a !important;
+    color: #94a3b8 !important;
+}
+
+html.dark tbody tr {
+    border-color: #334155 !important;
+}
+
+html.dark tr:hover, 
+html.dark .hover\:bg-slate-50\/50:hover, 
+html.dark .hover\:bg-slate-50:hover {
+    background-color: #334155 !important;
+}
+
+/* Scrollbars in dark mode */
+html.dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+html.dark ::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+html.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Custom cards styling override */
+html.dark .card-hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2) !important;
+    border-color: #334155 !important;
+}
+
+/* Modals and Dialogs */
+html.dark .modal-content {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+html.dark .modal-header, html.dark .modal-footer {
+    border-color: #334155 !important;
+}
+
+/* Sidebar consistency in dark mode */
+html.dark aside {
+    background-color: #020617 !important; /* Extremely premium deep dark */
+}
+html.dark aside .bg-slate-950 {
+    background-color: #020617 !important;
+}
+
+/* Dashboard KPIs Cards Hover & Background Overrides */
+html.dark .bg-indigo-50 { background-color: rgba(79, 70, 229, 0.15) !important; }
+html.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.15) !important; }
+html.dark .bg-rose-50 { background-color: rgba(244, 63, 94, 0.15) !important; }
+
+/* Keep prints pristine white background */
+@media print {
+    html.dark, html.dark body, html.dark .bg-white, html.dark .bg-gray-50, html.dark .bg-slate-50 {
+        background-color: white !important;
+        color: black !important;
+    }
+}
