@@ -1,0 +1,540 @@
+@page "/estadisticas"
+@inject VeterinariaGenesis.Client.Services.AppStateService AppState
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Estadísticas y Reportes | Veterinaria Génesis</PageTitle>
+
+<div class="page-transition">
+
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4 select-none">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-chart-bar text-white text-base"></i>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Estadísticas y Reportes</h1>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 ml-13 pl-1">Análisis visual del rendimiento comercial de la veterinaria.</p>
+        </div>
+
+        <!-- Slider de Meta Mensual -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl shadow-sm flex flex-col min-w-[300px]">
+            <div class="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span>🎯 Objetivo Mensual</span>
+                <span class="text-indigo-600 dark:text-indigo-400 font-black text-base">C$ @metaMensual.ToString("N0")</span>
+            </div>
+            <input type="range" min="1000" max="100000" step="1000"
+                   @bind-value="metaMensual" @bind-value:event="oninput" @onchange="RecalcularDiagnosticos"
+                   class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none" />
+            <div class="flex justify-between text-[9px] font-bold text-slate-400 mt-1">
+                <span>C$ 1,000</span>
+                <span>C$ 100,000</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECCIÓN 1: DIAGNÓSTICO PRINCIPAL + ANILLO DE PROGRESO
+    ═══════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 select-none">
+
+        <!-- Tarjeta Diagnóstico Grande -->
+        <div class="lg:col-span-2 bg-gradient-to-br @DiagnosticoGradientClass text-white p-6 sm:p-8 rounded-[2rem] shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[230px]">
+            <div class="absolute -right-12 -top-12 w-52 h-52 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-12 -bottom-12 w-56 h-56 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute right-6 top-6 w-24 h-24 border border-white/10 rounded-full pointer-events-none"></div>
+
+            <div class="z-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-black uppercase tracking-wider">
+                        📊 Estado del Mes
+                    </span>
+                    <span class="text-xs font-bold text-white/80">Meta de C$ @metaMensual.ToString("N0")</span>
+                </div>
+
+                <h2 class="text-4xl font-black tracking-tight mb-3">
+                    @DiagnosticoEmoji Ventas @DiagnosticoEstado
+                </h2>
+
+                <p class="text-sm text-white/90 leading-relaxed max-w-2xl font-medium">
+                    @GetDiagnosticoDetalle()
+                </p>
+            </div>
+
+            <div class="z-10 grid grid-cols-3 gap-4 pt-6 border-t border-white/10 mt-4 text-center">
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-white/60 tracking-wider mb-1">💰 Facturado</span>
+                    <span class="text-xl font-black">C$ @currentMonthSales.ToString("N0")</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-white/60 tracking-wider mb-1">📤 Gastos</span>
+                    <span class="text-xl font-black text-white/90">C$ @currentMonthExpenses.ToString("N0")</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-white/60 tracking-wider mb-1">✨ Utilidad</span>
+                    <span class="text-xl font-black @(currentMonthUtility >= 0 ? "text-white" : "text-rose-200")">C$ @currentMonthUtility.ToString("N0")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anillo de Progreso -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm flex flex-col items-center justify-center gap-4 min-h-[230px]">
+            <p class="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest">Avance hacia la Meta</p>
+            <div class="relative w-36 h-36 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="rgba(226, 232, 240, 0.4)" stroke-width="10" fill="transparent" class="dark:stroke-slate-800" />
+                    <circle cx="50" cy="50" r="40" stroke="@DiagnosticoColorCode" stroke-width="10" fill="transparent"
+                            stroke-dasharray="251.2"
+                            stroke-dashoffset="@dashOffset"
+                            stroke-linecap="round" />
+                </svg>
+                <div class="absolute flex flex-col items-center">
+                    <span class="text-3xl font-black text-slate-800 dark:text-white leading-none">@porcentajeMeta.ToString("N0")%</span>
+                    <span class="text-[9px] uppercase font-bold tracking-widest text-slate-400 mt-1">Completado</span>
+                </div>
+            </div>
+            <div class="text-center">
+                @if (porcentajeMeta >= 100m)
+                {
+                    <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">🎉 ¡Meta superada!</span>
+                }
+                else
+                {
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Faltan <strong>C$ @(Math.Max(0m, metaMensual - currentMonthSales).ToString("N0"))</strong> para la meta</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECCIÓN 2: GRÁFICO DE BARRAS + GRÁFICO DONUT
+    ═══════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 select-none">
+
+        <!-- Gráfico de Barras: Ingresos Mensuales -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm flex flex-col min-h-[380px]">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-indigo-500"></i> Ingresos Mensuales
+                    </h3>
+                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Ventas vs Gastos — Últimos 6 meses</p>
+                </div>
+                <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-indigo-500 inline-block"></span> Ventas</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-400 inline-block"></span> Gastos</span>
+                </div>
+            </div>
+
+            <!-- Barras -->
+            <div class="flex-1 flex items-end justify-between gap-3 sm:gap-5 px-2 sm:px-4 pt-4 relative">
+                <!-- Líneas de referencia horizontales -->
+                <div class="absolute inset-0 flex flex-col justify-between px-2 pointer-events-none">
+                    @for (int i = 4; i >= 1; i--)
+                    {
+                        <div class="border-t border-dashed border-slate-100 dark:border-slate-800/60 w-full h-0"></div>
+                    }
+                </div>
+
+                @foreach (var item in reporteVentasMensuales)
+                {
+                    <div class="flex-1 flex flex-col items-center h-full justify-end group/bar relative z-10">
+                        <!-- Tooltip flotante -->
+                        <div class="absolute -top-14 scale-0 group-hover/bar:scale-100 transition-all duration-200 origin-bottom bg-slate-950 text-white text-[10px] font-bold py-2 px-3 rounded-xl shadow-xl z-20 pointer-events-none whitespace-nowrap">
+                            <div>Ventas: C$ @item.Ventas.ToString("N0")</div>
+                            <div class="text-rose-300">Gastos: C$ @item.Gastos.ToString("N0")</div>
+                        </div>
+
+                        <!-- Barra de ventas -->
+                        <div class="w-full chart-bar rounded-t-xl bg-gradient-to-t @(item.Ventas >= metaMensual ? "from-indigo-700 via-indigo-500 to-teal-400" : "from-slate-600 via-slate-500 to-indigo-400")"
+                             style="height: @(item.PorcentajeAltura)%; min-height: @(item.Ventas > 0 ? "6px" : "2px");">
+                        </div>
+
+                        <!-- Barra de gastos (delgada, superpuesta a la derecha) -->
+                        @if (item.Gastos > 0 && item.Ventas > 0)
+                        {
+                            <div class="w-2 bg-rose-400/80 rounded-full absolute bottom-0 right-0"
+                                 style="height: @(Math.Min(item.PorcentajeAltura, (double)(item.Gastos / (AppState.Gastos.Any() ? AppState.Gastos.Max(g => g.Monto) : 1m) * 90m)))%;">
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Etiquetas de meses -->
+            <div class="flex justify-between px-2 sm:px-4 pt-4 border-t border-slate-100 dark:border-slate-800/60 mt-3 text-[11px] font-black text-slate-400 tracking-widest uppercase">
+                @foreach (var item in reporteVentasMensuales)
+                {
+                    <div class="flex-1 text-center">@item.NombreMes</div>
+                }
+            </div>
+        </div>
+
+        <!-- Gráfico Donut: Distribución de Servicios -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm flex flex-col min-h-[380px]">
+            <div class="mb-5">
+                <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-indigo-500"></i> Distribución
+                </h3>
+                <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Por tipo de servicio / producto</p>
+            </div>
+
+            <!-- SVG Donut -->
+            <div class="relative w-44 h-44 mx-auto flex items-center justify-center my-auto">
+                @if (totalConsultasVacunas == 0 && totalGrooming == 0 && totalProductos == 0)
+                {
+                    <div class="text-slate-400 text-xs italic text-center">Sin ventas registradas</div>
+                }
+                else
+                {
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="38" stroke="#e2e8f0" stroke-width="8" fill="transparent" class="dark:stroke-slate-800" />
+                        <circle cx="50" cy="50" r="38" stroke="#6366f1" stroke-width="10" fill="transparent"
+                                class="chart-pie-segment"
+                                stroke-dasharray="@(shareConsultas * 238.76) 238.76"
+                                stroke-dashoffset="0" />
+                        <circle cx="50" cy="50" r="38" stroke="#14b8a6" stroke-width="10" fill="transparent"
+                                class="chart-pie-segment"
+                                stroke-dasharray="@(shareGrooming * 238.76) 238.76"
+                                stroke-dashoffset="-@(shareConsultas * 238.76)" />
+                        <circle cx="50" cy="50" r="38" stroke="#a855f7" stroke-width="10" fill="transparent"
+                                class="chart-pie-segment"
+                                stroke-dasharray="@(shareProductos * 238.76) 238.76"
+                                stroke-dashoffset="-@((shareConsultas + shareGrooming) * 238.76)" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span class="text-[9px] uppercase font-bold tracking-widest text-slate-400">Total</span>
+                        <span class="text-sm font-black text-slate-800 dark:text-white leading-none">C$ @AppState.Facturas.Sum(f => f.Total).ToString("N0")</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Leyenda -->
+            <div class="space-y-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block shadow-sm shadow-indigo-500/30"></span>
+                        <span>Consultas / Vacunas</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-slate-800 dark:text-white">@((shareConsultas * 100).ToString("N1"))%</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <span class="w-3 h-3 rounded-full bg-teal-500 inline-block shadow-sm shadow-teal-500/30"></span>
+                        <span>Estética / Grooming</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-slate-800 dark:text-white">@((shareGrooming * 100).ToString("N1"))%</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <span class="w-3 h-3 rounded-full bg-purple-500 inline-block shadow-sm shadow-purple-500/30"></span>
+                        <span>Productos / Farmacia</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-slate-800 dark:text-white">@((shareProductos * 100).ToString("N1"))%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECCIÓN 3: GRÁFICO DE LÍNEA (PROGRESIÓN DIARIA)
+    ═══════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 select-none">
+
+        <!-- Gráfico de Área: Progresión Semanal -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm flex flex-col min-h-[280px]">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                        <i class="fas fa-chart-line text-indigo-500"></i> Progresión de Ventas Diarias
+                    </h3>
+                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Acumulado por semanas — Mes actual</p>
+                </div>
+                <span class="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 rounded-full uppercase tracking-wider">
+                    Mes en curso
+                </span>
+            </div>
+
+            <div class="flex-1 w-full pt-2">
+                <svg class="w-full h-full" viewBox="0 0 300 100" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="areaGradStat" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0.0"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Grid Lines -->
+                    <line x1="10" y1="15" x2="290" y2="15" stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="10" y1="42" x2="290" y2="42" stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="10" y1="69" x2="290" y2="69" stroke="rgba(148,163,184,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+
+                    <!-- Area Fill -->
+                    <path d="M 10 90 L 10 @y1 L 80 @y2 L 150 @y3 L 220 @y4 L 290 @y5 L 290 90 Z" fill="url(#areaGradStat)" />
+
+                    <!-- Stroke Line -->
+                    <path d="M 10 @y1 L 80 @y2 L 150 @y3 L 220 @y4 L 290 @y5" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+                    <!-- Data Points -->
+                    <circle cx="10"  cy="@y1" r="4" fill="#ffffff" stroke="#6366f1" stroke-width="2.5" />
+                    <circle cx="80"  cy="@y2" r="4" fill="#ffffff" stroke="#6366f1" stroke-width="2.5" />
+                    <circle cx="150" cy="@y3" r="4" fill="#ffffff" stroke="#6366f1" stroke-width="2.5" />
+                    <circle cx="220" cy="@y4" r="4" fill="#ffffff" stroke="#6366f1" stroke-width="2.5" />
+                    <circle cx="290" cy="@y5" r="4" fill="#ffffff" stroke="#6366f1" stroke-width="2.5" />
+                </svg>
+            </div>
+
+            <div class="flex justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60 text-[10px] font-bold text-slate-400 tracking-wider uppercase">
+                <span>Sem 1<br/><span class="text-[9px] font-normal normal-case text-slate-300">1–7</span></span>
+                <span>Sem 2<br/><span class="text-[9px] font-normal normal-case text-slate-300">8–14</span></span>
+                <span>Sem 3<br/><span class="text-[9px] font-normal normal-case text-slate-300">15–21</span></span>
+                <span>Sem 4<br/><span class="text-[9px] font-normal normal-case text-slate-300">22–28</span></span>
+                <span>Sem 5<br/><span class="text-[9px] font-normal normal-case text-slate-300">29–31</span></span>
+            </div>
+        </div>
+
+        <!-- Métricas Rápidas de Resumen -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm flex flex-col gap-4 min-h-[280px]">
+            <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                <i class="fas fa-tachometer-alt text-indigo-500"></i> KPIs del Mes
+            </h3>
+
+            <div class="flex flex-col gap-3 flex-1">
+                <!-- Ticket Promedio -->
+                <div class="bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-receipt text-indigo-600 dark:text-indigo-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-wider text-indigo-600/80 dark:text-indigo-400/80">Ticket Promedio</p>
+                        <p class="text-lg font-black text-indigo-700 dark:text-indigo-300">C$ @ticketPromedio.ToString("N0")</p>
+                    </div>
+                </div>
+
+                <!-- Total Facturas Mes -->
+                <div class="bg-teal-50 dark:bg-teal-500/10 rounded-2xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-teal-100 dark:bg-teal-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-invoice text-teal-600 dark:text-teal-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-wider text-teal-600/80 dark:text-teal-400/80">Facturas del Mes</p>
+                        <p class="text-lg font-black text-teal-700 dark:text-teal-300">@totalFacturasMes transacciones</p>
+                    </div>
+                </div>
+
+                <!-- Margen de Utilidad -->
+                <div class="@(margenUtilidad >= 0 ? "bg-emerald-50 dark:bg-emerald-500/10" : "bg-rose-50 dark:bg-rose-500/10") rounded-2xl p-4 flex items-center gap-3">
+                    <div class="@(margenUtilidad >= 0 ? "bg-emerald-100 dark:bg-emerald-500/20" : "bg-rose-100 dark:bg-rose-500/20") w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-percentage @(margenUtilidad >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-wider @(margenUtilidad >= 0 ? "text-emerald-600/80 dark:text-emerald-400/80" : "text-rose-600/80 dark:text-rose-400/80")">Margen Neto</p>
+                        <p class="text-lg font-black @(margenUtilidad >= 0 ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300")">@margenUtilidad.ToString("N1")%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECCIÓN 4: TABLA DE MEJORES MESES
+    ═══════════════════════════════════════════════════════ -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] shadow-sm overflow-hidden select-none mb-4">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800/80 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white dark:from-slate-950/30 dark:to-transparent">
+            <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                <i class="fas fa-trophy text-amber-500"></i> Resumen de los Últimos 6 Meses
+            </h3>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Comparativo</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-slate-950/40 text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                    <tr>
+                        <th class="px-6 py-4">Mes</th>
+                        <th class="px-6 py-4">Ventas</th>
+                        <th class="px-6 py-4">Gastos</th>
+                        <th class="px-6 py-4">Utilidad</th>
+                        <th class="px-6 py-4">vs. Meta</th>
+                        <th class="px-6 py-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/50">
+                    @foreach (var item in reporteVentasMensuales.OrderByDescending(r => r.Ventas))
+                    {
+                        var util = item.Ventas - item.Gastos;
+                        var pct = metaMensual > 0 ? (item.Ventas / metaMensual) * 100m : 0m;
+                        var estadoClass = pct >= 85m ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
+                                         pct >= 50m ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400" :
+                                                      "bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400";
+                        var estadoLabel = pct >= 85m ? "✅ Excelente" : pct >= 50m ? "⚠️ Regular" : "🔴 Crítico";
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">@item.NombreMes</td>
+                            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">C$ @item.Ventas.ToString("N0")</td>
+                            <td class="px-6 py-4 text-rose-600 dark:text-rose-400 font-semibold">C$ @item.Gastos.ToString("N0")</td>
+                            <td class="px-6 py-4 font-bold @(util >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")">C$ @util.ToString("N0")</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 min-w-[60px]">
+                                        <div class="h-1.5 rounded-full @(pct >= 85m ? "bg-emerald-500" : pct >= 50m ? "bg-amber-500" : "bg-rose-500")"
+                                             style="width: @(Math.Min(100m, pct).ToString("F0", System.Globalization.CultureInfo.InvariantCulture))%;"></div>
+                                    </div>
+                                    <span class="text-xs font-black text-slate-600 dark:text-slate-400">@pct.ToString("N0")%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-black @estadoClass">@estadoLabel</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private decimal metaMensual = 10000m;
+    private decimal currentMonthSales = 0;
+    private decimal currentMonthExpenses = 0;
+    private decimal currentMonthUtility => currentMonthSales - currentMonthExpenses;
+    private decimal porcentajeMeta => metaMensual > 0 ? (currentMonthSales / metaMensual) * 100m : 0m;
+
+    private decimal totalConsultasVacunas = 0;
+    private decimal totalGrooming = 0;
+    private decimal totalProductos = 0;
+    private double shareConsultas = 0.33;
+    private double shareGrooming = 0.33;
+    private double shareProductos = 0.34;
+
+    private double y1 = 90, y2 = 90, y3 = 90, y4 = 90, y5 = 90;
+
+    private int totalFacturasMes = 0;
+    private decimal ticketPromedio = 0;
+    private decimal margenUtilidad = 0;
+
+    private string dashOffset => (251.2 - (double)(Math.Min(100m, porcentajeMeta) / 100m) * 251.2).ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+
+    private string DiagnosticoEstado   => porcentajeMeta >= 85m ? "Excelente" : (porcentajeMeta >= 50m ? "Aceptable" : "Bajo / Crítico");
+    private string DiagnosticoEmoji    => porcentajeMeta >= 85m ? "🚀" : (porcentajeMeta >= 50m ? "📈" : "📉");
+    private string DiagnosticoGradientClass => porcentajeMeta >= 85m ? "from-emerald-600 to-teal-500" : (porcentajeMeta >= 50m ? "from-amber-500 to-orange-500" : "from-rose-600 to-pink-500");
+    private string DiagnosticoColorCode     => porcentajeMeta >= 85m ? "#10b981" : (porcentajeMeta >= 50m ? "#f59e0b" : "#f43f5e");
+
+    private List<MensualReportItem> reporteVentasMensuales = new();
+
+    private string GetDiagnosticoDetalle()
+    {
+        var porc = porcentajeMeta;
+        if (porc >= 85m)
+            return $"¡Rendimiento excelente! Se ha alcanzado el {porc:N0}% de la meta de C$ {metaMensual:N0}. El flujo de caja es muy positivo con una utilidad neta de C$ {currentMonthUtility:N0}.";
+        else if (porc >= 50m)
+            return $"Las ventas cubren el {porc:N0}% de la meta de C$ {metaMensual:N0}. Se recomienda incentivar promociones y recordatorios de citas para cerrar el mes con mejores resultados.";
+        else
+            return $"Atención: Solo se ha alcanzado el {porc:N0}% de la meta de C$ {metaMensual:N0}. Se sugiere agendar recordatorios de desparasitaciones y vacunas para incrementar los ingresos esta semana.";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+        await AppState.LoadFacturasAsync();
+        await AppState.LoadGastosAsync();
+        RecalcularTodo();
+    }
+
+    private void RecalcularDiagnosticos() => StateHasChanged();
+
+    private void RecalcularTodo()
+    {
+        var hoy = DateTime.Today;
+        var factMes = AppState.Facturas
+            .Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year)
+            .ToList();
+
+        currentMonthSales    = factMes.Sum(f => f.Total);
+        currentMonthExpenses = AppState.Gastos
+            .Where(g => g.Fecha.Month == hoy.Month && g.Fecha.Year == hoy.Year)
+            .Sum(g => g.Monto);
+
+        totalFacturasMes = factMes.Count;
+        ticketPromedio   = totalFacturasMes > 0 ? currentMonthSales / totalFacturasMes : 0m;
+        margenUtilidad   = currentMonthSales > 0 ? (currentMonthUtility / currentMonthSales) * 100m : 0m;
+
+        // Gráfico de barras — últimos 6 meses
+        reporteVentasMensuales.Clear();
+        for (int i = 5; i >= 0; i--)
+        {
+            var fm = hoy.AddMonths(-i);
+            var ventas = AppState.Facturas
+                .Where(f => f.FechaEmision.Month == fm.Month && f.FechaEmision.Year == fm.Year)
+                .Sum(f => f.Total);
+            var gastos = AppState.Gastos
+                .Where(g => g.Fecha.Month == fm.Month && g.Fecha.Year == fm.Year)
+                .Sum(g => g.Monto);
+
+            reporteVentasMensuales.Add(new MensualReportItem
+            {
+                NombreMes = fm.ToString("MMM", System.Globalization.CultureInfo.CreateSpecificCulture("es-ES")).ToUpper(),
+                Ventas = ventas,
+                Gastos = gastos
+            });
+        }
+
+        var maxVenta = reporteVentasMensuales.Max(r => r.Ventas);
+        if (maxVenta == 0) maxVenta = 1m;
+        foreach (var item in reporteVentasMensuales)
+        {
+            item.PorcentajeAltura = (double)((item.Ventas / maxVenta) * 90m);
+            if (item.PorcentajeAltura < 6 && item.Ventas > 0) item.PorcentajeAltura = 6;
+        }
+
+        // Donut — distribución por categoría
+        totalConsultasVacunas = 0; totalGrooming = 0; totalProductos = 0;
+        foreach (var d in AppState.Facturas.SelectMany(f => f.Detalles))
+        {
+            var desc = d.DescripcionItem?.ToLower() ?? "";
+            if (desc.Contains("consulta") || desc.Contains("vacuna") || desc.Contains("médica"))
+                totalConsultasVacunas += d.Subtotal;
+            else if (desc.Contains("grooming") || desc.Contains("baño") || desc.Contains("corte") || desc.Contains("estética"))
+                totalGrooming += d.Subtotal;
+            else
+                totalProductos += d.Subtotal;
+        }
+        var totalGral = totalConsultasVacunas + totalGrooming + totalProductos;
+        if (totalGral == 0) totalGral = 1;
+        shareConsultas = (double)(totalConsultasVacunas / totalGral);
+        shareGrooming  = (double)(totalGrooming  / totalGral);
+        shareProductos = (double)(totalProductos / totalGral);
+
+        // Gráfico de línea — progresión semanal
+        decimal s1 = AppState.Facturas.Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year && f.FechaEmision.Day <= 7).Sum(f => f.Total);
+        decimal s2 = AppState.Facturas.Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year && f.FechaEmision.Day <= 14).Sum(f => f.Total);
+        decimal s3 = AppState.Facturas.Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year && f.FechaEmision.Day <= 21).Sum(f => f.Total);
+        decimal s4 = AppState.Facturas.Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year && f.FechaEmision.Day <= 28).Sum(f => f.Total);
+        decimal s5 = AppState.Facturas.Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year).Sum(f => f.Total);
+
+        var maxS = new[] { s1, s2, s3, s4, s5 }.Max();
+        if (maxS == 0) maxS = 1m;
+        y1 = 90 - (double)((s1 / maxS) * 78m);
+        y2 = 90 - (double)((s2 / maxS) * 78m);
+        y3 = 90 - (double)((s3 / maxS) * 78m);
+        y4 = 90 - (double)((s4 / maxS) * 78m);
+        y5 = 90 - (double)((s5 / maxS) * 78m);
+    }
+
+    public void Dispose() => AppState.OnChange -= StateHasChanged;
+
+    public class MensualReportItem
+    {
+        public string NombreMes { get; set; } = "";
+        public decimal Ventas { get; set; }
+        public decimal Gastos { get; set; }
+        public double PorcentajeAltura { get; set; }
+    }
+}

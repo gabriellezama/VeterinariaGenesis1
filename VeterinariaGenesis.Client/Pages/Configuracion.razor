@@ -1,0 +1,210 @@
+@page "/configuracion"
+@inject VeterinariaGenesis.Client.Services.AppStateService AppState
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Configuración del Sistema | Veterinaria Génesis</PageTitle>
+
+<div class="page-transition">
+
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-1">
+            <div class="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-cog text-white text-base"></i>
+            </div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Configuración del Sistema</h1>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 ml-13 pl-1">Administración y mantenimiento de la base de datos.</p>
+    </div>
+
+    <!-- ═══ SECCIÓN: ZONA DE PELIGRO ═══ -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] shadow-sm overflow-hidden mb-6">
+        <div class="p-6 border-b border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20">
+            <h2 class="font-black text-rose-700 dark:text-rose-400 text-base uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i> Zona de Peligro — Limpieza de Datos
+            </h2>
+            <p class="text-sm text-rose-600/80 dark:text-rose-400/70 mt-1">Las siguientes acciones son <strong>irreversibles</strong>. Solo úsalas para comenzar con datos reales desde cero.</p>
+        </div>
+
+        <div class="p-6 space-y-4">
+
+            <!-- Opción 1: Reseteo Operativo -->
+            <div class="border border-amber-200 dark:border-amber-800/40 rounded-2xl p-5 bg-amber-50/50 dark:bg-amber-950/10">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-broom text-amber-500"></i>
+                            <h3 class="font-black text-slate-800 dark:text-white">Limpiar Datos Operativos</h3>
+                            <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-[10px] font-black rounded-full uppercase tracking-wider">Recomendado</span>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Elimina: <strong class="text-rose-600 dark:text-rose-400">Facturas, Gastos, Citas, Clientes, Mascotas e Historial Médico.</strong><br/>
+                            Conserva: <strong class="text-emerald-600 dark:text-emerald-400">Personal (trabajadores) y Catálogo de Productos/Inventario.</strong>
+                        </p>
+                    </div>
+                    <button @onclick="ConfirmarResetOperativo"
+                            disabled="@_cargando"
+                            class="shrink-0 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black rounded-2xl shadow-md transition-all text-sm flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                        @if (_cargando && _tipoReset == "operativo")
+                        {
+                            <i class="fas fa-spinner fa-spin"></i> <span>Procesando...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-broom"></i> <span>Limpiar Datos</span>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            <!-- Opción 2: Reseteo Total -->
+            <div class="border border-rose-200 dark:border-rose-800/40 rounded-2xl p-5 bg-rose-50/50 dark:bg-rose-950/10">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-trash-alt text-rose-500"></i>
+                            <h3 class="font-black text-slate-800 dark:text-white">Reseteo Total del Sistema</h3>
+                            <span class="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400 text-[10px] font-black rounded-full uppercase tracking-wider">Destruye TODO</span>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Elimina <strong class="text-rose-600 dark:text-rose-400">absolutamente todo</strong> de la base de datos:<br/>
+                            Facturas, Gastos, Citas, Clientes, Mascotas, Trabajadores, Productos, Proveedores e Historial.
+                        </p>
+                    </div>
+                    <button @onclick="ConfirmarResetTotal"
+                            disabled="@_cargando"
+                            class="shrink-0 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-black rounded-2xl shadow-md transition-all text-sm flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                        @if (_cargando && _tipoReset == "total")
+                        {
+                            <i class="fas fa-spinner fa-spin"></i> <span>Eliminando...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-skull-crossbones"></i> <span>Reseteo Total</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje de éxito/error -->
+    @if (!string.IsNullOrEmpty(_mensaje))
+    {
+        <div class="@(_exito ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400" : "bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/40 text-rose-700 dark:text-rose-400") border rounded-2xl p-5 flex items-center gap-3 animate-zoom-in">
+            <i class="fas @(_exito ? "fa-check-circle text-emerald-500" : "fa-times-circle text-rose-500") text-xl"></i>
+            <div>
+                <p class="font-black">@(_exito ? "¡Completado!" : "Error")</p>
+                <p class="text-sm">@_mensaje</p>
+            </div>
+        </div>
+    }
+
+    <!-- Info adicional -->
+    <div class="mt-6 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl p-5">
+        <h3 class="font-black text-indigo-700 dark:text-indigo-400 text-sm uppercase tracking-wider flex items-center gap-2 mb-3">
+            <i class="fas fa-info-circle"></i> ¿Qué se conserva en cada opción?
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
+            <div>
+                <p class="text-amber-600 dark:text-amber-400 font-black mb-1">🧹 Limpiar Datos Operativos elimina:</p>
+                <ul class="space-y-0.5 text-slate-600 dark:text-slate-400">
+                    <li>❌ Todas las facturas y ventas</li>
+                    <li>❌ Todos los gastos registrados</li>
+                    <li>❌ Todas las citas agendadas</li>
+                    <li>❌ Todos los clientes y sus mascotas</li>
+                    <li>❌ Todo el historial médico</li>
+                    <li>✅ <strong>Conserva personal y productos</strong></li>
+                </ul>
+            </div>
+            <div>
+                <p class="text-rose-600 dark:text-rose-400 font-black mb-1">💀 Reseteo Total también elimina:</p>
+                <ul class="space-y-0.5 text-slate-600 dark:text-slate-400">
+                    <li>❌ Todo lo anterior más...</li>
+                    <li>❌ Todos los trabajadores/personal</li>
+                    <li>❌ Todo el catálogo de productos</li>
+                    <li>❌ Todos los proveedores</li>
+                    <li>🔴 La base de datos queda completamente vacía</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private bool _cargando = false;
+    private string _tipoReset = "";
+    private string _mensaje = "";
+    private bool _exito = false;
+
+    private async Task ConfirmarResetOperativo()
+    {
+        var confirmado = await JS.InvokeAsync<bool>("confirm",
+            "⚠️ ADVERTENCIA\n\nEsto eliminará PERMANENTEMENTE:\n• Todas las facturas y ventas\n• Todos los gastos\n• Todas las citas\n• Todos los clientes y mascotas\n• Todo el historial médico\n\nSe CONSERVARÁN los trabajadores y el catálogo de productos.\n\n¿Estás seguro de continuar?");
+
+        if (!confirmado) return;
+
+        // Segunda confirmación
+        var confirmado2 = await JS.InvokeAsync<bool>("confirm",
+            "🔴 CONFIRMACIÓN FINAL\n\nEsta acción NO se puede deshacer.\n\n¿Confirmas que deseas limpiar los datos operativos?");
+
+        if (!confirmado2) return;
+
+        _cargando = true;
+        _tipoReset = "operativo";
+        _mensaje = "";
+        StateHasChanged();
+
+        var exito = await AppState.ResetDatosOperativosAsync();
+
+        _cargando = false;
+        _exito = exito;
+        _mensaje = exito
+            ? "Datos operativos eliminados correctamente. El sistema está listo para recibir datos reales."
+            : "Ocurrió un error al limpiar los datos. Verifica que la API esté activa.";
+
+        StateHasChanged();
+
+        if (exito)
+        {
+            await Task.Delay(2000);
+            Nav.NavigateTo("/");
+        }
+    }
+
+    private async Task ConfirmarResetTotal()
+    {
+        var confirmado = await JS.InvokeAsync<bool>("confirm",
+            "💀 ADVERTENCIA CRÍTICA\n\nEsto eliminará TODO de la base de datos:\n• Facturas, gastos, citas\n• Clientes y mascotas\n• Historial médico\n• Trabajadores y personal\n• Catálogo de productos\n• Proveedores\n\nLA BASE DE DATOS QUEDARÁ COMPLETAMENTE VACÍA.\n\n¿Estás absolutamente seguro?");
+
+        if (!confirmado) return;
+
+        var confirmado2 = await JS.InvokeAsync<bool>("confirm",
+            "🔴 ÚLTIMA ADVERTENCIA\n\nEsta es una acción DESTRUCTIVA e IRREVERSIBLE.\n\nEscribe mentalmente 'SÍ QUIERO BORRAR TODO' y confirma.");
+
+        if (!confirmado2) return;
+
+        _cargando = true;
+        _tipoReset = "total";
+        _mensaje = "";
+        StateHasChanged();
+
+        var exito = await AppState.ResetTotalAsync();
+
+        _cargando = false;
+        _exito = exito;
+        _mensaje = exito
+            ? "Reseteo total completado. La base de datos está completamente vacía."
+            : "Ocurrió un error durante el reseteo. Verifica que la API esté activa.";
+
+        StateHasChanged();
+
+        if (exito)
+        {
+            await Task.Delay(2000);
+            Nav.NavigateTo("/");
+        }
+    }
+}
