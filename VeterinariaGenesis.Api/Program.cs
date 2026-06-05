@@ -27,6 +27,10 @@ app.UseRouting();
 
 app.UseCors("AllowAll");
 
+// Servir archivos estáticos del Cliente Blazor WASM
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 // Middleware de diagnóstico para ver errores reales en la consola de Railway
 app.Use(async (context, next) =>
 {
@@ -44,4 +48,8 @@ app.Use(async (context, next) =>
 
 app.UseAuthorization();
 app.MapControllers();
+
+// Fallback: todas las rutas desconocidas van al index.html del Cliente
+app.MapFallbackToFile("index.html");
+
 app.Run();
