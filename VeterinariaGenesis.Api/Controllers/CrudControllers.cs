@@ -189,6 +189,42 @@ namespace VeterinariaGenesis.Api.Controllers
                 return StatusCode(500, $"Error al procesar factura: {msg}");
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                var factura = await _facturaRepo.GetByIdAsync(id);
+                if (factura == null)
+                    return NotFound("Factura no encontrada.");
+
+                // Devolver stock de cada producto en la factura
+                foreach (var detalle in factura.Detalles)
+                {
+                    try
+                    {
+                        var prod = await _productoRepo.GetByIdAsync(detalle.ProductoId);
+                        if (prod != null)
+                        {
+                            decimal nuevoStock = prod.Stock + detalle.Cantidad;
+                            await _productoRepo.UpdateStockAsync(prod.Id, nuevoStock);
+                        }
+                    }
+                    catch (Exception exStock)
+                    {
+                        Console.WriteLine($"Error restaurando stock para {detalle.ProductoId}: {exStock.Message}");
+                    }
+                }
+
+                await _facturaRepo.DeleteAsync(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al eliminar factura: {ex.Message}");
+            }
+        }
     }
 
     [ApiController]
@@ -214,6 +250,36 @@ namespace VeterinariaGenesis.Api.Controllers
         {
             await _repo.UpdateAsync(id, proveedor);
             return Ok(proveedor);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _repo.DeleteAsync(id);
+            return Ok();
+        }
+    }
+
+    [ApiController]
+    [Route("api/Gastos")]
+    public class GastosController : ControllerBase
+    {
+        private readonly GastoRepository _repo;
+        public GastosController(GastoRepository repo) => _repo = repo;
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Gasto gasto)
+        {
+            gasto.Id = Guid.NewGuid();
+            if (gasto.Fecha == default)
+            {
+                gasto.Fecha = DateTime.Now;
+            }
+            await _repo.CreateAsync(gasto);
+            return Ok(gasto);
         }
 
         [HttpDelete("{id}")]

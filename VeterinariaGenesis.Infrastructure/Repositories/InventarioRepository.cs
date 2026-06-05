@@ -71,5 +71,11 @@ namespace VeterinariaGenesis.Infrastructure.Repositories
 
         public async Task CreateAsync(Factura factura)
             => await _collection.InsertOneAsync(factura);
+
+        public async Task<Factura?> GetByIdAsync(Guid id)
+            => await _collection.Find(f => f.Id == id).FirstOrDefaultAsync();
+
+        public async Task DeleteAsync(Guid id)
+            => await _collection.DeleteOneAsync(f => f.Id == id);
     }
 }
