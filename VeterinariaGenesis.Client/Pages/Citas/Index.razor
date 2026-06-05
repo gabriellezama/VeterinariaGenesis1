@@ -1,0 +1,749 @@
+@page "/citas"
+@inject VeterinariaGenesis.Client.Services.AppStateService AppState
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Calendario de Citas | Veterinaria Génesis</PageTitle>
+
+<div class="page-transition min-h-screen pb-12">
+    <!-- Header principal -->
+    <div class="mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                <span class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt"></i>
+                </span>
+                Calendario de Citas
+            </h1>
+            <p class="text-slate-500 mt-1">Programa consultas y gestiona las notificaciones automáticas por WhatsApp.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button @onclick="AbrirModalCrear" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-2xl shadow-lg shadow-indigo-100 font-bold transition-all transform hover:-translate-y-0.5 flex items-center gap-2 btn-pulse">
+                <i class="fas fa-calendar-plus"></i> Agendar Nueva Cita
+            </button>
+        </div>
+    </div>
+
+    <!-- Layout de dos columnas -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <!-- Columna 1: Calendario mensual (ocupa 2 columnas en pantallas grandes) -->
+        <div class="xl:col-span-2 space-y-6">
+            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                <!-- Cabecera del calendario -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-black text-slate-800 uppercase tracking-wide">
+                        @currentMonth.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button @onclick="IrMesAnterior" class="w-10 h-10 rounded-xl hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button @onclick="IrHoy" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                            Hoy
+                        </button>
+                        <button @onclick="IrMesSiguiente" class="w-10 h-10 rounded-xl hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cabecera de días de la semana -->
+                <div class="grid grid-cols-7 text-center font-bold text-xs text-slate-400 uppercase tracking-widest mb-2">
+                    <div>Dom</div>
+                    <div>Lun</div>
+                    <div>Mar</div>
+                    <div>Mié</div>
+                    <div>Jue</div>
+                    <div>Vie</div>
+                    <div>Sáb</div>
+                </div>
+
+                <!-- Cuadrícula de días -->
+                <div class="grid grid-cols-7 gap-2">
+                    @foreach (var day in calendarDays)
+                    {
+                        var isSelected = day.Date == selectedDate.Date;
+                        var isToday = day.Date == DateTime.Today;
+                        var isCurrentMonth = day.Date.Month == currentMonth.Month;
+                        var dayCitas = AppState.Citas.Where(c => c.FechaHora.Date == day.Date && MatchCita(c)).ToList();
+
+                        <div @onclick="() => SeleccionarDia(day.Date)"
+                             class="min-h-[100px] p-2 bg-slate-50/50 rounded-2xl border border-slate-100/50 cursor-pointer flex flex-col justify-between transition-all hover:bg-white hover:border-indigo-200 hover:shadow-md
+                                    @(isSelected ? "ring-2 ring-indigo-500 bg-white border-transparent" : "")
+                                    @(!isCurrentMonth ? "opacity-40" : "")">
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-black @(isToday ? "w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold" : (isSelected ? "text-indigo-600" : "text-slate-700"))">
+                                    @day.Date.Day
+                                </span>
+                                @if (dayCitas.Any())
+                                {
+                                    <span class="text-[0.65rem] font-bold px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded-full">
+                                        @dayCitas.Count
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Lista corta de citas en el día -->
+                            <div class="mt-2 space-y-1 overflow-hidden max-h-[60px]">
+                                @foreach (var cita in dayCitas.Take(2))
+                                {
+                                    var clientName = GetClienteNombre(cita.ClienteId);
+                                    var stateColor = (cita.Estado ?? "Programada") switch
+                                    {
+                                        "Completada" => "bg-emerald-500",
+                                        "Cancelada" => "bg-rose-500",
+                                        _ => "bg-indigo-500"
+                                    };
+
+                                    <div class="text-[0.65rem] font-medium text-slate-600 truncate flex items-center gap-1.5 bg-white p-1 rounded-lg border border-slate-100 shadow-sm" title="@clientName - @cita.Motivo">
+                                        <span class="w-1.5 h-1.5 rounded-full @stateColor shrink-0"></span>
+                                        <span class="truncate font-bold">@cita.FechaHora.ToString("hh:mm tt"): @clientName</span>
+                                    </div>
+                                }
+                                @if (dayCitas.Count > 2)
+                                {
+                                    <div class="text-[0.55rem] text-slate-400 font-bold text-center">
+                                        + @(dayCitas.Count - 2) más
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Panel de Recordatorios por WhatsApp -->
+            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-emerald-500 text-2xl animate-pulse"></i>
+                        Recordatorios Enviados
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        @if (AppState.NotificacionLogs.Any())
+                        {
+                            <button @onclick="LimpiarLogs" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs transition-all flex items-center gap-1.5 border border-rose-100/50 shadow-sm" title="Limpiar todo el historial">
+                                <i class="fas fa-trash-alt"></i> Limpiar Todo
+                            </button>
+                        }
+                        <button @onclick="CargarNotificacionesLogs" class="w-10 h-10 rounded-xl hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors" title="Refrescar logs">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                @if (!AppState.NotificacionLogs.Any())
+                {
+                    <div class="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        No hay recordatorios registrados. Las citas agendadas dentro de las próximas 24 horas recibirán notificaciones automáticamente.
+                    </div>
+                }
+                else
+                {
+                    <div class="overflow-y-auto max-h-[300px] space-y-3 pr-2">
+                        @foreach (var log in AppState.NotificacionLogs)
+                        {
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-white hover:shadow-sm hover:border-slate-200 transition-all">
+                                <div class="flex-1 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-slate-800 text-sm">@log.ClienteNombre</span>
+                                        <span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold">@log.Telefono</span>
+                                        <span class="text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full 
+                                                     @((log.EstadoEnvio ?? "").Contains("Manual") ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100")">
+                                            @log.EstadoEnvio
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 leading-relaxed font-medium">@log.Mensaje</p>
+                                </div>
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <div class="text-right">
+                                        <span class="text-[0.65rem] font-bold text-slate-400">@log.FechaEnvio.ToString("dd/MM/yyyy hh:mm tt")</span>
+                                    </div>
+                                    <button @onclick="() => EliminarLog(log.Id)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm border border-rose-100/50" title="Eliminar recordatorio">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Columna 2: Detalle del día seleccionado -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest">Citas para el día</h3>
+                    <h2 class="text-xl font-black text-indigo-600 mt-1">
+                        @selectedDate.ToString("dd 'de' MMMM, yyyy", new System.Globalization.CultureInfo("es-ES"))
+                    </h2>
+                </div>
+
+                @if (!selectedDayCitas.Any())
+                {
+                    <div class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-lg mx-auto mb-3">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-500">Sin citas agendadas</p>
+                        <p class="text-xs text-slate-400 mt-1">Selecciona otro día o agenda una nueva cita.</p>
+                        <button @onclick="AbrirModalCrear" class="mt-4 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl text-xs font-bold transition-all">
+                            Agendar Cita
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        @foreach (var cita in selectedDayCitas.OrderBy(c => c.FechaHora))
+                        {
+                            var clientName = GetClienteNombre(cita.ClienteId);
+                            var petName = GetMascotaNombre(cita.MascotaId);
+                            var vetName = GetTrabajadorNombre(cita.TrabajadorId);
+                            var phone = GetClienteTelefono(cita.ClienteId);
+                            var state = cita.Estado ?? "Programada";
+                            var isCompletada = state == "Completada";
+                            var isCancelada = state == "Cancelada";
+                            
+                            var cardBgClass = isCompletada 
+                                ? "bg-gradient-to-br from-emerald-50/30 via-white to-emerald-50/10 dark:from-emerald-950/40 dark:via-slate-800 dark:to-emerald-950/20 border-emerald-400 dark:border-emerald-600 shadow-md shadow-emerald-100/50 dark:shadow-none ring-2 ring-emerald-500/10 scale-[1.01]" 
+                                : (isCancelada ? "bg-slate-50/80 border-slate-200 dark:bg-slate-800 dark:border-slate-700 opacity-75" : "bg-white border-slate-100 dark:bg-slate-800 dark:border-slate-700 hover:shadow-lg shadow-sm hover:border-indigo-100");
+
+                            <div class="p-5 rounded-[2rem] transition-all duration-300 relative overflow-hidden group border @cardBgClass">
+                                <!-- Marca de agua / Sello de asistencia -->
+                                @if (isCompletada)
+                                {
+                                    <div class="absolute -right-6 -bottom-6 w-24 h-24 text-emerald-500/10 pointer-events-none transition-transform group-hover:scale-110">
+                                        <i class="fas fa-check-circle text-8xl"></i>
+                                    </div>
+                                    <div class="absolute right-4 top-16 bg-emerald-500 text-white text-[0.6rem] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md border border-emerald-400 flex items-center gap-1.5">
+                                        <i class="fas fa-check text-[0.65rem]"></i>
+                                        ✓ Paciente Asistió
+                                    </div>
+                                }
+                                else if (isCancelada)
+                                {
+                                    <div class="absolute -right-6 -bottom-6 w-24 h-24 text-rose-500/10 pointer-events-none">
+                                        <i class="fas fa-times-circle text-8xl"></i>
+                                    </div>
+                                    <div class="absolute right-4 top-16 bg-rose-500 text-white text-[0.6rem] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md border border-rose-400 flex items-center gap-1.5">
+                                        <i class="fas fa-ban text-[0.65rem]"></i>
+                                        Cancelada
+                                    </div>
+                                }
+
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pl-2">
+                                    <div>
+                                        <span class="text-xs font-black text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100/50 dark:border-indigo-800/50 px-3 py-1.5 rounded-2xl shadow-sm whitespace-nowrap">
+                                            <i class="far fa-clock mr-1"></i> @cita.FechaHora.ToString("hh:mm tt")
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Selector de Estado Premium Interactivo -->
+                                    <div class="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-700/50 p-1 rounded-2xl border border-slate-200/40 dark:border-slate-600/40 shadow-inner">
+                                        <button @onclick='() => CambiarEstadoCita(cita, "Programada")' 
+                                                class='px-2.5 py-1 rounded-xl text-[0.65rem] font-black uppercase tracking-wider transition-all flex items-center gap-1 @(state == "Programada" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/30")' 
+                                                title="Marcar como Programada">
+                                            <i class="fas fa-clock text-[0.6rem]"></i> Programada
+                                        </button>
+                                        <button @onclick='() => CambiarEstadoCita(cita, "Completada")' 
+                                                class='px-2.5 py-1 rounded-xl text-[0.65rem] font-black uppercase tracking-wider transition-all flex items-center gap-1 @(state == "Completada" ? "bg-emerald-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/30")' 
+                                                title="Marcar como Asistido">
+                                            <i class="fas fa-check text-[0.6rem]"></i> Asistió
+                                        </button>
+                                        <button @onclick='() => CambiarEstadoCita(cita, "Cancelada")' 
+                                                class='px-2.5 py-1 rounded-xl text-[0.65rem] font-black uppercase tracking-wider transition-all flex items-center gap-1 @(state == "Cancelada" ? "bg-rose-600 text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/30")' 
+                                                title="Marcar como Cancelada">
+                                            <i class="fas fa-ban text-[0.6rem]"></i> Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3 pl-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <h4 class="font-black text-slate-800 dark:text-slate-100 text-lg leading-tight flex items-center gap-2">
+                                            <span class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center text-sm shadow-sm border border-slate-200/50 dark:border-slate-600/50 group-hover:bg-indigo-600 transition-colors">
+                                                <i class="fas fa-paw text-indigo-500 dark:text-indigo-400 group-hover:text-white"></i>
+                                            </span>
+                                            @petName 
+                                        </h4>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 py-1">
+                                        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-700/40 p-2 rounded-xl border border-slate-100 dark:border-slate-600/50">
+                                            <i class="fas fa-user text-indigo-500 dark:text-indigo-400 text-sm"></i>
+                                            <div>
+                                                <span class="block text-[0.55rem] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Dueño</span>
+                                                <span class="text-slate-700 dark:text-slate-200 leading-tight">@clientName</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-700/40 p-2 rounded-xl border border-slate-100 dark:border-slate-600/50">
+                                            <i class="fas fa-user-md text-emerald-500 dark:text-emerald-400 text-sm"></i>
+                                            <div>
+                                                <span class="block text-[0.55rem] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Médico</span>
+                                                <span class="text-slate-700 dark:text-slate-200 leading-tight">@vetName</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-700/30 p-2.5 rounded-xl border border-slate-100/50 dark:border-slate-600/30">
+                                        <i class="fas fa-notes-medical text-indigo-400 dark:text-indigo-300 w-4"></i>
+                                        <span>Motivo: <strong class="text-slate-800 dark:text-slate-100 font-black">@cita.Motivo</strong></span>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(cita.Notas))
+                                    {
+                                        <p class='text-xs italic p-2.5 rounded-xl mt-2 border @(isCompletada ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300" : "bg-slate-50 dark:bg-slate-700/30 border-slate-100 dark:border-slate-600/50 text-slate-400 dark:text-slate-450")'>
+                                            <i class="far fa-comment-alt mr-1"></i> "@cita.Notas"
+                                        </p>
+                                    }
+
+                                    <!-- Acciones de notificación -->
+                                    <div class="border-t border-slate-100 dark:border-slate-700/50 pt-3 mt-3 flex items-center justify-between flex-wrap gap-2">
+                                        <div class="flex items-center gap-1">
+                                            @if (cita.NotificadoWhatsapp)
+                                            {
+                                                <span class="text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded-lg border border-emerald-100 dark:border-emerald-900/40 flex items-center gap-1">
+                                                    <i class="fas fa-check-circle"></i> WhatsApp Enviado
+                                                </span>
+                                            }
+                                            else if (!isCompletada && !isCancelada)
+                                            {
+                                                <span class="text-[0.65rem] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/40 flex items-center gap-1">
+                                                    <i class="fas fa-clock"></i> Pendiente Notificar
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-600 flex items-center gap-1">
+                                                    <i class="fas fa-minus-circle"></i> Notificación Deshabilitada
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <div class="flex items-center gap-2">
+                                             @if (!isCompletada && !isCancelada)
+                                             {
+                                                 <button @onclick="() => EnviarNotificacionReal(cita.Id)"
+                                                         class="px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-white rounded-lg text-xs font-black transition-all flex items-center gap-1.5 shadow-sm border border-emerald-100/50 dark:border-emerald-900/40" 
+                                                         title="Enviar recordatorio real al WhatsApp del cliente">
+                                                     <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+                                                 </button>
+                                             }
+                                            <button @onclick="() => EliminarCita(cita.Id)"
+                                                    class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-500 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border border-rose-100/50 dark:border-rose-900/40" 
+                                                    title="Eliminar cita">
+                                                <i class="fas fa-trash-alt text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agendar cita -->
+@if (mostrarModal)
+{
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-zoom-in">
+            <div class="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                <h3 class="text-xl font-black"><i class="fas fa-calendar-plus mr-2"></i> Agendar Cita</h3>
+                <button @onclick="CerrarModal" class="text-2xl font-bold bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors">&times;</button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                @if (!string.IsNullOrEmpty(validationError))
+                {
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl text-xs font-bold">
+                        @validationError
+                    </div>
+                }
+
+                <!-- Seleccionar Cliente -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Cliente</label>
+                    <select class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            @onchange="OnClienteChanged">
+                        <option value="">-- Seleccionar Dueño --</option>
+                        @foreach (var c in AppState.Clientes)
+                        {
+                            <option value="@c.Id">@c.DisplayNombres (@c.DisplayIdentificacion)</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Seleccionar Mascota -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Mascota</label>
+                    <select class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            @bind="nuevaCita.MascotaId" disabled="@(nuevaCita.ClienteId == Guid.Empty)">
+                        <option value="">-- Seleccionar Mascota --</option>
+                        @foreach (var m in filteredMascotas)
+                        {
+                            <option value="@m.Id">@m.Nombre (@m.Especie)</option>
+                        }
+                    </select>
+                    @if (nuevaCita.ClienteId == Guid.Empty)
+                    {
+                        <span class="text-[0.65rem] text-slate-400 italic">Selecciona primero un cliente para ver sus mascotas.</span>
+                    }
+                </div>
+
+                <!-- Seleccionar Veterinario -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Veterinario / Asistente</label>
+                    <select class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            @bind="nuevaCita.TrabajadorId">
+                        <option value="">-- Seleccionar Personal --</option>
+                        @foreach (var t in AppState.Trabajadores)
+                        {
+                            <option value="@t.Id">@t.Nombres @t.Apellidos (@t.Rol / @t.Especialidad)</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Fecha y Hora -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Fecha</label>
+                        <input type="date" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                               @bind="fechaCita" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Hora</label>
+                        <input type="time" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                               @bind="horaCita" />
+                    </div>
+                </div>
+
+                <!-- Motivo -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Motivo</label>
+                    <select class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            @bind="nuevaCita.Motivo">
+                        <option value="">-- Seleccionar Motivo --</option>
+                        <option value="Consulta Médica">Consulta Médica</option>
+                        <option value="Vacunación">Vacunación</option>
+                        <option value="Desparasitación">Desparasitación</option>
+                        <option value="Cirugía">Cirugía</option>
+                        <option value="Grooming (Estética/Baño)">Grooming (Estética/Baño)</option>
+                        <option value="Control de Embarazo">Control de Embarazo</option>
+                        <option value="Exámenes de Laboratorio">Exámenes de Laboratorio</option>
+                    </select>
+                </div>
+
+                <!-- Notas -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Notas / Observaciones</label>
+                    <textarea class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                              rows="3" placeholder="Síntomas, indicaciones previas, etc." @bind="nuevaCita.Notas"></textarea>
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button @onclick="CerrarModal" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CANCELAR</button>
+                <button @onclick="GuardarCita" class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">AGENDAR</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
+
+    private string searchTerm = "";
+    private DateTime currentMonth = DateTime.Today;
+    private DateTime selectedDate = DateTime.Today;
+    private List<DateTime> calendarDays = new();
+
+    private List<Cita> selectedDayCitas => AppState.Citas
+        .Where(c => c.FechaHora.Date == selectedDate.Date && MatchCita(c))
+        .ToList();
+
+    private bool MatchCita(Cita c)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm)) return true;
+        
+        var clientName = GetClienteNombre(c.ClienteId);
+        var petName = GetMascotaNombre(c.MascotaId);
+        var vetName = GetTrabajadorNombre(c.TrabajadorId);
+        var motivo = c.Motivo ?? "";
+
+        return clientName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               petName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               vetName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               motivo.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+    }
+
+    protected override void OnParametersSet()
+    {
+        searchTerm = Query ?? "";
+    }
+
+    // Modal
+    private bool mostrarModal = false;
+    private Cita nuevaCita = new();
+    private DateTime fechaCita = DateTime.Today;
+    private TimeOnly horaCita = new TimeOnly(9, 0);
+    private string validationError = "";
+    private List<Mascota> filteredMascotas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+
+        // Cargar todos los catálogos necesarios
+        await AppState.LoadClientesAsync();
+        await AppState.LoadMascotasAsync();
+        await AppState.LoadTrabajadoresAsync();
+        await AppState.LoadCitasAsync();
+        await AppState.LoadNotificacionLogsAsync();
+
+        GenerarCalendario();
+    }
+
+    private void GenerarCalendario()
+    {
+        calendarDays.Clear();
+        var firstDayOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+        int startDayOfWeek = (int)firstDayOfMonth.DayOfWeek; // 0 = Domingo, 1 = Lunes...
+        
+        // Agregar días del mes anterior para completar la semana inicial si es necesario
+        var prevMonth = firstDayOfMonth.AddMonths(-1);
+        int prevMonthDays = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+        for (int i = startDayOfWeek - 1; i >= 0; i--)
+        {
+            calendarDays.Add(new DateTime(prevMonth.Year, prevMonth.Month, prevMonthDays - i));
+        }
+
+        // Agregar días del mes actual
+        int daysInMonth = DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
+        for (int i = 1; i <= daysInMonth; i++)
+        {
+            calendarDays.Add(new DateTime(currentMonth.Year, currentMonth.Month, i));
+        }
+
+        // Agregar días del mes siguiente para completar la cuadrícula de 6 filas (42 celdas)
+        int totalSlots = 42;
+        int remainingSlots = totalSlots - calendarDays.Count;
+        var nextMonth = firstDayOfMonth.AddMonths(1);
+        for (int i = 1; i <= remainingSlots; i++)
+        {
+            calendarDays.Add(new DateTime(nextMonth.Year, nextMonth.Month, i));
+        }
+    }
+
+    private void SeleccionarDia(DateTime date)
+    {
+        selectedDate = date;
+    }
+
+    private void IrMesAnterior()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+        GenerarCalendario();
+    }
+
+    private void IrMesSiguiente()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+        GenerarCalendario();
+    }
+
+    private void IrHoy()
+    {
+        currentMonth = DateTime.Today;
+        selectedDate = DateTime.Today;
+        GenerarCalendario();
+    }
+
+    private async Task CargarNotificacionesLogs()
+    {
+        await AppState.LoadNotificacionLogsAsync();
+    }
+
+    private void AbrirModalCrear()
+    {
+        nuevaCita = new Cita
+        {
+            ClienteId = Guid.Empty,
+            MascotaId = Guid.Empty,
+            TrabajadorId = Guid.Empty,
+            Motivo = ""
+        };
+        fechaCita = selectedDate;
+        horaCita = new TimeOnly(9, 0);
+        validationError = "";
+        filteredMascotas.Clear();
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+    private void OnClienteChanged(ChangeEventArgs e)
+    {
+        validationError = "";
+        var val = e.Value?.ToString();
+        if (Guid.TryParse(val, out Guid clienteId))
+        {
+            nuevaCita.ClienteId = clienteId;
+            filteredMascotas = AppState.Mascotas.Where(m => m.ClienteId == clienteId).ToList();
+            nuevaCita.MascotaId = Guid.Empty;
+        }
+        else
+        {
+            nuevaCita.ClienteId = Guid.Empty;
+            filteredMascotas.Clear();
+        }
+    }
+
+    private async Task GuardarCita()
+    {
+        validationError = "";
+
+        if (nuevaCita.ClienteId == Guid.Empty)
+        {
+            validationError = "Debes seleccionar un cliente.";
+            return;
+        }
+        if (nuevaCita.MascotaId == Guid.Empty)
+        {
+            validationError = "Debes seleccionar una mascota.";
+            return;
+        }
+        if (nuevaCita.TrabajadorId == Guid.Empty)
+        {
+            validationError = "Debes asignar un médico/personal.";
+            return;
+        }
+        if (string.IsNullOrEmpty(nuevaCita.Motivo))
+        {
+            validationError = "Debes seleccionar el motivo de la cita.";
+            return;
+        }
+
+        // Combinar fecha y hora
+        nuevaCita.FechaHora = fechaCita.Date.Add(horaCita.ToTimeSpan());
+
+        bool exito = await AppState.AddCitaAsync(nuevaCita);
+        if (exito)
+        {
+            mostrarModal = false;
+            // Refrescar notificaciones si la cita cae en el umbral automático
+            await AppState.LoadNotificacionLogsAsync();
+        }
+        else
+        {
+            validationError = "Error al guardar la cita en el servidor.";
+        }
+    }
+
+    private async Task CambiarEstadoCita(Cita cita, string? nuevoEstado)
+    {
+        if (string.IsNullOrEmpty(nuevoEstado)) return;
+        
+        cita.Estado = nuevoEstado;
+        await AppState.UpdateCitaAsync(cita);
+    }
+
+    private async Task EliminarCita(Guid id)
+    {
+        bool confirmado = await JS.InvokeAsync<bool>("confirm", "¿Estás seguro de cancelar/eliminar esta cita?");
+        if (confirmado)
+        {
+            await AppState.DeleteCitaAsync(id);
+        }
+    }
+
+    private async Task EnviarNotificacionReal(Guid citaId)
+    {
+        var cita = AppState.Citas.FirstOrDefault(c => c.Id == citaId);
+        if (cita == null) return;
+
+        var phone = GetClienteTelefono(cita.ClienteId).Replace(" ", "").Replace("-", "");
+        var clientName = GetClienteNombre(cita.ClienteId);
+        var petName = GetMascotaNombre(cita.MascotaId);
+        var vetName = GetTrabajadorNombre(cita.TrabajadorId);
+
+        // Generar mensaje
+        var msg = $"Hola {clientName}, te recordamos que {petName} tiene una cita programada en Veterinaria Genesis el {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:hh:mm tt} con el Dr. {vetName} para {cita.Motivo}. Dir: Semaforos de la cañada 10 vara al este. Tel: 8878-2492.";
+        var encodedMsg = Uri.EscapeDataString(msg);
+
+        bool exito = await AppState.SendManualNotificationAsync(citaId);
+        if (exito)
+        {
+            // Redirigir a WhatsApp Web / App para envío real
+            var waUrl = $"https://api.whatsapp.com/send?phone=505{phone}&text={encodedMsg}";
+            await JS.InvokeVoidAsync("open", waUrl, "_blank");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Error al procesar la notificación.");
+        }
+    }
+
+    private async Task EliminarLog(Guid logId)
+    {
+        bool confirmado = await JS.InvokeAsync<bool>("confirm", "¿Estás seguro de eliminar este registro de recordatorio?");
+        if (confirmado)
+        {
+            await AppState.DeleteNotificacionLogAsync(logId);
+        }
+    }
+
+    private async Task LimpiarLogs()
+    {
+        bool confirmado = await JS.InvokeAsync<bool>("confirm", "¿Estás seguro de eliminar TODO el historial de recordatorios? Esta acción no se puede deshacer.");
+        if (confirmado)
+        {
+            await AppState.ClearNotificacionLogsAsync();
+        }
+    }
+
+    // Resolutores de Nombres
+    private string GetClienteNombre(Guid id)
+    {
+        var c = AppState.Clientes.FirstOrDefault(x => x.Id == id);
+        if (c == null) return "Desconocido";
+        string name = $"{c.Nombres} {c.Apellidos}".Trim();
+        return string.IsNullOrEmpty(name) ? c.DisplayNombres : name;
+    }
+
+    private string GetClienteTelefono(Guid id)
+    {
+        var c = AppState.Clientes.FirstOrDefault(x => x.Id == id);
+        return c?.Telefono ?? "N/A";
+    }
+
+    private string GetMascotaNombre(Guid id)
+    {
+        var m = AppState.Mascotas.FirstOrDefault(x => x.Id == id);
+        return m?.Nombre ?? "Mascota";
+    }
+
+    private string GetTrabajadorNombre(Guid id)
+    {
+        var t = AppState.Trabajadores.FirstOrDefault(x => x.Id == id);
+        return t != null ? $"{t.Nombres} {t.Apellidos}" : "Sin asignar";
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+}
