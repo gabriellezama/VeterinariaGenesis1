@@ -6,171 +6,252 @@
 <PageTitle>Dashboard | Veterinaria Génesis</PageTitle>
 
 <div class="page-transition">
-    <!-- Header del Dashboard -->
+
+    <!-- Encabezado del Dashboard -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4 select-none">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Panel de Control</h1>
+            <p class="text-slate-500 dark:text-slate-400">Bienvenido al sistema de gestión — Veterinaria Génesis.</p>
+        </div>
+        <div class="text-right select-none">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Fecha de hoy</p>
+            <p class="text-sm font-black text-slate-700 dark:text-slate-300">@DateTime.Today.ToString("dddd, dd MMMM yyyy", System.Globalization.CultureInfo.CreateSpecificCulture("es-ES")).ToUpper()</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TARJETAS RESUMEN KPI
+    ═══════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 select-none">
+
+        <!-- Ventas del Mes -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ventas del Mes</span>
+                <div class="w-9 h-9 bg-indigo-100 dark:bg-indigo-500/15 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-coins text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white">C$ @currentMonthSales.ToString("N0")</p>
+            <p class="text-[10px] text-slate-400 mt-1">@totalFacturasMes facturas emitidas</p>
+        </div>
+
+        <!-- Gastos del Mes -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Gastos del Mes</span>
+                <div class="w-9 h-9 bg-rose-100 dark:bg-rose-500/15 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-arrow-trend-down text-rose-600 dark:text-rose-400 text-sm"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white">C$ @currentMonthExpenses.ToString("N0")</p>
+            <p class="text-[10px] text-slate-400 mt-1">Egresos registrados</p>
+        </div>
+
+        <!-- Utilidad del Mes -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Utilidad Neta</span>
+                <div class="w-9 h-9 @(currentMonthUtility >= 0 ? "bg-emerald-100 dark:bg-emerald-500/15" : "bg-rose-100 dark:bg-rose-500/15") rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-chart-line @(currentMonthUtility >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400") text-sm"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black @(currentMonthUtility >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")">C$ @currentMonthUtility.ToString("N0")</p>
+            <p class="text-[10px] text-slate-400 mt-1">@(currentMonthUtility >= 0 ? "Saldo positivo ✅" : "Saldo negativo ⚠️")</p>
+        </div>
+
+        <!-- Total Mascotas -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Mascotas</span>
+                <div class="w-9 h-9 bg-amber-100 dark:bg-amber-500/15 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-paw text-amber-600 dark:text-amber-400 text-sm"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white">@AppState.Mascotas.Count</p>
+            <p class="text-[10px] text-slate-400 mt-1">Registradas en el sistema</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ACCESOS DIRECTOS AL SISTEMA
+    ═══════════════════════════════════════════════════════ -->
     <div class="mb-8">
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Panel de Control</h1>
-        <p class="text-slate-500">Bienvenido de vuelta, Administrador. Aquí tienes un resumen de hoy.</p>
-    </div>
+        <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 select-none">Acceso Rápido al Sistema</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 select-none">
 
-    <!-- Resumen de KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
-            <div class="flex items-center">
-                <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600 mr-4">
-                    <i class="fas fa-paw text-2xl"></i>
+            <button @onclick='() => Nav.NavigateTo("estadisticas")'
+                    class="flex flex-col items-center gap-3 p-5 bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-[1.5rem] shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 transition-all hover:-translate-y-1 active:scale-95 btn-pulse">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-xl"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wider">Mascotas</p>
-                    <h3 class="text-2xl font-bold text-slate-800">@AppState.Mascotas.Count</h3>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs text-green-600 font-bold bg-green-50 w-fit px-2 py-1 rounded-full">
-                <i class="fas fa-arrow-up mr-1"></i> Sistema Activo
-            </div>
-        </div>
+                <span class="text-xs font-black text-center leading-tight">Estadísticas</span>
+            </button>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
-            <div class="flex items-center">
-                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600 mr-4">
-                    <i class="fas fa-users text-2xl"></i>
+            <button @onclick='() => Nav.NavigateTo("facturacion/crear")'
+                    class="flex flex-col items-center gap-3 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all hover:-translate-y-1 active:scale-95 btn-pulse group">
+                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-file-invoice-dollar text-xl text-indigo-600 dark:text-indigo-400"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wider">Clientes</p>
-                    <h3 class="text-2xl font-bold text-slate-800">@AppState.Clientes.Count</h3>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs text-green-600 font-bold bg-green-50 w-fit px-2 py-1 rounded-full">
-                <i class="fas fa-check mr-1"></i> Actualizado
-            </div>
-        </div>
+                <span class="text-xs font-black text-center leading-tight">Nueva Venta</span>
+            </button>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
-            <div class="flex items-center">
-                <div class="p-3 bg-amber-50 rounded-xl text-amber-600 mr-4">
-                    <i class="fas fa-hand-holding-usd text-2xl"></i>
+            <button @onclick='() => Nav.NavigateTo("clientes")'
+                    class="flex flex-col items-center gap-3 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-teal-200 dark:hover:border-teal-800 transition-all hover:-translate-y-1 active:scale-95 btn-pulse group">
+                <div class="w-12 h-12 bg-teal-50 dark:bg-teal-500/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users text-xl text-teal-600 dark:text-teal-400"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wider">Ingresos Totales</p>
-                    <h3 class="text-2xl font-bold text-slate-800">C$ @AppState.Facturas.Sum(f => f.Total).ToString("N2")</h3>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs text-amber-600 font-bold bg-amber-50 w-fit px-2 py-1 rounded-full">
-                <i class="fas fa-coins mr-1"></i> Acumulado
-            </div>
-        </div>
+                <span class="text-xs font-black text-center leading-tight">Clientes</span>
+            </button>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
-            <div class="flex items-center">
-                <div class="p-3 bg-rose-50 rounded-xl text-rose-600 mr-4">
-                    <i class="fas fa-calendar-check text-2xl"></i>
+            <button @onclick='() => Nav.NavigateTo("citas")'
+                    class="flex flex-col items-center gap-3 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-amber-200 dark:hover:border-amber-800 transition-all hover:-translate-y-1 active:scale-95 btn-pulse group">
+                <div class="w-12 h-12 bg-amber-50 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-calendar-alt text-xl text-amber-600 dark:text-amber-400"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wider">Citas Hoy</p>
-                    <h3 class="text-2xl font-bold text-slate-800">8</h3>
+                <span class="text-xs font-black text-center leading-tight">Citas</span>
+            </button>
+
+            <button @onclick='() => Nav.NavigateTo("productos")'
+                    class="flex flex-col items-center gap-3 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-purple-200 dark:hover:border-purple-800 transition-all hover:-translate-y-1 active:scale-95 btn-pulse group">
+                <div class="w-12 h-12 bg-purple-50 dark:bg-purple-500/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-boxes text-xl text-purple-600 dark:text-purple-400"></i>
                 </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs text-rose-600 font-bold bg-rose-50 w-fit px-2 py-1 rounded-full">
-                <i class="fas fa-exclamation-circle mr-1"></i> 2 pendientes
-            </div>
+                <span class="text-xs font-black text-center leading-tight">Inventario</span>
+            </button>
+
+            <button @onclick='() => Nav.NavigateTo("contabilidad")'
+                    class="flex flex-col items-center gap-3 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all hover:-translate-y-1 active:scale-95 btn-pulse group">
+                <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-calculator text-xl text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <span class="text-xs font-black text-center leading-tight">Contabilidad</span>
+            </button>
+
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Actividad Reciente -->
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden card-hover">
-            <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                <h3 class="font-bold text-slate-800 text-lg flex items-center">
-                    <i class="fas fa-history mr-2 text-indigo-500"></i> Últimas Facturas
-                </h3>
-                <button class="text-indigo-600 text-sm font-bold hover:underline">Ver todo</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-slate-400 text-xs uppercase font-bold">
+    <!-- ═══════════════════════════════════════════════════════
+         MINI BANNER → IR A ESTADÍSTICAS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 rounded-[2rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 shadow-xl shadow-indigo-500/20 select-none relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="z-10 text-white">
+            <p class="text-xs font-black uppercase tracking-widest text-white/70 mb-1">Análisis Comercial</p>
+            <h2 class="text-xl sm:text-2xl font-black">📊 Ver Estadísticas y Reportes</h2>
+            <p class="text-sm text-white/80 mt-1 max-w-md">Accede a los gráficos de ventas, distribución de servicios y diagnóstico de rendimiento mensual.</p>
+        </div>
+        <button @onclick='() => Nav.NavigateTo("estadisticas")'
+                class="z-10 shrink-0 px-6 py-3 bg-white text-indigo-700 font-black rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all btn-pulse text-sm">
+            Ir a Estadísticas →
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ÚLTIMAS FACTURAS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] shadow-sm overflow-hidden select-none">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800/80 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/20">
+            <h3 class="font-black text-slate-800 dark:text-white text-base tracking-tight uppercase flex items-center gap-2">
+                <i class="fas fa-receipt text-indigo-500"></i> Últimas Facturas
+            </h3>
+            <button @onclick='() => Nav.NavigateTo("facturacion")' class="text-indigo-600 dark:text-indigo-400 text-xs font-black hover:underline uppercase tracking-wider">Ver historial completo →</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-slate-950/40 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">Factura</th>
+                        <th class="px-6 py-4">Fecha</th>
+                        <th class="px-6 py-4">Total</th>
+                        <th class="px-6 py-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/50">
+                    @if (!AppState.Facturas.Any())
+                    {
                         <tr>
-                            <th class="px-6 py-4">ID Factura</th>
-                            <th class="px-6 py-4">Fecha</th>
-                            <th class="px-6 py-4">Total</th>
-                            <th class="px-6 py-4">Estado</th>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">No hay facturas registradas</td>
                         </tr>
-                    </thead>
-                    <tbody class="text-sm divide-y divide-slate-50">
-                        @if (!AppState.Facturas.Any())
+                    }
+                    else
+                    {
+                        @foreach (var fact in AppState.Facturas.OrderByDescending(f => f.FechaEmision).Take(5))
                         {
-                            <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">No hay actividad reciente</td>
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 mr-3">
+                                            <i class="fas fa-file-invoice-dollar text-sm"></i>
+                                        </div>
+                                        <span class="font-bold text-slate-700 dark:text-slate-300">#@fact.NumeroFactura</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@fact.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                <td class="px-6 py-4 font-black text-slate-900 dark:text-white">C$ @fact.Total.ToString("N2")</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-full text-xs font-bold uppercase tracking-wider">Emitida</span>
+                                </td>
                             </tr>
                         }
-                        else
-                        {
-                            @foreach (var fact in AppState.Facturas.OrderByDescending(f => f.FechaEmision).Take(5))
-                            {
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mr-3">
-                                                <i class="fas fa-file-invoice-dollar"></i>
-                                            </div>
-                                            <span class="font-bold text-slate-700">#@fact.Id.ToString().Substring(0, 5)</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-500">@fact.FechaEmision.ToString("dd/MM/yyyy")</td>
-                                    <td class="px-6 py-4 font-bold text-slate-900">C$ @fact.Total.ToString("N2")</td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Pagado</span>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Atajos Rápidos -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 card-hover">
-            <h3 class="font-bold text-slate-800 text-lg mb-6 flex items-center">
-                <i class="fas fa-bolt mr-2 text-amber-500"></i> Acciones Rápidas
-            </h3>
-            <div class="space-y-4">
-                <button @onclick='() => Nav.NavigateTo("facturacion/crear")' class="w-full flex items-center p-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all shadow-lg shadow-indigo-100 transform hover:-translate-y-1 btn-pulse">
-                    <i class="fas fa-plus-circle text-xl mr-3"></i>
-                    <div class="text-left">
-                        <p class="font-bold">Nueva Factura</p>
-                        <p class="text-xs text-indigo-100">Registrar venta ahora</p>
-                    </div>
-                </button>
-                <button @onclick='() => Nav.NavigateTo("clientes")' class="w-full flex items-center p-4 bg-white border border-slate-100 hover:border-emerald-100 hover:bg-emerald-50 text-slate-700 rounded-2xl transition-all transform hover:-translate-y-1 btn-pulse">
-                    <i class="fas fa-user-plus text-xl mr-3 text-emerald-500"></i>
-                    <div class="text-left">
-                        <p class="font-bold text-slate-800">Clientes</p>
-                        <p class="text-xs text-slate-500">Ver directorio completo</p>
-                    </div>
-                </button>
-                <button @onclick='() => Nav.NavigateTo("proveedores")' class="w-full flex items-center p-4 bg-white border border-slate-100 hover:border-orange-100 hover:bg-orange-50 text-slate-700 rounded-2xl transition-all transform hover:-translate-y-1 btn-pulse">
-                    <i class="fas fa-truck text-xl mr-3 text-orange-500"></i>
-                    <div class="text-left">
-                        <p class="font-bold text-slate-800">Proveedores</p>
-                        <p class="text-xs text-slate-500">Gestionar suministros</p>
-                    </div>
-                </button>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
+
 </div>
 
 @code {
+    private decimal currentMonthSales = 0;
+    private decimal currentMonthExpenses = 0;
+    private decimal currentMonthUtility => currentMonthSales - currentMonthExpenses;
+    private int totalFacturasMes = 0;
+    private bool _firstRender = true;
+
     protected override async Task OnInitializedAsync()
     {
-        AppState.OnChange += StateHasChanged;
-        // Cargar datos reales
+        AppState.OnChange += OnAppStateChanged;
         await AppState.LoadMascotasAsync();
         await AppState.LoadClientesAsync();
         await AppState.LoadFacturasAsync();
+        await AppState.LoadGastosAsync();
+        RecalcularTodo();
     }
 
-    public void Dispose()
+    // Recarga datos frescos de la API cada vez que el usuario navega al Dashboard
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        AppState.OnChange -= StateHasChanged;
+        if (firstRender)
+        {
+            _firstRender = false;
+            return;
+        }
+        // Solo recarga si ya se inicializó (para no duplicar la primera carga)
     }
+
+    // Se llama automáticamente cuando AppState emite OnChange (por ejemplo, al crear una factura)
+    private void OnAppStateChanged()
+    {
+        RecalcularTodo();
+        StateHasChanged();
+    }
+
+    private void RecalcularTodo()
+    {
+        var hoy = DateTime.Now;
+        var factMes = AppState.Facturas
+            .Where(f => f.FechaEmision.Month == hoy.Month && f.FechaEmision.Year == hoy.Year)
+            .ToList();
+
+        currentMonthSales    = factMes.Sum(f => f.Total);
+        currentMonthExpenses = AppState.Gastos
+            .Where(g => g.Fecha.Month == hoy.Month && g.Fecha.Year == hoy.Year)
+            .Sum(g => g.Monto);
+        totalFacturasMes = factMes.Count;
+    }
+
+    public void Dispose() => AppState.OnChange -= OnAppStateChanged;
 }
+

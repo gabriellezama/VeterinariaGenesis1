@@ -3,7 +3,7 @@
 @using VeterinariaGenesis.Client.Services
 @inject AppStateService AppState
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
 @if (!AppState.IsLoggedIn)
 {
     // Guard: No mostrar el layout si no está autenticado
@@ -11,113 +11,226 @@
 }
 else
 {
-<div class="flex h-screen bg-gray-100 dark:bg-slate-950 font-sans transition-colors duration-300">
+<div class="flex h-screen bg-gray-100 font-sans">
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-white flex flex-col hidden md:flex">
-        <!-- Logo -->
-        <div class="h-20 flex items-center justify-center bg-slate-950 border-b border-slate-800">
-            <a href="" class="flex items-center justify-center">
-                <img src="images/logo.png" alt="Veterinaria Génesis Logo" class="h-14 w-auto drop-shadow-md rounded-full bg-white p-1" onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=Logo';" />
-            </a>
+    <aside class="w-64 bg-slate-950 text-white flex flex-col hidden md:flex border-r border-slate-900/60 shadow-xl">
+        <!-- Logo / Marca superior -->
+        <div class="h-20 flex items-center px-5 bg-slate-950 border-b border-slate-900/80 gap-3 select-none">
+            <div class="relative w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center p-1 border border-indigo-500/20 shadow-inner group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-teal-500 rounded-xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                <img src="images/logo.png" alt="Logo" class="relative h-8 w-auto object-contain rounded-full bg-white p-0.5" />
+            </div>
+            <div class="flex flex-col">
+                <span class="font-extrabold text-white text-sm tracking-tight leading-none">GÉNESIS VET</span>
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Administrativo</span>
+            </div>
         </div>
         
         <!-- Menú de Navegación -->
-        <nav class="flex-1 overflow-y-auto py-4">
-            <ul class="space-y-1 px-3">
+        <nav class="flex-1 overflow-y-auto py-4 select-none">
+            <ul class="space-y-1.5 px-3">
+                <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-2">Principal</div>
                 <li>
-                    <NavLink class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group" href="" Match="NavLinkMatch.All">
-                        <i class="fas fa-chart-pie w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Dashboard</span>
+                    <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="" Match="NavLinkMatch.All">
+                        <i class="fas fa-chart-pie w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Dashboard</span>
+                    </NavLink>
+                </li>
+                
+                <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-4">Clínica</div>
+                <li>
+                    <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="clientes">
+                        <i class="fas fa-users w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Clientes</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group" href="clientes">
-                        <i class="fas fa-users w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Clientes</span>
+                    <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="citas">
+                        <i class="fas fa-calendar-alt w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Calendario / Citas</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group" href="historial-clinico">
-                        <i class="fas fa-history w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Historial Médico</span>
+                    <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="historial-clinico">
+                        <i class="fas fa-history w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Historial Médico</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink href="trabajadores" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group">
-                        <i class="fas fa-user-md w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Personal</span>
+                    <NavLink href="trabajadores" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                        <i class="fas fa-user-md w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Personal</span>
+                    </NavLink>
+                </li>
+                
+                <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-4">Gestión y Caja</div>
+                <li>
+                    <NavLink href="productos" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                        <i class="fas fa-box-open w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Inventario</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink href="productos" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group">
-                        <i class="fas fa-box-open w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Inventario</span>
+                    <NavLink href="facturacion" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                        <i class="fas fa-file-invoice-dollar w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Facturación</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink href="facturacion" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group">
-                        <i class="fas fa-file-invoice-dollar w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Facturación</span>
+                    <NavLink href="proveedores" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                        <i class="fas fa-truck w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Proveedores</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink href="proveedores" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group">
-                        <i class="fas fa-truck w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Proveedores</span>
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink href="contabilidad" class="flex items-center px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors group">
-                        <i class="fas fa-chart-line w-6 text-slate-400 group-hover:text-indigo-400"></i>
-                        <span class="font-medium">Contabilidad</span>
+                    <NavLink href="contabilidad" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                        <i class="fas fa-chart-line w-6 text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="font-medium text-sm">Contabilidad</span>
                     </NavLink>
                 </li>
             </ul>
         </nav>
         
-        <!-- Usuario Inferior -->
-        <div class="p-4 bg-slate-950 border-t border-slate-800">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
-                        <i class="fas fa-user-shield text-sm"></i>
+        <!-- Usuario Inferior / Footer -->
+        <div class="p-4 bg-slate-950 border-t border-slate-900/80">
+            <div class="flex items-center justify-between p-2 bg-slate-900/40 rounded-2xl border border-slate-800/40">
+                <div class="flex items-center min-w-0">
+                    <div class="relative flex-shrink-0 mr-3">
+                        <div class="w-9 h-9 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold">
+                            <i class="fas fa-user-shield text-sm"></i>
+                        </div>
+                        <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-slate-950"></span>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-white">Administrador</p>
-                        <p class="text-xs text-slate-400">Sesión activa</p>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-white truncate">Administrador</p>
+                        <p class="text-[9px] text-slate-500 font-bold tracking-wider">Activo</p>
                     </div>
                 </div>
-                <button @onclick="HandleLogout" title="Cerrar Sesión" class="text-slate-400 hover:text-red-400 transition-colors ml-2">
+                <button @onclick="HandleLogout" title="Cerrar Sesión" class="text-slate-400 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-800 rounded-lg ml-2">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
         </div>
     </aside>
 
+    <!-- Mobile Drawer -->
+    @if (isMobileMenuOpen)
+    {
+        <div class="fixed inset-0 z-40 md:hidden flex">
+            <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm" @onclick="ToggleMobileMenu"></div>
+            <aside class="relative w-64 bg-slate-950 text-white flex flex-col h-full z-50 border-r border-slate-900/80 shadow-2xl">
+                <div class="h-20 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-900/80">
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-9 h-9 bg-indigo-600/10 rounded-xl flex items-center justify-center p-1 border border-indigo-500/20 shadow-inner">
+                            <img src="images/logo.png" alt="Logo" class="h-7 w-auto object-contain rounded-full bg-white p-0.5" />
+                        </div>
+                        <span class="font-extrabold text-white text-sm tracking-tight">GÉNESIS VET</span>
+                    </div>
+                    <button @onclick="ToggleMobileMenu" class="text-slate-400 hover:text-white text-2xl focus:outline-none">&times;</button>
+                </div>
+                <nav class="flex-1 overflow-y-auto py-4">
+                    <ul class="space-y-1.5 px-3" @onclick="ToggleMobileMenu">
+                        <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-2">Principal</div>
+                        <li>
+                            <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="" Match="NavLinkMatch.All">
+                                <i class="fas fa-chart-pie w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Dashboard</span>
+                            </NavLink>
+                        </li>
+                        
+                        <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-4">Clínica</div>
+                        <li>
+                            <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="clientes">
+                                <i class="fas fa-users w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Clientes</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="citas">
+                                <i class="fas fa-calendar-alt w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Calendario / Citas</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group" href="historial-clinico">
+                                <i class="fas fa-history w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Historial Médico</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="trabajadores" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                                <i class="fas fa-user-md w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Personal</span>
+                            </NavLink>
+                        </li>
+                        
+                        <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-4">Gestión y Caja</div>
+                        <li>
+                            <NavLink href="productos" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                                <i class="fas fa-box-open w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Inventario</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="facturacion" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                                <i class="fas fa-file-invoice-dollar w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Facturación</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="proveedores" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                                <i class="fas fa-truck w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Proveedores</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="contabilidad" class="flex items-center px-4 py-2.5 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl transition-colors group">
+                                <i class="fas fa-chart-line w-6 text-slate-400 group-hover:text-indigo-400"></i>
+                                <span class="font-medium text-sm">Contabilidad</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+        </div>
+    }
+
     <!-- Contenido Principal -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Topbar -->
-        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10 transition-colors duration-300">
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
             <!-- Menú hamburguesa (móvil) -->
-            <button class="md:hidden text-gray-500 hover:text-gray-700">
+            <button @onclick="ToggleMobileMenu" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
                 <i class="fas fa-bars text-xl"></i>
             </button>
             
             <!-- Buscador -->
             <div class="hidden md:flex flex-1 items-center ml-4">
-                <div class="relative w-64">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </span>
-                    <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Buscar pacientes o clientes...">
-                </div>
+                @if (ShouldShowSearchBar())
+                {
+                    <form @onsubmit="ExecuteSearch" class="relative w-64">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" @bind="searchQuery" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700" placeholder="@GetSearchPlaceholder()">
+                    </form>
+                }
             </div>
             
             <!-- Acciones Topbar -->
             <div class="flex items-center space-x-4 relative">
-                <!-- Botón de Tema (Modo Claro/Oscuro) -->
-                <button @onclick="ToggleTheme" class="text-gray-400 hover:text-indigo-600 dark:hover:text-amber-400 transition-colors p-1" title="Cambiar Tema">
-                    <i class="@(isDarkMode ? "fas fa-sun text-amber-500" : "fas fa-moon") text-xl"></i>
+
+
+                <!-- Botón de Modo Oscuro / Día -->
+                <button @onclick="ToggleTheme" class="text-gray-400 hover:text-indigo-600 transition-colors p-2 rounded-xl focus:outline-none" title="@(isDarkMode ? "Activar Modo Día" : "Activar Modo Oscuro")">
+                    @if (isDarkMode)
+                    {
+                        <i class="fas fa-sun text-xl text-amber-500"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-moon text-xl text-slate-400"></i>
+                    }
                 </button>
 
                 <button @onclick="ToggleNotifications" class="text-gray-400 hover:text-indigo-600 relative transition-colors">
@@ -177,7 +290,7 @@ else
         </header>
 
         <!-- Área Scrolleable -->
-        <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900 p-6 transition-colors duration-300">
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
             @Body
         </main>
     </div>
@@ -185,27 +298,121 @@ else
 }
 
 @code {
+    private bool isMobileMenuOpen = false;
     private bool isDarkMode = false;
+    private string searchQuery = "";
+
+    private void ToggleMobileMenu() => isMobileMenuOpen = !isMobileMenuOpen;
+
+    private void ExecuteSearch()
+    {
+        var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        var path = relativeUri.Split('?')[0];
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                NavigationManager.NavigateTo(path);
+            }
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                NavigationManager.NavigateTo($"clientes?q={Uri.EscapeDataString(searchQuery)}");
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"{path}?q={Uri.EscapeDataString(searchQuery)}");
+            }
+        }
+    }
+
+    private string GetSearchPlaceholder()
+    {
+        var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+        
+        if (relativeUri.Contains("clientes"))
+            return "Buscar clientes...";
+        if (relativeUri.Contains("citas"))
+            return "Buscar citas...";
+        if (relativeUri.Contains("historial"))
+            return "Buscar en historial médico...";
+        if (relativeUri.Contains("trabajadores") || relativeUri.Contains("personal"))
+            return "Buscar personal...";
+        if (relativeUri.Contains("productos") || relativeUri.Contains("inventario"))
+            return "Buscar productos...";
+        if (relativeUri.Contains("facturacion"))
+            return "Buscar facturas...";
+        if (relativeUri.Contains("proveedores"))
+            return "Buscar proveedores...";
+            
+        return "Buscar pacientes o clientes...";
+    }
+
+    private bool ShouldShowSearchBar()
+    {
+        var relativeUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+        if (relativeUri.Contains("contabilidad"))
+            return false;
+        return true;
+    }
 
     protected override void OnInitialized()
     {
         AppState.OnChange += HandleStateChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
+        UpdateSearchQueryFromUri();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateSearchQueryFromUri();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSearchQueryFromUri()
+    {
+        var uri = NavigationManager.Uri;
+        var queryIndex = uri.IndexOf('?');
+        if (queryIndex >= 0)
+        {
+            var queryString = uri.Substring(queryIndex + 1);
+            var parts = queryString.Split('&');
+            var qParam = parts.FirstOrDefault(p => p.StartsWith("q="));
+            if (qParam != null)
+            {
+                searchQuery = Uri.UnescapeDataString(qParam.Substring(2));
+            }
+            else
+            {
+                searchQuery = "";
+            }
+        }
+        else
+        {
+            searchQuery = "";
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            try
-            {
-                isDarkMode = await JSRuntime.InvokeAsync<bool>("themeManager.getTheme");
-                StateHasChanged();
-            }
-            catch { }
-
             if (!AppState.IsLoggedIn && !NavigationManager.Uri.Contains("/login"))
             {
                 NavigationManager.NavigateTo("login");
+            }
+            try
+            {
+                var theme = await JS.InvokeAsync<string>("themeManager.getTheme");
+                isDarkMode = theme == "dark";
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error init theme: {ex.Message}");
             }
         }
     }
@@ -213,8 +420,25 @@ else
     private async Task ToggleTheme()
     {
         isDarkMode = !isDarkMode;
-        await JSRuntime.InvokeVoidAsync("themeManager.setTheme", isDarkMode);
-        StateHasChanged();
+        await JS.InvokeVoidAsync("themeManager.setTheme", isDarkMode ? "dark" : "light");
+    }
+
+    private async Task CargarDatosDemo()
+    {
+        bool confirmado = await JS.InvokeAsync<bool>("confirm", "¿Deseas cargar la base de datos con registros reales de demostración (clientes, gatos, perros, productos y facturas)? Esto solo se aplicará si la base de datos está vacía.");
+        if (confirmado)
+        {
+            bool exito = await AppState.SeedDemoDataAsync();
+            if (exito)
+            {
+                await JS.InvokeVoidAsync("alert", "¡Datos de demostración cargados exitosamente!");
+                NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "No se cargaron datos (es posible que la base de datos ya tenga registros).");
+            }
+        }
     }
 
     private void HandleStateChanged()
@@ -292,5 +516,6 @@ else
     public void Dispose()
     {
         AppState.OnChange -= HandleStateChanged;
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

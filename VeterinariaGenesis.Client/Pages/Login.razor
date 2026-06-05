@@ -6,86 +6,143 @@
 
 <PageTitle>Iniciar Sesión | Veterinaria Génesis</PageTitle>
 
-<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 sm:p-10 w-full max-w-md animate-fade-in-up">
-    <div class="text-center mb-8">
-        <img class="mx-auto h-24 w-auto drop-shadow-lg" src="images/logo.png" alt="Veterinaria Génesis">
-        <h2 class="mt-6 text-3xl font-extrabold text-white tracking-tight">
-            Bienvenido de vuelta
-        </h2>
-        <p class="mt-2 text-sm text-indigo-200">
-            Ingresa tus credenciales para acceder al sistema
-        </p>
-    </div>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="mb-4 bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-200 text-sm flex items-center">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            @errorMessage
-        </div>
-    }
-
-    <form class="space-y-6" @onsubmit="HandleLogin">
-        <div>
-            <label for="username" class="block text-sm font-medium text-indigo-100">Usuario</label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-user text-indigo-300"></i>
-                </div>
-                <input id="username" name="username" type="text" @bind="username" required 
-                    class="block w-full pl-10 pr-3 py-3 border border-indigo-400/30 rounded-xl bg-indigo-900/40 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all" 
-                    placeholder="Ej: Administrador">
-            </div>
-        </div>
-
-        <div>
-            <label for="password" class="block text-sm font-medium text-indigo-100">Contraseña</label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-lock text-indigo-300"></i>
-                </div>
-                <input id="password" name="password" type="password" @bind="password" required 
-                    class="block w-full pl-10 pr-3 py-3 border border-indigo-400/30 rounded-xl bg-indigo-900/40 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all" 
-                    placeholder="••••••••">
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <input id="remember-me" name="remember-me" type="checkbox" 
-                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-indigo-300 rounded bg-indigo-900/40 border-indigo-400/30">
-                <label for="remember-me" class="ml-2 block text-sm text-indigo-200">
-                    Recordarme
-                </label>
-            </div>
-
-            <div class="text-sm">
-                <a href="#" class="font-medium text-indigo-300 hover:text-indigo-200 transition-colors">
-                    ¿Olvidaste tu contraseña?
-                </a>
-            </div>
-        </div>
-
-        <div>
-            <button type="submit" 
-                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-[1.02]">
-                <i class="fas fa-sign-in-alt mr-2 mt-0.5"></i>
-                Iniciar Sesión
-            </button>
-        </div>
-    </form>
+<div class="flex-1 w-full flex items-center justify-center p-4 min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden select-none">
     
-    <div class="mt-6 text-center text-xs text-indigo-300/60">
-        Veterinaria Génesis System v2.0
+    <!-- Orbes de luz flotantes en el fondo (dinámicos y decorativos) -->
+    <div class="absolute top-10 left-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-[110px] pointer-events-none animate-drift-slow-1"></div>
+    <div class="absolute bottom-10 right-10 w-[30rem] h-[30rem] bg-teal-500/5 rounded-full blur-[130px] pointer-events-none animate-drift-slow-2"></div>
+    <div class="absolute top-1/2 left-1/3 -translate-y-1/2 w-80 h-80 bg-purple-600/5 rounded-full blur-[100px] pointer-events-none animate-drift-slow-2"></div>
+
+    <div class="w-full max-w-md z-10 animate-zoom-in">
+        
+        <!-- Tarjeta de Login Glassmorphism -->
+        <div class="bg-slate-900/60 backdrop-blur-2xl border border-white/10 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] relative transition-all duration-300 @cardShakeClass">
+            
+            <!-- Sección Superior: Logo Animado Dinámico -->
+            <div class="flex flex-col items-center mb-8 select-none">
+                <div class="relative group cursor-pointer mb-4">
+                    <!-- Efecto de halo de luz detrás -->
+                    <div class="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-500 rounded-full blur-md opacity-60 group-hover:opacity-90 group-hover:scale-105 transition duration-500 animate-glow-pulse pointer-events-none"></div>
+                    
+                    <!-- Aro exterior rotativo de gradiente -->
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-indigo-500 via-purple-600 to-teal-500 rounded-full opacity-100 animate-spin-slow pointer-events-none"></div>
+                    
+                    <!-- Contenedor del Logo con fondo oscuro sólido -->
+                    <div class="relative w-28 h-28 bg-slate-950 rounded-full flex items-center justify-center p-2.5 shadow-inner overflow-hidden">
+                        <img class="h-20 w-auto object-contain drop-shadow-md transition-all duration-500 group-hover:scale-110 group-hover:rotate-6" 
+                             src="images/logo.png" 
+                             alt="Veterinaria Génesis Logo">
+                    </div>
+                </div>
+                
+                <h2 class="text-3xl font-extrabold tracking-tight text-white font-sans text-center bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-300">
+                    Veterinaria Génesis
+                </h2>
+                <p class="mt-1.5 text-[9px] font-bold uppercase tracking-[0.25em] text-indigo-400/80 text-center">
+                    Acceso Administrativo
+                </p>
+                <p class="mt-4 text-xs text-slate-400 text-center max-w-[300px] leading-relaxed">
+                    Accede a una herramienta completa para gestionar historias clínicas, ventas, inventarios y finanzas en tiempo real.
+                </p>
+            </div>
+
+            <!-- Alerta de Error -->
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="mb-5 bg-red-500/10 border border-red-500/35 rounded-2xl p-3.5 text-red-200 text-sm flex items-start gap-2.5 animate-zoom-in">
+                    <i class="fas fa-exclamation-circle mt-0.5 text-red-400 text-base"></i>
+                    <span class="flex-1">@errorMessage</span>
+                </div>
+            }
+
+            <!-- Formulario de Acceso -->
+            <form class="space-y-5" @onsubmit="HandleLogin">
+                <div>
+                    <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 select-none">Usuario</label>
+                    <div class="relative rounded-2xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-user transition-colors duration-300"></i>
+                        </div>
+                        <input id="username" name="username" type="text" @bind="username" required disabled="@isLoading"
+                            class="block w-full pl-11 pr-3 py-3 border border-slate-700/50 rounded-xl bg-slate-950/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:bg-slate-950/60 sm:text-sm transition-all duration-300" 
+                            placeholder="Usuario o correo">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2 select-none">
+                        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Contraseña</label>
+                    </div>
+                    <div class="relative rounded-2xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock transition-colors duration-300"></i>
+                        </div>
+                        <input id="password" name="password" type="@passwordInputType" @bind="password" required disabled="@isLoading"
+                            class="block w-full pl-11 pr-10 py-3 border border-slate-700/50 rounded-xl bg-slate-950/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:bg-slate-950/60 sm:text-sm transition-all duration-300" 
+                            placeholder="••••••••">
+                        <button type="button" @onclick="TogglePasswordVisibility" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200">
+                            <i class="fas @(showPassword ? "fa-eye-slash" : "fa-eye")"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 select-none">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" disabled="@isLoading"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500/30 border-slate-700 rounded bg-slate-950/60 border-slate-700/50">
+                        <label for="remember-me" class="ml-2.5 block text-xs text-slate-300 select-none cursor-pointer">
+                            Recordarme en este dispositivo
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" disabled="@isLoading"
+                        class="w-full relative flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-indigo-500 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none">
+                        @if (isLoading)
+                        {
+                            <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                            <span>Accediendo al panel...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-sign-in-alt mr-2 text-indigo-200"></i>
+                            <span>Entrar al Sistema</span>
+                        }
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sección de Acceso Rápido Demo -->
+            <div class="mt-6 pt-6 border-t border-white/5 text-center">
+                <p class="text-xs text-slate-400 mb-3 select-none">¿Quieres evaluar la plataforma de forma rápida?</p>
+                <button type="button" @onclick="AutoFillDemo" disabled="@isLoading"
+                    class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-indigo-500/25 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-bold tracking-wider transition-all duration-300 animate-pulse-glow hover:border-indigo-500/50 active:scale-[0.98]">
+                    <i class="fas fa-user-shield text-indigo-400"></i>
+                    CARGAR ACCESO DEMO
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer con versión del sistema -->
+        <div class="mt-8 text-center text-xs text-slate-600 flex items-center justify-center gap-2 select-none">
+            <span>Veterinaria Génesis System</span>
+            <span class="inline-block w-1 h-1 bg-slate-800 rounded-full"></span>
+            <span class="text-indigo-500/70 font-semibold">v2.2</span>
+        </div>
     </div>
 </div>
-
-
 
 @code {
     private string username = "";
     private string password = "";
     private string errorMessage = "";
+    private bool isLoading = false;
+    private bool isShaking = false;
+    private bool showPassword = false;
+
+    private string cardShakeClass => isShaking ? "animate-shake" : "";
+    private string passwordInputType => showPassword ? "text" : "password";
 
     protected override void OnInitialized()
     {
@@ -96,8 +153,37 @@
         }
     }
 
-    private void HandleLogin()
+    private void TogglePasswordVisibility()
     {
+        showPassword = !showPassword;
+    }
+
+    private async Task HandleLogin()
+    {
+        await ExecuteLogin();
+    }
+
+    private async Task AutoFillDemo()
+    {
+        username = "Administrador";
+        password = "123456";
+        StateHasChanged();
+        // Delay visual corto para que se aprecien las credenciales cargadas
+        await Task.Delay(450);
+        await ExecuteLogin();
+    }
+
+    private async Task ExecuteLogin()
+    {
+        if (isLoading) return;
+        
+        isLoading = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        // Delay de simulación para realzar la estética de seguridad
+        await Task.Delay(850);
+
         var success = AppState.Login(username, password);
         if (success)
         {
@@ -105,7 +191,15 @@
         }
         else
         {
-            errorMessage = "Usuario o contraseña incorrectos. Usa Administrador / 123456";
+            isLoading = false;
+            errorMessage = "Credenciales incorrectas. Para evaluación usa Administrador / 123456";
+            isShaking = true;
+            StateHasChanged();
+            
+            // Finalizar la sacudida después de que termine la animación CSS (400ms)
+            await Task.Delay(400);
+            isShaking = false;
+            StateHasChanged();
         }
     }
 }
