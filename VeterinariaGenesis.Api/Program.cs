@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using VeterinariaGenesis.Application;
 using VeterinariaGenesis.Infrastructure;
 
@@ -22,16 +23,27 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// EL ORDEN ES CRÍTICO EN .NET 10
-app.UseRouting();
+// 1) Archivos estáticos PRIMERO (antes del routing)
+// Necesario para que _framework/blazor.webassembly.js sea encontrado
+app.UseDefaultFiles();
 
+// Registrar MIME types para archivos Blazor WASM
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".wasm"]  = "application/wasm";
+provider.Mappings[".blat"]  = "application/octet-stream";
+provider.Mappings[".dat"]   = "application/octet-stream";
+provider.Mappings[".dll"]   = "application/octet-stream";
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider
+});
+
+// 2) Luego routing y CORS
+app.UseRouting();
 app.UseCors("AllowAll");
 
-// Servir archivos estáticos del Cliente Blazor WASM
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// Middleware de diagnóstico para ver errores reales en la consola de Railway
+// 3) Diagnóstico de errores
 app.Use(async (context, next) =>
 {
     try
@@ -49,7 +61,7 @@ app.Use(async (context, next) =>
 app.UseAuthorization();
 app.MapControllers();
 
-// Fallback: todas las rutas desconocidas van al index.html del Cliente
+// 4) Fallback: cualquier ruta desconocida → index.html (necesario para Blazor routing)
 app.MapFallbackToFile("index.html");
 
 app.Run();
