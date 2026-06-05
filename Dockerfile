@@ -21,6 +21,8 @@ COPY . .
 FROM build AS publish_client
 WORKDIR "/src/VeterinariaGenesis.Client"
 RUN dotnet publish "VeterinariaGenesis.Client.csproj" -c Release -o /app/client_publish
+# .NET 10 le pone un hash al nombre, copiamos para que coincida con el index.html
+RUN cp /app/client_publish/wwwroot/_framework/blazor.webassembly.*.js /app/client_publish/wwwroot/_framework/blazor.webassembly.js
 
 # Publicar API
 FROM build AS publish_api
