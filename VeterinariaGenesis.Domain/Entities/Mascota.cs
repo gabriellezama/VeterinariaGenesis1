@@ -15,7 +15,7 @@ namespace VeterinariaGenesis.Domain.Entities
         public string Sexo { get; set; } = string.Empty;
         public decimal Peso { get; set; }
         public string Color { get; set; } = string.Empty;
-        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
-        public Guid ClienteId { get; set; }
+        public string FotoBase64 { get; set; } = string.Empty; // Imagen de la mascota en base64
+        public Guid ClienteId { get; set; }                    // Relación con el cliente dueño
     }
 }
