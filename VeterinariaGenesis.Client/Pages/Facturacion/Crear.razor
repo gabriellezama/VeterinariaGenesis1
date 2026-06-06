@@ -1,4 +1,5 @@
 @page "/facturacion/crear"
+@implements IDisposable
 @using VeterinariaGenesis.Client.Services
 @using VeterinariaGenesis.Domain.Entities
 @inject AppStateService AppState
@@ -266,9 +267,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        AppState.OnChange += StateHasChanged;
         await AppState.LoadClientesAsync();
         await AppState.LoadTrabajadoresAsync();
         await AppState.LoadProductosAsync();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
     }
 
     private void AgregarItem()
