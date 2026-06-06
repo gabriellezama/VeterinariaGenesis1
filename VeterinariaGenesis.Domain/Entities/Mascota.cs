@@ -19,5 +19,14 @@ namespace VeterinariaGenesis.Domain.Entities
         
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid ClienteId { get; set; }                    // Relación con el cliente dueño
+
+        // Campos de salud preventiva
+        public bool TieneVacunas { get; set; }
+        public string DetalleVacunas { get; set; } = string.Empty;
+        public DateTime? FechaProximaVacuna { get; set; }
+
+        public bool EstaDesparasitado { get; set; }
+        public string DetalleDesparasitante { get; set; } = string.Empty;
+        public DateTime? FechaProximaDesparasitacion { get; set; }
     }
 }

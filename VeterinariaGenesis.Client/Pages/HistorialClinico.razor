@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                         <div class="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50">
                             <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">Especie</p>
                             <p class="font-bold text-slate-700">@mascota.Especie</p>
@@ -81,6 +81,43 @@
                             <p class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1">Color</p>
                             <p class="font-bold text-slate-700">@(string.IsNullOrEmpty(mascota.Color) ? "N/A" : mascota.Color)</p>
                         </div>
+                    </div>
+
+                    <!-- Badges de Salud Preventiva -->
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        @if (mascota.TieneVacunas)
+                        {
+                            <div class="bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-shield-alt text-emerald-500"></i> Vacunado
+                                @if (!string.IsNullOrEmpty(mascota.DetalleVacunas))
+                                {
+                                    <span class="font-normal border-l border-emerald-200 pl-2">@mascota.DetalleVacunas</span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-shield-alt opacity-50"></i> Sin Vacunas
+                            </div>
+                        }
+
+                        @if (mascota.EstaDesparasitado)
+                        {
+                            <div class="bg-amber-50 text-amber-600 border border-amber-100 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-bug text-amber-500"></i> Desparasitado
+                                @if (!string.IsNullOrEmpty(mascota.DetalleDesparasitante))
+                                {
+                                    <span class="font-normal border-l border-amber-200 pl-2">@mascota.DetalleDesparasitante</span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <i class="fas fa-bug opacity-50"></i> Sin Desparasitar
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -435,6 +472,47 @@
                 <div>
                     <label class="block text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Color</label>
                     <input type="text" @bind="mascota.Color" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all" placeholder="Ej: Blanco con manchas negras..." />
+                </div>
+
+                <div class="border-t border-slate-100 pt-6 mt-2">
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-4"><i class="fas fa-heartbeat text-rose-500 mr-1"></i> Salud Preventiva</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Vacunas -->
+                        <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/50">
+                            <label class="flex items-center gap-2 cursor-pointer mb-3">
+                                <input type="checkbox" @bind="mascota.TieneVacunas" class="w-4 h-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
+                                <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">¿Vacunado?</span>
+                            </label>
+                            @if (mascota.TieneVacunas)
+                            {
+                                <div class="space-y-3">
+                                    <input type="text" @bind="mascota.DetalleVacunas" class="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-xs" placeholder="Vacunas aplicadas..." />
+                                    <div>
+                                        <label class="block text-[0.6rem] font-bold text-emerald-600/80 uppercase mb-1">Próxima Dosis</label>
+                                        <input type="date" @bind="mascota.FechaProximaVacuna" class="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-xs" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Desparasitación -->
+                        <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100/50">
+                            <label class="flex items-center gap-2 cursor-pointer mb-3">
+                                <input type="checkbox" @bind="mascota.EstaDesparasitado" class="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500" />
+                                <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">¿Desparasitado?</span>
+                            </label>
+                            @if (mascota.EstaDesparasitado)
+                            {
+                                <div class="space-y-3">
+                                    <input type="text" @bind="mascota.DetalleDesparasitante" class="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-xs" placeholder="Producto aplicado..." />
+                                    <div>
+                                        <label class="block text-[0.6rem] font-bold text-amber-600/80 uppercase mb-1">Próxima Dosis</label>
+                                        <input type="date" @bind="mascota.FechaProximaDesparasitacion" class="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-xs" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 
