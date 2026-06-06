@@ -18,7 +18,20 @@
     </button>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+@if (!AppState.Trabajadores.Any())
+{
+    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-8 text-center mt-6">
+        <i class="fas fa-user-md text-indigo-300 text-5xl mb-4"></i>
+        <h3 class="text-xl font-bold text-indigo-900 mb-2">No hay trabajadores registrados</h3>
+        <p class="text-indigo-700 mb-6 max-w-md mx-auto">Aún no has agregado a ningún miembro del personal médico o administrativo. Comienza haciendo clic en el botón "Nuevo Trabajador".</p>
+        <button @onclick='() => NavigationManager.NavigateTo("trabajadores/crear")' class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow font-medium transition-colors">
+            Registrar mi primer trabajador
+        </button>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @foreach (var trabajador in AppState.Trabajadores)
     {
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
@@ -59,6 +72,7 @@
         </div>
     }
 </div>
+}
 
 @code {
     protected override async Task OnInitializedAsync()

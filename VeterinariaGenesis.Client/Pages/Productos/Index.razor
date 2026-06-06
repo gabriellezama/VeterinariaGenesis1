@@ -18,63 +18,77 @@
     </button>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                    <th class="px-6 py-4 font-medium">Producto</th>
-                    <th class="px-6 py-4 font-medium">Precio Compra</th>
-                    <th class="px-6 py-4 font-medium">Precio Venta</th>
-                    <th class="px-6 py-4 font-medium">Stock</th>
-                    <th class="px-6 py-4 font-medium">Estado</th>
-                    <th class="px-6 py-4 font-medium text-right">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 text-sm">
-                @foreach (var producto in AppState.Productos)
-                {
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="font-medium text-gray-900">@producto.Nombre</div>
-                            <div class="text-xs text-gray-500">@producto.Descripcion</div>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">
-                            $@producto.PrecioCompra.ToString("0.00")
-                        </td>
-                        <td class="px-6 py-4 font-medium text-gray-900">
-                            $@producto.PrecioVenta.ToString("0.00")
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="font-bold @(producto.Stock < 10 ? "text-red-600" : "text-gray-700")">
-                                @producto.Stock unds.
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if (producto.Stock == 0)
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Agotado</span>
-                            }
-                            else if (producto.Stock < 15)
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Stock Bajo</span>
-                            }
-                            else
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">En Stock</span>
-                            }
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <button @onclick='() => NavigationManager.NavigateTo($"productos/editar/{producto.Id}")' class="text-blue-600 hover:text-blue-900 p-2" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+@if (!AppState.Productos.Any())
+{
+    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-8 text-center mt-6">
+        <i class="fas fa-boxes text-indigo-300 text-5xl mb-4"></i>
+        <h3 class="text-xl font-bold text-indigo-900 mb-2">Inventario Vacío</h3>
+        <p class="text-indigo-700 mb-6 max-w-md mx-auto">No tienes productos, medicamentos ni accesorios registrados en tu inventario. Comienza agregando tu primer producto.</p>
+        <button @onclick='() => NavigationManager.NavigateTo("productos/crear")' class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow font-medium transition-colors">
+            Añadir mi primer producto
+        </button>
     </div>
-</div>
+}
+else
+{
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <th class="px-6 py-4 font-medium">Producto</th>
+                        <th class="px-6 py-4 font-medium">Precio Compra</th>
+                        <th class="px-6 py-4 font-medium">Precio Venta</th>
+                        <th class="px-6 py-4 font-medium">Stock</th>
+                        <th class="px-6 py-4 font-medium">Estado</th>
+                        <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @foreach (var producto in AppState.Productos)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900">@producto.Nombre</div>
+                                <div class="text-xs text-gray-500">@producto.Descripcion</div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                $@producto.PrecioCompra.ToString("0.00")
+                            </td>
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                $@producto.PrecioVenta.ToString("0.00")
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-bold @(producto.Stock < 10 ? "text-red-600" : "text-gray-700")">
+                                    @producto.Stock unds.
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (producto.Stock == 0)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Agotado</span>
+                                }
+                                else if (producto.Stock < 15)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Stock Bajo</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">En Stock</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button @onclick='() => NavigationManager.NavigateTo($"productos/editar/{producto.Id}")' class="text-blue-600 hover:text-blue-900 p-2" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
 
 @code {
     protected override async Task OnInitializedAsync()

@@ -41,54 +41,68 @@
                 <p class="text-2xl font-bold text-gray-900">$@AppState.Facturas.Where(f => f.FechaEmision.Date == DateTime.Today).Sum(f => f.Total).ToString("0.00")</p>
             </div>
         </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                        <th class="px-6 py-4 font-medium">Nº Factura</th>
-                        <th class="px-6 py-4 font-medium">Fecha</th>
-                        <th class="px-6 py-4 font-medium">Cliente</th>
-                        <th class="px-6 py-4 font-medium">Atendido por</th>
-                        <th class="px-6 py-4 font-medium">Total</th>
-                        <th class="px-6 py-4 font-medium text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-sm">
-                    @foreach (var factura in AppState.Facturas.OrderByDescending(f => f.FechaEmision))
-                    {
-                        var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == factura.ClienteId);
-                        var trabajador = AppState.Trabajadores.FirstOrDefault(t => t.Id == factura.TrabajadorId);
-                        
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-indigo-600">
-                                @factura.NumeroFactura
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">
-                                @factura.FechaEmision.ToString("dd/MM/yyyy HH:mm")
-                            </td>
-                            <td class="px-6 py-4 text-gray-900">
-                                @(cliente != null ? $"{cliente.Nombres} {cliente.Apellidos}" : "Desconocido")
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">
-                                @(trabajador != null ? $"{trabajador.Nombres} {trabajador.Apellidos}" : "Desconocido")
-                            </td>
-                            <td class="px-6 py-4 font-bold text-gray-900">
-                                $@factura.Total.ToString("0.00")
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <button @onclick="() => ImprimirFactura(factura)" class="text-blue-600 hover:text-blue-900 p-2" title="Imprimir/Ver">
-                                    <i class="fas fa-print"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    </div>    @if (!AppState.Facturas.Any())
+    {
+        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-8 text-center mt-6">
+            <div class="h-20 w-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-400 text-4xl">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <h3 class="text-xl font-bold text-indigo-900 mb-2">No hay facturas registradas</h3>
+            <p class="text-indigo-700 mb-6 max-w-md mx-auto">Aún no se ha realizado ninguna venta o cobro de servicio. Las facturas que generes aparecerán aquí.</p>
+            <button @onclick='() => NavigationManager.NavigateTo("facturacion/nueva")' class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow font-medium transition-colors">
+                Crear mi primera factura
+            </button>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="px-6 py-4 font-medium">Nº Factura</th>
+                            <th class="px-6 py-4 font-medium">Fecha</th>
+                            <th class="px-6 py-4 font-medium">Cliente</th>
+                            <th class="px-6 py-4 font-medium">Atendido por</th>
+                            <th class="px-6 py-4 font-medium">Total</th>
+                            <th class="px-6 py-4 font-medium text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-sm">
+                        @foreach (var factura in AppState.Facturas.OrderByDescending(f => f.FechaEmision))
+                        {
+                            var cliente = AppState.Clientes.FirstOrDefault(c => c.Id == factura.ClienteId);
+                            var trabajador = AppState.Trabajadores.FirstOrDefault(t => t.Id == factura.TrabajadorId);
+                            
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-indigo-600">
+                                    @factura.NumeroFactura
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">
+                                    @factura.FechaEmision.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td class="px-6 py-4 text-gray-900">
+                                    @(cliente != null ? $"{cliente.Nombres} {cliente.Apellidos}" : "Desconocido")
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">
+                                    @(trabajador != null ? $"{trabajador.Nombres} {trabajador.Apellidos}" : "Desconocido")
+                                </td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    $@factura.Total.ToString("0.00")
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button @onclick="() => ImprimirFactura(factura)" class="text-blue-600 hover:text-blue-900 p-2" title="Imprimir/Ver">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>
 
 @if (facturaAImprimir != null)
