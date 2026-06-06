@@ -334,6 +334,11 @@
                                                      <i class="fab fa-whatsapp"></i> Enviar WhatsApp
                                                  </button>
                                              }
+                                            <button @onclick="() => EditarCita(cita.Id)"
+                                                    class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center border border-indigo-100/50 dark:border-indigo-900/40" 
+                                                    title="Editar cita">
+                                                <i class="fas fa-pencil-alt text-sm"></i>
+                                            </button>
                                             <button @onclick="() => EliminarCita(cita.Id)"
                                                     class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-500 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border border-rose-100/50 dark:border-rose-900/40" 
                                                     title="Eliminar cita">
@@ -357,7 +362,7 @@
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-zoom-in">
             <div class="p-6 bg-indigo-600 text-white flex justify-between items-center">
-                <h3 class="text-xl font-black"><i class="fas fa-calendar-plus mr-2"></i> Agendar Cita</h3>
+                <h3 class="text-xl font-black"><i class="fas @(isEditing ? "fa-pencil-alt" : "fa-calendar-plus") mr-2"></i> @(isEditing ? "Editar Cita" : "Agendar Cita")</h3>
                 <button @onclick="CerrarModal" class="text-2xl font-bold bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors">&times;</button>
             </div>
 
@@ -452,7 +457,7 @@
 
             <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <button @onclick="CerrarModal" class="px-6 py-2.5 font-bold text-slate-400 hover:text-slate-600 transition-colors">CANCELAR</button>
-                <button @onclick="GuardarCita" class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">AGENDAR</button>
+                <button @onclick="GuardarCita" class="px-8 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">@(isEditing ? "GUARDAR CAMBIOS" : "AGENDAR")</button>
             </div>
         </div>
     </div>
@@ -494,6 +499,7 @@
 
     // Modal
     private bool mostrarModal = false;
+    private bool isEditing = false;
     private Cita nuevaCita = new();
     private DateTime fechaCita = DateTime.Today;
     private TimeOnly horaCita = new TimeOnly(9, 0);
@@ -576,18 +582,51 @@
 
     private void AbrirModalCrear()
     {
+        isEditing = false;
         nuevaCita = new Cita
         {
+            Id = Guid.NewGuid(),
             ClienteId = Guid.Empty,
             MascotaId = Guid.Empty,
             TrabajadorId = Guid.Empty,
-            Motivo = ""
+            Motivo = "",
+            Estado = "Pendiente"
         };
         fechaCita = selectedDate;
         horaCita = new TimeOnly(9, 0);
         validationError = "";
         filteredMascotas.Clear();
         mostrarModal = true;
+    }
+
+    private void EditarCita(Guid id)
+    {
+        var citaExistente = AppState.Citas.FirstOrDefault(c => c.Id == id);
+        if (citaExistente != null)
+        {
+            isEditing = true;
+            nuevaCita = new Cita
+            {
+                Id = citaExistente.Id,
+                ClienteId = citaExistente.ClienteId,
+                MascotaId = citaExistente.MascotaId,
+                TrabajadorId = citaExistente.TrabajadorId,
+                Motivo = citaExistente.Motivo,
+                Estado = citaExistente.Estado,
+                FechaHora = citaExistente.FechaHora,
+                NotificadoWhatsapp = citaExistente.NotificadoWhatsapp,
+                FechaNotificacion = citaExistente.FechaNotificacion,
+                Notas = citaExistente.Notas
+            };
+            
+            fechaCita = citaExistente.FechaHora.Date;
+            horaCita = TimeOnly.FromDateTime(citaExistente.FechaHora);
+            
+            filteredMascotas = AppState.Mascotas.Where(m => m.ClienteId == citaExistente.ClienteId).ToList();
+            
+            validationError = "";
+            mostrarModal = true;
+        }
     }
 
     private void CerrarModal()
@@ -640,7 +679,16 @@
         // Combinar fecha y hora
         nuevaCita.FechaHora = fechaCita.Date.Add(horaCita.ToTimeSpan());
 
-        bool exito = await AppState.AddCitaAsync(nuevaCita);
+        bool exito;
+        if (isEditing)
+        {
+            exito = await AppState.UpdateCitaAsync(nuevaCita);
+        }
+        else
+        {
+            exito = await AppState.AddCitaAsync(nuevaCita);
+        }
+        
         if (exito)
         {
             mostrarModal = false;
