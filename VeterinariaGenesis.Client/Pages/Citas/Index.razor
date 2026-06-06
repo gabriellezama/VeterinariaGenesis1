@@ -680,8 +680,28 @@
         var petName = GetMascotaNombre(cita.MascotaId);
         var vetName = GetTrabajadorNombre(cita.TrabajadorId);
 
-        // Generar mensaje
-        var msg = $"Hola {clientName}, te recordamos que {petName} tiene una cita programada en Veterinaria Genesis el {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:hh:mm tt} con el Dr. {vetName} para {cita.Motivo}. Dir: Semaforos de la cañada 10 vara al este. Tel: 8878-2492.";
+        // Generar mensaje inteligente
+        string motivoLower = cita.Motivo.ToLower();
+        string textoMotivo;
+        
+        if (motivoLower.Contains("vacuna") || motivoLower.Contains("desparasita"))
+        {
+            textoMotivo = $"su aplicación de *{cita.Motivo.Trim()}*";
+        }
+        else if (motivoLower.Contains("cirugia") || motivoLower.Contains("cirugía") || motivoLower.Contains("operacion") || motivoLower.Contains("operación"))
+        {
+            textoMotivo = $"su procedimiento de *{cita.Motivo.Trim()}*";
+        }
+        else if (motivoLower.Contains("consulta") || motivoLower.Contains("chequeo") || motivoLower.Contains("revision") || motivoLower.Contains("revisión"))
+        {
+            textoMotivo = $"su *{cita.Motivo.Trim()}*";
+        }
+        else
+        {
+            textoMotivo = $"su cita para *{cita.Motivo.Trim()}*";
+        }
+
+        var msg = $"Hola *{clientName}*, te escribimos de *Veterinaria Génesis* para recordarte que mañana {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:hh:mm tt}, {petName} tiene agendada {textoMotivo} con el Dr. {vetName}.\n\nTe recomendamos llegar 5 minutos antes. ¡Los esperamos!\n\n📍 Dir: Semáforos de la cañada 10 varas al este.\n📞 Tel: 8878-2492.";
         var encodedMsg = Uri.EscapeDataString(msg);
 
         bool exito = await AppState.SendManualNotificationAsync(citaId);

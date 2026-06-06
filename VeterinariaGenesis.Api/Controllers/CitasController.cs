@@ -100,8 +100,28 @@ namespace VeterinariaGenesis.Api.Controllers
             string clienteNombre = $"{cliente.Nombres} {cliente.Apellidos}".Trim();
             if (string.IsNullOrEmpty(clienteNombre)) clienteNombre = cliente.DisplayNombres;
 
-            // Formatear mensaje
-            string mensaje = $"Hola {clienteNombre}, te recordamos que {mascotaNombre} tiene una cita programada en Veterinaria Génesis el {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:hh:mm tt} con el Dr. {veterinarioNombre} para {cita.Motivo}. Dir: Semaforos de la cañada 10 vara al este. Tel: 8878-2492.";
+            // Formatear mensaje inteligente
+            string motivoLower = cita.Motivo.ToLower();
+            string textoMotivo;
+            
+            if (motivoLower.Contains("vacuna") || motivoLower.Contains("desparasita"))
+            {
+                textoMotivo = $"su aplicación de *{cita.Motivo.Trim()}*";
+            }
+            else if (motivoLower.Contains("cirugia") || motivoLower.Contains("cirugía") || motivoLower.Contains("operacion") || motivoLower.Contains("operación"))
+            {
+                textoMotivo = $"su procedimiento de *{cita.Motivo.Trim()}*";
+            }
+            else if (motivoLower.Contains("consulta") || motivoLower.Contains("chequeo") || motivoLower.Contains("revision") || motivoLower.Contains("revisión"))
+            {
+                textoMotivo = $"su *{cita.Motivo.Trim()}*";
+            }
+            else
+            {
+                textoMotivo = $"su cita para *{cita.Motivo.Trim()}*";
+            }
+
+            string mensaje = $"Hola *{clienteNombre}*, te escribimos de *Veterinaria Génesis* para recordarte que mañana {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:hh:mm tt}, {mascotaNombre} tiene agendada {textoMotivo} con el Dr. {veterinarioNombre}.\n\nTe recomendamos llegar 5 minutos antes. ¡Los esperamos!\n\n📍 Dir: Semáforos de la cañada 10 varas al este.\n📞 Tel: 8878-2492.";
 
             var log = new NotificacionWhatsappLog
             {
