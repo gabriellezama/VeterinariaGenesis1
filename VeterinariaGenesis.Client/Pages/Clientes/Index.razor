@@ -119,8 +119,15 @@
                             {
                                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" @onclick='() => Nav.NavigateTo($"historial-clinico/{mascota.Id}")'>
                                     <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm">
-                                            <i class="fas @(mascota.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat") text-xl"></i>
+                                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm overflow-hidden">
+                                            @if (!string.IsNullOrEmpty(mascota.FotoBase64))
+                                            {
+                                                <img src="@mascota.FotoBase64" class="w-full h-full object-cover" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fas @(mascota.Especie?.ToLower() == "perro" ? "fa-dog" : "fa-cat") text-xl"></i>
+                                            }
                                         </div>
                                         <div>
                                             <p class="font-bold text-slate-800">@mascota.Nombre</p>
