@@ -24,6 +24,7 @@ namespace VeterinariaGenesis.Infrastructure
             services.AddSingleton<CitaRepository>();
             services.AddSingleton<NotificacionWhatsappLogRepository>();
             services.AddSingleton<GastoRepository>();
+            services.AddSingleton<PedidoRepository>();
             
             return services;
         }

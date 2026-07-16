@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VeterinariaGenesis.Domain.Entities;
 using VeterinariaGenesis.Infrastructure.Repositories;
@@ -112,6 +113,14 @@ namespace VeterinariaGenesis.Api.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+
+        [HttpGet("tienda")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetForStore()
+        {
+            var productos = await _repo.GetAllAsync();
+            return Ok(productos.Where(p => p.Stock > 0));
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Producto producto)

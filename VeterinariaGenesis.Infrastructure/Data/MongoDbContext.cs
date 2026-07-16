@@ -27,5 +27,6 @@ namespace VeterinariaGenesis.Infrastructure.Data
         public IMongoCollection<Cita> Citas => _database.GetCollection<Cita>("Citas");
         public IMongoCollection<NotificacionWhatsappLog> NotificacionWhatsappLogs => _database.GetCollection<NotificacionWhatsappLog>("NotificacionWhatsappLogs");
         public IMongoCollection<Gasto> Gastos => _database.GetCollection<Gasto>("Gastos");
+        public IMongoCollection<Pedido> Pedidos => _database.GetCollection<Pedido>("Pedidos");
     }
 }

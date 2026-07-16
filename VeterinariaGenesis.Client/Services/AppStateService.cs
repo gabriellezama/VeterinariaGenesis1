@@ -20,6 +20,8 @@ namespace VeterinariaGenesis.Client.Services
         public List<Producto> Productos { get; private set; } = new();
         public List<Factura> Facturas { get; private set; } = new();
         public List<Cita> Citas { get; private set; } = new();
+        public List<Pedido> Pedidos { get; private set; } = new();
+        public List<DetallePedido> Carrito { get; private set; } = new();
         public List<NotificacionWhatsappLog> NotificacionLogs { get; private set; } = new();
         public List<Gasto> Gastos { get; private set; } = new();
 
@@ -930,6 +932,65 @@ namespace VeterinariaGenesis.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error seeding data: {ex.Message}");
+                return false;
+            }
+        }
+
+        // ============== PEDIDOS (TIENDA EN LÍNEA) ==============
+        public async Task LoadPedidosAsync()
+        {
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<Pedido>>("api/Pedidos");
+                if (result != null)
+                {
+                    Pedidos = result;
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando pedidos: {ex.Message}");
+            }
+        }
+
+        public async Task<bool> AddPedidoAsync(Pedido pedido)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync("api/Pedidos", pedido);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadPedidosAsync();
+                    await LoadProductosAsync(); // Refrescar inventario
+                    return true;
+                }
+                LastErrorMessage = await response.Content.ReadAsStringAsync();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creando pedido: {ex.Message}");
+                LastErrorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdatePedidoEstadoAsync(Guid id, string nuevoEstado)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/Pedidos/{id}/estado", nuevoEstado);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadPedidosAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error actualizando pedido: {ex.Message}");
                 return false;
             }
         }
